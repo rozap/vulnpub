@@ -1,0 +1,13 @@
+%{"cowboy": {:git, "git://github.com/extend/cowboy.git", "fd423eb1705ec8afb867554e02d0ef5a998f28c6", []},
+  "cowlib": {:git, "git://github.com/extend/cowlib.git", "e2ffefe828b918486e2cd76e44c54ae9b62c616e", [ref: "0.6.2"]},
+  "decimal": {:package, "0.2.2"},
+  "ecto": {:package, "0.2.2"},
+  "ex_conf": {:package, "0.1.2"},
+  "inflex": {:package, "0.2.4"},
+  "jazz": {:package, "0.1.2"},
+  "json": {:git, "git://github.com/cblage/elixir-json.git", "f386b18431bbc0a0b6d38519ec2f256b5a040668", []},
+  "phoenix": {:package, "0.3.0"},
+  "plug": {:package, "0.5.1"},
+  "poolboy": {:package, "1.2.1"},
+  "postgrex": {:package, "0.5.2"},
+  "ranch": {:git, "git://github.com/extend/ranch.git", "3189ef2d47843945efc96c224963380462c33d40", [ref: "0.10.0"]}}

@@ -1,0 +1,2 @@
+defmodule ExConf do
+end
