@@ -2,7 +2,6 @@ defprotocol Resource do
   @fallback_to_any true
   def to_json(_)
   def resp(_)
-  def from_json(_)
 end
 
 

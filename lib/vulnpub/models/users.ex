@@ -1,19 +1,22 @@
 defmodule Models.User do
   use Ecto.Model
-
+  
   schema "users" do
-    field :username
-    field :password
-    field :email
+    field :username, :string
+    field :password, :string
+    field :email, :string
     field :created, :datetime
     field :modified, :datetime
   end
 
-end
+  def adapt(keylist) do
+    :io.format("KEYLIST CALLED ~p~n", [keylist])
+    keylist
+  end
 
 
-defmodule Models.User.Queries do
-  
 
 
+
+  use Vulnpub.Model
 end

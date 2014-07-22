@@ -11,10 +11,7 @@ defmodule Controllers.Users do
   end
 
   def create(conn, params) do
-    :io.format("PARAMS ~p~n", [params])
-    user = Resource.from_json(params)
-  	user = User.__schema__(:allocate, params)
-  	user = Repo.insert(user)
-  	json conn, Resource.resp(user)
+    user = User.allocate(params) |> Repo.insert
+    json conn, Resource.resp(user)
   end
 end
