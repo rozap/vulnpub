@@ -1,20 +1,12 @@
-defmodule Models.Monitors do
+defmodule Models.Monitor do
   use Ecto.Model
 
   schema "monitors" do
     field :manifest
     field :name
-    belongs_to :username, Models.User
+    belongs_to :user, Models.User
     field :created, :datetime
     field :modified, :datetime
 
   end
-
-end
-
-
-defmodule Models.Monitors.Queries do
-  
-
-
 end

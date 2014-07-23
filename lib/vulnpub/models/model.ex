@@ -3,7 +3,6 @@ defmodule Vulnpub.Model do
   defmacro __using__(_opts) do
     quote do
       def adapt(keylist) do
-        :io.format("Keylist :((~n", [])
         keylist
       end
 

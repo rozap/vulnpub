@@ -10,7 +10,8 @@ defmodule Models.User do
   end
 
   def adapt(keylist) do
-    :io.format("KEYLIST CALLED ~p~n", [keylist])
+    #Hash and salt the password here and return the adapted result
+    #in the form of a keylist
     keylist
   end
 
