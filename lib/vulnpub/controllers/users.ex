@@ -1,6 +1,7 @@
 defmodule Controllers.Users do
   use Phoenix.Controller
-  use Controllers.Rest, [model: Models.User]
+  require Controllers.Rest
+  use Controllers.Rest, [resources: Resources.User]
 
 
 end

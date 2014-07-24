@@ -1,52 +1,25 @@
-defprotocol Resource do
-  @fallback_to_any true
-  def to_json(_)
-  def resp(_)
-end
+defmodule Resources.Resource do
 
-
-defprotocol Serializer do
-  @fallback_to_any true
-  def to_serializable(_)
-end
-
-
-
-defimpl Resource, for: List do
-  def to_json(results) do
-    {:ok, json} = JSON.encode Enum.map(results, fn x -> Serializer.to_serializable(x) end)
-    json
+  def default_for(:exclude) do 
+    []
   end
 
-  def resp(result) do
-    Serializer.to_serializable(result)
-      |> Resource.to_json
-  end
-end
-
-
-defimpl Serializer, for: List do
-  def to_serializable(items) do
-    items
-  end
-end
-
-
-defimpl Resource, for: Any do
-  def to_json(serializable) do
-    {:ok, json} = JSON.encode(serializable)
-    json
+  def default_opts(options) do
+    Enum.map(options, fn {key, val} -> if val == nil, do: {key, default_for(val)}, else: {key, val} end)
   end
 
-  def resp(model) do
-    Serializer.to_serializable(model)
-      |> Resource.to_json
+
+  defmacro __using__(options) do
+    all_opts = Resources.Resource.default_opts(options)
+
+    quote do
+      def resp(thing) do
+        :io.format("making resp for thing: ~p ~n", [thing])
+        Resources.Serializer.to_json(thing, model, unquote(all_opts))
+      end
+    end
   end
-end
 
 
-defimpl Serializer, for: Any do
-  def to_serializable(model) do
-    model
-  end
+
 end
