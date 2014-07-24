@@ -1,4 +1,5 @@
 defmodule Resources.Resource do
+  use Phoenix.Controller
 
   def default_for(:exclude) do 
     []
@@ -13,13 +14,24 @@ defmodule Resources.Resource do
     all_opts = Resources.Resource.default_opts(options)
 
     quote do
+
+      import Ecto.Query, only: [from: 2]
+
+      def index(conn, params) do
+        query = from u in model, select: u
+        result = Repo.all(query)
+        json conn, resp(result)
+      end
+
+      def create(conn, params) do
+        thing = model.allocate(params) |> Repo.insert
+        json conn, resp(thing)
+      end   
+
+
       def resp(thing) do
-        :io.format("making resp for thing: ~p ~n", [thing])
         Resources.Serializer.to_json(thing, model, unquote(all_opts))
       end
     end
   end
-
-
-
 end

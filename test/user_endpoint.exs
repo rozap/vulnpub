@@ -1,6 +1,6 @@
 
 
-defmodule Test.DBTest do
+defmodule Test.UserTest do
   use ExUnit.Case
   use PlugHelper
 

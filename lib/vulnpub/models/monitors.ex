@@ -9,4 +9,13 @@ defmodule Models.Monitor do
     field :modified, :datetime
 
   end
+
+
+
+  def adapt(keylist) do
+    keylist
+  end
+
+
+  use Vulnpub.Model
 end
