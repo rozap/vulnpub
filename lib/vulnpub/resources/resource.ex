@@ -20,6 +20,11 @@ defmodule Resources.Resource do
 
       import Ecto.Query, only: [from: 2]
 
+
+      def get_id(params) do
+        String.to_integer(params["id"])
+      end
+
       def index(conn, params) do
         query = from u in model, select: u
         result = Repo.all(query)
@@ -32,16 +37,17 @@ defmodule Resources.Resource do
       end
 
       def show(conn, params) do
-
-        :io.format("PARAMS ~p ~p~n", [unquote(all_opts), params[unquote(all_opts)[:id_attr]]])
-        id = String.to_integer(params["id"])
+        id = get_id(params)
         query = from u in model, where: u.id == ^id, select: u
         result = Repo.all(query)
         json conn, resp(result)
       end
 
       def update(conn, params) do
-
+        id = get_id(params)
+        row = model.allocate(params)
+        :ok = Ecto.Model.put_primary_key(row, id) |> Repo.update
+        json conn, resp(row)
       end
 
 

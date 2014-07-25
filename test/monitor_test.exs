@@ -4,12 +4,19 @@ defmodule Test.MonitorTest do
   use ExUnit.Case
   use PlugHelper
 
-  test "can create a monitor" do
+
+  defp create do
     {conn, req_body} = simulate_json(Vulnpub.Router, :post, "api/v1/monitors", "test/json/new_monitor.json")
     {:ok, resp_body} = JSON.decode(conn.resp_body)
     assert Dict.get(req_body, "manifest") == Dict.get(resp_body, "manifest")
     assert Dict.get(req_body, "name") == Dict.get(resp_body, "name")
-    assert Dict.get(resp_body, "id") != nil
+    id = Dict.get(resp_body, "id")
+    assert id != nil
+    id
+  end
+
+  test "can create a monitor" do
+    create()
   end
 
   test "can get a list of monitors" do
@@ -18,5 +25,11 @@ defmodule Test.MonitorTest do
     assert length(resp_body) > 0
   end
 
+
+  test "can update a monitor" do
+    id = create()
+    {conn, req_body} = simulate_json(Vulnpub.Router, :put, "api/v1/monitors/#{id}", "test/json/update_monitor.json")
+    {:ok, resp_body} = JSON.decode(conn.resp_body)
+  end
 
 end

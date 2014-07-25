@@ -6,8 +6,8 @@ defmodule Vulnpub.Router do
 
   scope path: "api" do
     scope path: "v1" do
-      resources "users", Resources.User, only: [:index, :show, :create]
-      resources "monitors", Resources.Monitor, only: [:index, :show, :create]
+      resources "users", Resources.User, except: []
+      resources "monitors", Resources.Monitor, except: []
 
     end
   end
