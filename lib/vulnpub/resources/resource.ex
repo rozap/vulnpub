@@ -1,13 +1,16 @@
 defmodule Resources.Resource do
   use Phoenix.Controller
 
-  def default_for(:exclude) do 
-    []
-  end
+  defp opts, do: [:exclude, :id_attr]
+  def default_for(:exclude), do: []
+  def default_for(:id_attr), do: "id"
+
+
 
   def default_opts(options) do
-    Enum.map(options, fn {key, val} -> if val == nil, do: {key, default_for(val)}, else: {key, val} end)
+    Enum.map(opts, fn key -> if options[key] == nil, do: {key, default_for(key)}, else: {key, options[key]} end)
   end
+
 
 
   defmacro __using__(options) do
@@ -26,7 +29,26 @@ defmodule Resources.Resource do
       def create(conn, params) do
         thing = model.allocate(params) |> Repo.insert
         json conn, resp(thing)
-      end   
+      end
+
+      def show(conn, params) do
+
+        :io.format("PARAMS ~p ~p~n", [unquote(all_opts), params[unquote(all_opts)[:id_attr]]])
+        id = String.to_integer(params["id"])
+        query = from u in model, where: u.id == ^id, select: u
+        result = Repo.all(query)
+        json conn, resp(result)
+      end
+
+      def update(conn, params) do
+
+      end
+
+
+
+      def destroy(conn, params) do
+        json conn, {:something, "ok"}
+      end
 
 
       def resp(thing) do

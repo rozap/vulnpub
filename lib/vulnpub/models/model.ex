@@ -10,7 +10,7 @@ defmodule Vulnpub.Model do
         keylist = Dict.to_list(params)
         atoms = Enum.map(keylist, fn {key, val} -> {String.to_atom(key), val} end)
         adapted = __MODULE__.adapt(atoms)
-        struct(__MODULE__, atoms)
+        struct(__MODULE__, adapted)
       end
     end
   end
