@@ -28,37 +28,45 @@ defmodule Resources.Resource do
       def index(conn, params) do
         query = from u in model, select: u
         result = Repo.all(query)
-        json conn, resp(result)
+        json conn, serialize(result)
       end
 
       def create(conn, params) do
         thing = model.allocate(params) |> Repo.insert
-        json conn, resp(thing)
+        json conn, serialize(thing)
       end
 
       def show(conn, params) do
         id = get_id(params)
         query = from u in model, where: u.id == ^id, select: u
-        result = Repo.all(query)
-        json conn, resp(result)
+        [result] = Repo.all(query)
+        json conn, serialize(result)
       end
 
       def update(conn, params) do
         id = get_id(params)
         row = model.allocate(params)
         :ok = Ecto.Model.put_primary_key(row, id) |> Repo.update
-        json conn, resp(row)
+        json conn, serialize(row)
       end
 
 
 
       def destroy(conn, params) do
-        json conn, {:something, "ok"}
+        id = get_id(params)
+        query = from u in model, where: u.id == ^id, select: u
+        [row] = Repo.all(query)
+        Repo.delete(row)
+        json conn, serialize(row)
       end
 
 
-      def resp(thing) do
+      def serialize(thing) do
         Resources.Serializer.to_json(thing, model, unquote(all_opts))
+      end
+
+      def raw(thing) do
+        JSON.encode(thing)
       end
     end
   end

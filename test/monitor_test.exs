@@ -32,4 +32,10 @@ defmodule Test.MonitorTest do
     {:ok, resp_body} = JSON.decode(conn.resp_body)
   end
 
+  test "can delete a monitor" do
+    id = create()
+    {conn, req_body} = simulate_json(Vulnpub.Router, :delete, "api/v1/monitors/#{id}", "test/json/del_monitor.json")
+    {:ok, resp_body} = JSON.decode(conn.resp_body)
+  end
+
 end
