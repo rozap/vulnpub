@@ -1,9 +1,10 @@
 defmodule Resources.Resource do
   use Phoenix.Controller
 
-  defp opts, do: [:exclude, :id_attr]
+  defp opts, do: [:exclude, :id_attr, :validator]
   def default_for(:exclude), do: []
   def default_for(:id_attr), do: "id"
+  def default_for(:validator), do: Resources.ModelValidator
 
 
 
@@ -25,6 +26,20 @@ defmodule Resources.Resource do
         String.to_integer(params["id"])
       end
 
+      def validate(kind, conn, params) do
+        unquote(all_opts[:validator]).validate(kind, conn, params, __MODULE__)
+      end
+
+
+      def handle({_, :bad_request, conn, msg}) do
+        json conn, raw(msg)
+      end
+
+      def handle({:create, :ok, conn, params}) do
+        thing = model.allocate(params) |> Repo.insert
+        json conn, serialize(thing)
+      end
+
       def index(conn, params) do
         query = from u in model, select: u
         result = Repo.all(query)
@@ -32,8 +47,7 @@ defmodule Resources.Resource do
       end
 
       def create(conn, params) do
-        thing = model.allocate(params) |> Repo.insert
-        json conn, serialize(thing)
+        validate(:create, conn, params) |> handle
       end
 
       def show(conn, params) do
@@ -66,7 +80,8 @@ defmodule Resources.Resource do
       end
 
       def raw(thing) do
-        JSON.encode(thing)
+        {:ok, json} = JSON.encode(thing)
+        json
       end
     end
   end

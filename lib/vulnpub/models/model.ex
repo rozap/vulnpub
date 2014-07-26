@@ -21,10 +21,12 @@ defmodule Vulnpub.Model do
 
       defp to_fieldtype(_, value), do: value
 
+      def field_types do
+        Enum.map(__MODULE__.__schema__(:field_names), fn name -> {name, __MODULE__.__schema__(:field_type, name)} end)
+      end
 
       def ingest(atom_keylist) do
-        types = Enum.map(__MODULE__.__schema__(:field_names), fn name -> {name, __MODULE__.__schema__(:field_type, name)} end)
-        Enum.map(types, fn {name, type} -> {name, to_fieldtype(type, atom_keylist[name])} end)
+        Enum.map(field_types, fn {name, type} -> {name, to_fieldtype(type, atom_keylist[name])} end)
       end
 
       def to_atom_keylist(params) do
