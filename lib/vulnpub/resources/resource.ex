@@ -1,10 +1,11 @@
 defmodule Resources.Resource do
   use Phoenix.Controller
 
-  defp opts, do: [:exclude, :id_attr, :validator]
+  defp opts, do: [:exclude, :id_attr, :middleware]
   def default_for(:exclude), do: []
   def default_for(:id_attr), do: "id"
-  def default_for(:validator), do: Resources.ModelValidator
+
+  def default_for(:middleware), do: []
 
 
 
@@ -26,16 +27,11 @@ defmodule Resources.Resource do
         String.to_integer(params["id"])
       end
 
-      def validate({verb, conn, params}) do
-        unquote(all_opts[:validator]).validate(verb, conn, params, __MODULE__)
-      end
-
-
       def handle({_, :bad_request, conn, msg}) do
         json conn, raw(msg)
       end
 
-      def handle({:create, :ok, conn, params}) do
+      def handle(:create, conn, params) do
         thing = model.allocate(params) |> Repo.insert
         json conn, serialize(thing)
       end
@@ -46,9 +42,18 @@ defmodule Resources.Resource do
         json conn, serialize(result)
       end
 
-      def create(conn, params) do
-        validate({:create, conn, params}) |> handle
+
+      def dispatch({verb, conn, params}) do
+        middleware = unquote(all_opts[:middleware])
+        try do
+          Enum.map(middleware, fn layer -> layer.handle(verb, conn, params, __MODULE__) end)
+          handle(verb, conn, params)
+        catch
+          {:bad_request, errors} -> json conn, raw(errors)
+        end
       end
+
+      def create(conn, params), do: dispatch({:create, conn, params})
 
       def show(conn, params) do
         id = get_id(params)

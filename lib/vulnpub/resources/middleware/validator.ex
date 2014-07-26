@@ -42,9 +42,7 @@ defmodule Resources.ModelValidator do
 
 
 
-  def validate(:destroy, conn, params, module) do
-    IO.puts("VALIDATE destroy")
-  end
+
 
 
   defp params_to_check(verb, params, field_types, module) do
@@ -53,18 +51,20 @@ defmodule Resources.ModelValidator do
   end
 
   def validate(verb, conn, params, module) do
+
     field_types = module.model.field_types
     check_params = params_to_check(verb, params, field_types, module)
     # :io.format("PARAMS ~p ~n CHECK PARAMS ~p~n", [params, check_params])
     checked = Enum.map(check_params, fn {name, value} -> check_type(Keyword.fetch!(field_types, name), name, value) end)
     errors = Enum.filter(checked, fn {status, _, _} -> status == :error end)
-    if length(errors) > 0 do
-      {verb, :bad_request, conn, make_error_message(errors)}
-    else
-      {verb, :ok, conn, params}
-    end
+    if length(errors) > 0, do: throw {:bad_request,  make_error_message(errors)}
+    IO.puts("is validated")
+    :ok
   end
 
 
+  def handle(:create, conn, params, module), do: validate(:create, conn, params, module)
+  def handle(:update, conn, params, module), do: validate(:update, conn, params, module)
+  def handle(:destroy, conn, params, module), do: :ok
 
 end

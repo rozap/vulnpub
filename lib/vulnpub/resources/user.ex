@@ -9,5 +9,11 @@ defmodule Resources.User do
     Models.User
   end
 
-  use Resources.Resource, [exclude: [:password]]
+  use Resources.Resource, [
+  	exclude: [:password], 
+  	middleware: [
+  		Resources.ModelValidator, 
+  		Resources.ModelAuthorizor
+  	]
+  ]
 end
