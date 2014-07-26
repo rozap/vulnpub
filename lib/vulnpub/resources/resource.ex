@@ -36,11 +36,6 @@ defmodule Resources.Resource do
       end
 
 
-
-
-
-
-
       def dispatch(verb, conn, params) do
         middleware = unquote(all_opts[:middleware])
         try do
@@ -73,7 +68,7 @@ defmodule Resources.Resource do
       def handle(:show, conn, params) do
         id = get_id(params)
         query = from u in model, where: u.id == ^id, select: u
-        [result] = Repo.all(query)
+        result = Repo.get(query)
         json conn, serialize(result)
       end
 
