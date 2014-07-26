@@ -1,6 +1,7 @@
 defmodule Resources.ModelValidator do
 
 
+
   def check_type(:integer, name, value) when is_integer(value), do: {:ok, name, value}
   def check_type(:integer, name, value), do: {:error, name, "This needs to be an integer"}
 
@@ -30,14 +31,20 @@ defmodule Resources.ModelValidator do
   def check_type(_, name, value), do: {:ok, name, value}
 
 
+  def ignore_fields, do: [:created, :modified]
+
+
   def make_error_message(errors) do
     {"errors", Enum.map(errors, fn {:error, name, value} -> {name, value} end)}
   end
 
   def validate(:create, conn, params, module) do
     field_types = module.model.field_types
-    :io.format("FIELD TYPES ~p~n", [field_types])
-    checked = Enum.map(field_types, fn {name, type} -> check_type(type, name, params[name]) end)
+    check_params = Enum.filter(params, fn {name, _} -> not name in ignore_fields end)
+    #check params is now a keyword list not a map
+    # :io.format("FIELD TYPES ~p ~n PARAMS ~p ~n CHECK PARAMS ~p~n", [field_types, params, check_params])
+
+    checked = Enum.map(check_params, fn {name, value} -> check_type(Keyword.fetch!(field_types, String.to_atom(name)), name, value) end)
     errors = Enum.filter(checked, fn {status, _, _} -> status == :error end)
     if length(errors) > 0 do
       {:create, :bad_request, conn, make_error_message(errors)}
