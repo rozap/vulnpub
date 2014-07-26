@@ -31,34 +31,40 @@ defmodule Resources.ModelValidator do
   def check_type(_, name, value), do: {:ok, name, value}
 
 
-  def ignore_fields, do: [:created, :modified]
+  def ignore_fields(:create), do: [:id, :created, :modified]
+  def ignore_fields(_), do: [:created, :modified]
 
 
   def make_error_message(errors) do
     {"errors", Enum.map(errors, fn {:error, name, value} -> {name, value} end)}
   end
 
-  def validate(:create, conn, params, module) do
-    field_types = module.model.field_types
-    check_params = Enum.filter(params, fn {name, _} -> not name in ignore_fields end)
-    #check params is now a keyword list not a map
-    # :io.format("FIELD TYPES ~p ~n PARAMS ~p ~n CHECK PARAMS ~p~n", [field_types, params, check_params])
 
-    checked = Enum.map(check_params, fn {name, value} -> check_type(Keyword.fetch!(field_types, String.to_atom(name)), name, value) end)
-    errors = Enum.filter(checked, fn {status, _, _} -> status == :error end)
-    if length(errors) > 0 do
-      {:create, :bad_request, conn, make_error_message(errors)}
-    else
-      {:create, :ok, conn, params}
-    end
-  end
 
-  def validate(:update, conn, params, module) do
-    IO.puts("VALIDATE update")
-  end
 
   def validate(:destroy, conn, params, module) do
     IO.puts("VALIDATE destroy")
   end
+
+
+  defp params_to_check(verb, params, field_types, module) do
+    included = Enum.filter(field_types, fn {name, _} -> not name in ignore_fields(verb) end) 
+    Enum.map(included, fn {name, _type} -> {name, Dict.get(params, Atom.to_string(name))} end)
+  end
+
+  def validate(verb, conn, params, module) do
+    field_types = module.model.field_types
+    check_params = params_to_check(verb, params, field_types, module)
+    # :io.format("PARAMS ~p ~n CHECK PARAMS ~p~n", [params, check_params])
+    checked = Enum.map(check_params, fn {name, value} -> check_type(Keyword.fetch!(field_types, name), name, value) end)
+    errors = Enum.filter(checked, fn {status, _, _} -> status == :error end)
+    if length(errors) > 0 do
+      {verb, :bad_request, conn, make_error_message(errors)}
+    else
+      {verb, :ok, conn, params}
+    end
+  end
+
+
 
 end

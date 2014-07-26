@@ -26,8 +26,8 @@ defmodule Resources.Resource do
         String.to_integer(params["id"])
       end
 
-      def validate(kind, conn, params) do
-        unquote(all_opts[:validator]).validate(kind, conn, params, __MODULE__)
+      def validate({verb, conn, params}) do
+        unquote(all_opts[:validator]).validate(verb, conn, params, __MODULE__)
       end
 
 
@@ -47,7 +47,7 @@ defmodule Resources.Resource do
       end
 
       def create(conn, params) do
-        validate(:create, conn, params) |> handle
+        validate({:create, conn, params}) |> handle
       end
 
       def show(conn, params) do

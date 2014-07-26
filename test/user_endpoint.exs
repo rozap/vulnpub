@@ -12,6 +12,29 @@ defmodule Test.UserTest do
     assert Dict.get(resp_body, "id") != nil
   end
 
+  test "cannot create a user that is missing fields" do
+    IO.puts("DOING INVALID TEST")
+    {conn, req_body} = simulate_json(Vulnpub.Router, :post, "api/v1/users", "test/json/invalid_new_user.json")
+    {:ok, resp_body} = JSON.decode(conn.resp_body)
+    [root, error_dict] = resp_body
+    assert root == "errors"
+    assert Dict.get(error_dict, "password") == "This needs to be a string"
+    assert Dict.get(error_dict, "username") == "This needs to be a string"
+
+  end
+
+  test "cannot create a user that is missing fields" do
+    IO.puts("DOING INVALID TEST")
+    {conn, req_body} = simulate_json(Vulnpub.Router, :post, "api/v1/users", "test/json/invalid_new_user_1.json")
+    {:ok, resp_body} = JSON.decode(conn.resp_body)
+    [root, error_dict] = resp_body
+    assert root == "errors"
+    assert Dict.get(error_dict, "password") == "This needs to be a string"
+    assert Dict.get(error_dict, "username") == "This needs to be a string"
+
+  end
+
+
   test "can get a list of users" do
     conn = simulate_request(Vulnpub.Router, :get, "api/v1/users")
     {:ok, resp_body} = JSON.decode(conn.resp_body)
