@@ -2,9 +2,6 @@
 defmodule Resources.User do
   require Resources.Resource
 
-  
-
-
   def model do
     Models.User
   end

@@ -65,6 +65,6 @@ defmodule Resources.ModelValidator do
 
   def handle(:create, conn, params, module), do: validate(:create, conn, params, module)
   def handle(:update, conn, params, module), do: validate(:update, conn, params, module)
-  def handle(:destroy, conn, params, module), do: :ok
+  def handle(_, conn, params, module), do: :ok
 
 end
