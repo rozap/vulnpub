@@ -16,7 +16,10 @@ defmodule Models.User do
   end
 
 
-
+  #do some hash/salt thing here
+  def hash_password(password) do
+    password
+  end
 
 
   use Vulnpub.Model

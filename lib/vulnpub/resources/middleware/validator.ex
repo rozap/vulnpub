@@ -48,24 +48,24 @@ defmodule Resources.ModelValidator do
 
       defp params_to_check(verb, params, field_types, module) do
         included = Enum.filter(field_types, fn {name, _} -> not name in ignore_fields(verb) end) 
-        Enum.map(included, fn {name, _type} -> {name, Dict.get(params, Atom.to_string(name))} end)
+        Enum.map(included, fn {name, _type} -> {name, Dict.get(params, name)} end)
       end
 
-      def validate(verb, conn, params, module) do
+      def validate(verb, conn, params, module, bundle) do
         field_types = module.model.field_types
         check_params = params_to_check(verb, params, field_types, module)
-        # :io.format("PARAMS ~p ~n CHECK PARAMS ~p~n", [params, check_params])
+        :io.format("PARAMS ~p ~n CHECK PARAMS ~p~n", [params, check_params])
         checked = Enum.map(check_params, fn {name, value} -> validate_type(Keyword.fetch!(field_types, name), name, value) end)
         errors = Enum.filter(checked, fn {status, _, _} -> status == :error end)
         if length(errors) > 0, do: throw {:bad_request,  make_error_message(errors)}
         Enum.map(check_params, fn {name, value} -> validate_field(verb, name, value) end)
-        :ok
+        {verb, conn, params, module, bundle}
       end
 
 
-      def handle(:create, conn, params, module), do: validate(:create, conn, params, module)
-      def handle(:update, conn, params, module), do: validate(:update, conn, params, module)
-      def handle(_, conn, params, module), do: :ok
+      def handle({:create, conn, params, module, bundle}), do: validate(:create, conn, params, module, bundle)
+      def handle({:update, conn, params, module, bundle}), do: validate(:update, conn, params, module, bundle)
+      def handle({verb, conn, params, module, bundle}), do: {verb, conn, params, module, bundle}
 
     end
   end

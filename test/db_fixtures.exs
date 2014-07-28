@@ -13,7 +13,8 @@ defmodule Fixture do
   end
 
   def load do
-    IO.puts("Loading fixture")    
+    IO.puts("Loading fixture") 
+    delete Models.ApiKey   
     delete Models.Monitor
     delete Models.User
   end

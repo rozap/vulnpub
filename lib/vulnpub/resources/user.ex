@@ -15,6 +15,14 @@ defmodule Resources.User.Validator do
 end
 
 
+defmodule Resources.User.Authenticator do
+  def handle({:create, conn, params, module, bundle}), do: {:create, conn, params, module, bundle}
+  def handle({:index, conn, params, module, bundle}), do: {:index, conn, params, module, bundle}
+
+  use Resources.Authenticator
+end
+
+
 defmodule Resources.User do
   require Resources.Resource
 
@@ -25,6 +33,7 @@ defmodule Resources.User do
   use Resources.Resource, [
     exclude: [:password], 
     middleware: [
+      Resources.User.Authenticator,
       Resources.User.Validator, 
     ]
   ]
