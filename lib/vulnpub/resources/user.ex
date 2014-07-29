@@ -16,10 +16,7 @@ end
 
 
 defmodule Resources.User.Authenticator do
-  def handle({:create, conn, params, module, bundle}), do: {:create, conn, params, module, bundle}
-  def handle({:index, conn, params, module, bundle}), do: {:index, conn, params, module, bundle}
-
-  use Resources.Authenticator
+  use Resources.Authenticator, [open: [:index, :create]]
 end
 
 
