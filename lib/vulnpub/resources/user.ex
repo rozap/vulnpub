@@ -11,12 +11,12 @@ defmodule Resources.User.Validator do
     :ok
   end
 
-  use Resources.ModelValidator
+  use Resources.ModelValidator, [only: [:create, :update]]
 end
 
 
 defmodule Resources.User.Authenticator do
-  use Resources.Authenticator, [open: [:index, :create]]
+  use Resources.Authenticator, [except: [:index, :create]]
 end
 
 

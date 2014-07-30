@@ -1,7 +1,4 @@
 
-defmodule Resources.Monitor.Validator do
-  use Resources.ModelValidator
-end
 
 
 defmodule Resources.Monitor do
@@ -15,8 +12,6 @@ defmodule Resources.Monitor do
 
 	use Resources.Resource, [
     exclude: [], 
-    middleware: [
-      Resources.Monitor.Validator, 
-    ]
+    middleware: []
   ]
 end

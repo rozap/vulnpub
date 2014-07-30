@@ -2,7 +2,6 @@ defmodule Resources.Authenticator do
   @verbs [:create, :show, :index, :destroy, :update]
   import Ecto.Query, only: [from: 2]
 
-
   def close({verb, conn, params, module, bundle}) do
     try do
       # :io.format("CHECKING ~p~n", [unquote(verb)])
@@ -21,18 +20,15 @@ defmodule Resources.Authenticator do
   end
 
   defmacro __using__(options) do
-    open = Keyword.get(options, :open, [])
-    closed = @verbs -- open
+    only = Keyword.get(options, :only, @verbs)
+    except = Keyword.get(options, :except, [])
+    only = (only -- except) 
 
-    quote [unquote: false, bind_quoted: [closed: closed]] do
-      for verb <- closed do
+    quote [unquote: false, bind_quoted: [only: only]] do
+      for verb <- only do
         def handle({unquote(verb), conn, params, module, bundle}), do: Resources.Authenticator.close({unquote(verb), conn, params, module, bundle})
       end
       def handle({verb, conn, params, module, bundle}), do: {verb, conn, params, module, bundle}
     end
   end
-
-
-
-
 end

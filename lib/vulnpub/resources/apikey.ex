@@ -2,9 +2,7 @@
 defmodule Resources.ApiKey.Validator do
   import Ecto.Query, only: [from: 2]
 
-
   def validate(:create, conn, params, module) do
-    :io.format("~p~n", [params])
     %{:username => username, :password => password} = params
     hashed = Models.User.hash_password(password)
     query = from u in Models.User, where: u.username == ^username and u.password == ^hashed, select: u
@@ -12,18 +10,15 @@ defmodule Resources.ApiKey.Validator do
     if length(result) == 0 do
       throw {:bad_request, [username: "The username/password combination is invalid"]}
     end
-    :io.format("u: ~p p ~p ~n", [username, password])
     :ok
   end
-  use Resources.ModelValidator
+  use Resources.ModelValidator, [only: [:create]]
 end
 
 
 defmodule Resources.ApiKey do
   import Phoenix.Controller
   import Ecto.Query
-
-
 
   def handle(:create, conn, params) do
     %{:username => username, :password => password} = params
@@ -32,9 +27,6 @@ defmodule Resources.ApiKey do
     key = Models.ApiKey.allocate(props) |> Repo.insert
     json conn, serialize(key)
   end
-
-
-
 
   import Resources.Resource
   use Resources.Resource, [

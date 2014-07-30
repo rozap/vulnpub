@@ -1,8 +1,14 @@
 defmodule Resources.ModelValidator do
+  @verbs [:create, :show, :index, :destroy, :update]
 
-  defmacro __using__(_) do
-  
-    quote do 
+
+  defmacro __using__(options) do
+    only = Keyword.get(options, :only, @verbs)
+    except = Keyword.get(options, :except, [])
+    only = (only -- except) 
+    :io.format("ONLY VALIDATING ~p~n", [only])
+    quote [unquote: false, bind_quoted: [only: only]] do
+
 
       def validate_type(:integer, name, value) when is_integer(value), do: {:ok, name, value}
       def validate_type(:integer, name, _), do: {:error, name, "This needs to be an integer"}
@@ -51,10 +57,9 @@ defmodule Resources.ModelValidator do
         Enum.map(included, fn {name, _type} -> {name, Dict.get(params, name)} end)
       end
 
-      def validate(verb, conn, params, module, bundle) do
+      def validate({verb, conn, params, module, bundle}) do
         field_types = module.model.field_types
         check_params = params_to_check(verb, params, field_types, module)
-        :io.format("PARAMS ~p ~n CHECK PARAMS ~p~n", [params, check_params])
         checked = Enum.map(check_params, fn {name, value} -> validate_type(Keyword.fetch!(field_types, name), name, value) end)
         errors = Enum.filter(checked, fn {status, _, _} -> status == :error end)
         if length(errors) > 0, do: throw {:bad_request,  make_error_message(errors)}
@@ -63,10 +68,11 @@ defmodule Resources.ModelValidator do
       end
 
 
-      def handle({:create, conn, params, module, bundle}), do: validate(:create, conn, params, module, bundle)
-      def handle({:update, conn, params, module, bundle}), do: validate(:update, conn, params, module, bundle)
-      def handle({verb, conn, params, module, bundle}), do: {verb, conn, params, module, bundle}
 
+      for verb <- only do
+        def handle({unquote(verb), conn, params, module, bundle}), do: validate({unquote(verb), conn, params, module, bundle})
+      end
+      def handle({verb, conn, params, module, bundle}), do: {verb, conn, params, module, bundle}
     end
   end
 
