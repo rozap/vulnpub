@@ -16,7 +16,7 @@ end
 
 
 defmodule Resources.User.Authenticator do
-  use Resources.Authenticator, [except: [:index, :create]]
+  use Resources.Authenticator, [except: [:create]]
 end
 
 
@@ -31,7 +31,7 @@ defmodule Resources.User do
     exclude: [:password], 
     middleware: [
       Resources.User.Authenticator,
-      Resources.User.Validator, 
+      Resources.User.Validator
     ]
   ]
 end

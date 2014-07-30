@@ -4,7 +4,6 @@ defmodule Resources.Authenticator do
 
   def close({verb, conn, params, module, bundle}) do
     try do
-      # :io.format("CHECKING ~p~n", [unquote(verb)])
       req_headers = Enum.map(conn.req_headers, fn {key, value} -> {String.to_atom(key), value} end)
       [username, key] = String.split(Keyword.fetch!(req_headers, :authentication), ":")
       [user] = (from a in Models.ApiKey, 
@@ -13,7 +12,7 @@ defmodule Resources.Authenticator do
         on: u.id == a.user_id,
         select: u,
         where: u.username == ^username) |> Repo.all
-      {:create, conn, params, module, bundle}
+      {verb, conn, params, module, bundle}
     rescue
       _ -> throw {:forbidden, [error: "You need to be logged in to do that"]}
     end

@@ -24,11 +24,11 @@ defmodule Resources.Resource do
     quote do
       use Phoenix.Controller
 
-      @bad_request 400
-      @unauthorized 401
-      @forbidden 403
-      @created 201
-      @accepted 202
+      def bad_request, do: 400
+      def unauthorized, do: 401
+      def forbidden, do: 403
+      def created, do: 201
+      def accepted, do: 202
      
       import Ecto.Query, only: [from: 2]
 
@@ -46,9 +46,9 @@ defmodule Resources.Resource do
           acc = {verb, conn, params, __MODULE__, %{}}
           Enum.reduce(middleware, acc, fn(layer, acc) -> layer.handle(acc) end) |> handle
         catch
-          {:bad_request, errors} -> json conn, @bad_request, raw(errors)
-          {:unauthorized, errors} -> json conn, @unauthorized, raw(errors)
-          {:forbidden, errors} -> json conn, @forbidden, raw(errors)
+          {:bad_request, errors} -> json conn, bad_request, raw(errors)
+          {:unauthorized, errors} -> json conn, unauthorized, raw(errors)
+          {:forbidden, errors} -> json conn, forbidden, raw(errors)
         end
       end
 
@@ -67,7 +67,7 @@ defmodule Resources.Resource do
 
       def handle({:create, conn, params, module, bundle}) do
         thing = model.allocate(params) |> Repo.insert
-        json conn, @created, serialize(thing)
+        json conn, created, serialize(thing)
       end
 
       def handle({:show, conn, params, module, bundle}) do
@@ -81,7 +81,7 @@ defmodule Resources.Resource do
         id = get_id(params)
         row = model.allocate(params)
         :ok = Ecto.Model.put_primary_key(row, id) |> Repo.update
-        json conn, @accepted, serialize(row)
+        json conn, accepted, serialize(row)
       end
 
       def handle({:destroy, conn, params, module, bundle}) do
@@ -89,7 +89,7 @@ defmodule Resources.Resource do
         query = from u in model, where: u.id == ^id, select: u
         [row] = Repo.all(query)
         Repo.delete(row)
-        json conn, @accepted, serialize(row)
+        json conn, accepted, serialize(row)
       end
 
 
@@ -98,7 +98,6 @@ defmodule Resources.Resource do
       end
 
       def raw(thing) do
-        :io.format("RAW ~p~n", [thing])
         {:ok, json} = JSON.encode(thing)
         json
       end

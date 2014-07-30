@@ -6,7 +6,6 @@ defmodule Resources.ModelValidator do
     only = Keyword.get(options, :only, @verbs)
     except = Keyword.get(options, :except, [])
     only = (only -- except) 
-    :io.format("ONLY VALIDATING ~p~n", [only])
     quote [unquote: false, bind_quoted: [only: only]] do
 
 

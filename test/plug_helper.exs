@@ -9,10 +9,10 @@ defmodule PlugHelper do
       end
 
 
-      def simulate_json_file(router, http_method, path, filename) do
+      def simulate_json_file(router, http_method, path, filename, headers \\ []) do
         body = File.read! filename
-        headers = [{"content-type", "application/json"}]
-        conn = conn(http_method, path, body, headers: headers)
+        headers = [{"content-type", "application/json"}] ++ headers
+        conn = conn(http_method, path, body, [headers: headers])
         {:ok, req_body} = JSON.decode(body)
         conn = router.call(conn, [])
         {:ok, resp_body} = JSON.decode(conn.resp_body)
@@ -20,17 +20,14 @@ defmodule PlugHelper do
       end
 
 
-      def simulate_json(router, http_method, path) do
-        headers = [{"content-type", "application/json"}]
-        conn = conn(http_method, path, headers: headers)
-        conn = router.call(conn, [])
-        {:ok, resp_body} = JSON.decode(conn.resp_body)
-        {conn.status, resp_body}
-      end
-
-      def simulate_json(router, http_method, path, req_body) do
-        headers = [{"content-type", "application/json"}]
-        conn = conn(http_method, path, JSON.encode(req_body), headers: headers)
+      def simulate_json(router, http_method, path, req_body \\ nil, headers \\ []) do
+        headers = [{"content-type", "application/json"}] ++ headers
+        conn = case req_body do
+          nil -> conn(http_method, path, "{}", [headers: headers])
+          _ -> 
+            {:ok, json_body} = JSON.encode(req_body)
+            conn(http_method, path, json_body, [headers: headers])
+        end
         conn = router.call(conn, [])
         {:ok, resp_body} = JSON.decode(conn.resp_body)
         {conn.status, req_body, resp_body}

@@ -1,4 +1,12 @@
 
+defmodule Resources.Monitor.Validator do
+  use Resources.ModelValidator, [only: [:create, :update]]
+end
+
+
+defmodule Resources.Monitor.Authenticator do
+  use Resources.Authenticator, []
+end
 
 
 defmodule Resources.Monitor do
@@ -12,6 +20,9 @@ defmodule Resources.Monitor do
 
 	use Resources.Resource, [
     exclude: [], 
-    middleware: []
+    middleware: [
+      Resources.Monitor.Authenticator,
+      Resources.Monitor.Validator
+    ]
   ]
 end
