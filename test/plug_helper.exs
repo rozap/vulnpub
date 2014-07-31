@@ -5,7 +5,8 @@ defmodule PlugHelper do
       use Plug.Test
       def simulate_request(router, http_method, path, params_or_body \\ nil) do
         conn = conn(http_method, path, params_or_body)
-        router.call(conn, [])
+        conn = router.call(conn, [])
+        {conn.status,  JSON.decode(conn.resp_body)}
       end
 
 

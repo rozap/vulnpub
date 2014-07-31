@@ -12,7 +12,6 @@ defmodule Vulnpub.Model do
       defp to_fieldtype(_, nil), do: nil
 
       defp to_fieldtype(:datetime, string_value) do
-        :io.format("STRING VALUE ~p~n", [string_value])
         [date, time] = String.split(string_value, " ")
         [day, month, year] = Enum.map(String.split(date, "/"), &(String.to_integer &1))
         [hour, min, sec] = Enum.map(String.split(time, ":"), &(String.to_integer &1))
@@ -34,6 +33,9 @@ defmodule Vulnpub.Model do
         struct(__MODULE__, adapted)
       end
 
+      def has_user? do
+        :user in __MODULE__.__schema__(:associations)
+      end
 
     end
   end

@@ -56,7 +56,7 @@ defmodule Test.UserTest do
 
   test "cannot have two users with the same name" do
     DBHelpers.create_user()
-    {status, req_body, resp_body} = simulate_json_file(Vulnpub.Router, :post, "api/v1/users", "test/json/new_user.json")
+    {status, req_body, resp_body} = simulate_json_file(Vulnpub.Router, :post, "api/v1/users", "test/json/new_user_0.json")
     assert status == 400
   end
 end

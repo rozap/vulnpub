@@ -1,8 +1,4 @@
 {
-	"created": "23/7/2014 22:53:21",
-	"id": 5,
 	"manifest": "new updated manifest",
-	"modified": "23/7/2014 22:53:21",
-	"name": "baz2",
-	"user_id": 2
+	"name": "baz2"
 }

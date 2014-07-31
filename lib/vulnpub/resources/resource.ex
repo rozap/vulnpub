@@ -34,7 +34,7 @@ defmodule Resources.Resource do
 
 
       def get_id(params) do
-        String.to_integer(params["id"])
+        String.to_integer(params[:id])
       end
 
 
@@ -66,6 +66,9 @@ defmodule Resources.Resource do
       end
 
       def handle({:create, conn, params, module, bundle}) do
+        if model.has_user? and Dict.get(bundle, :user, false) do
+          params = Dict.put(params, :user_id, bundle[:user].id)
+        end
         thing = model.allocate(params) |> Repo.insert
         json conn, created, serialize(thing)
       end

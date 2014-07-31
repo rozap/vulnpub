@@ -42,7 +42,7 @@ defmodule Resources.ModelValidator do
       def validate_field(_, _, _), do: :ok
 
 
-      def ignore_fields(:create), do: [:id, :created, :modified]
+      def ignore_fields(:create), do: [:id] ++ ignore_fields(nil)
       def ignore_fields(_), do: [:created, :modified]
 
 

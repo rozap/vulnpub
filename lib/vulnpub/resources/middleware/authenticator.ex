@@ -12,6 +12,7 @@ defmodule Resources.Authenticator do
         on: u.id == a.user_id,
         select: u,
         where: u.username == ^username) |> Repo.all
+      bundle = Dict.put(bundle, :user, user)
       {verb, conn, params, module, bundle}
     rescue
       _ -> throw {:forbidden, [error: "You need to be logged in to do that"]}
