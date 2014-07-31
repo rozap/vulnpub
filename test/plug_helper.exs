@@ -3,8 +3,9 @@ defmodule PlugHelper do
   defmacro __using__(_opts) do
     quote do
       use Plug.Test
-      def simulate_request(router, http_method, path, params_or_body \\ nil) do
-        conn = conn(http_method, path, params_or_body)
+      def simulate_request_unauth(router, http_method, path, params_or_body \\ "{}") do
+        headers = [{"content-type", "application/json"}]
+        conn = conn(http_method, path, params_or_body, [headers: headers])
         conn = router.call(conn, [])
         {conn.status,  JSON.decode(conn.resp_body)}
       end

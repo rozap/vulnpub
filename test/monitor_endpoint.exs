@@ -30,8 +30,17 @@ defmodule Test.MonitorTest do
   end
 
   test "cannot get monitors if not logged in" do
-    {status, resp_body} = simulate_request(Vulnpub.Router, :get, "api/v1/monitors")
+    {status, resp_body} = simulate_request_unauth(Vulnpub.Router, :get, "api/v1/monitors")
     assert status == 403
+  end
+
+  test "can get monitors if logged in" do
+    {_, _, apikey_resp} = DBHelpers.create_apikey()
+    key = Dict.get(apikey_resp, "key")
+    headers = [{"authentication", "foo:#{key}"}]
+    simulate_json_file(Vulnpub.Router, :post, "api/v1/monitors", "test/json/new_monitor.json", headers)
+    {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/monitors", nil, headers)
+    assert status == 200
   end
 
   test "can update a monitor" do
