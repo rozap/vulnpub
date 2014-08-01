@@ -26,14 +26,14 @@ defmodule Resources.ApiKey do
     [user] = (from u in Models.User, where: u.username == ^username, select: u) |> Repo.all
     props = %{:user_id => user.id, :key => Models.ApiKey.gen_key}
     key = Models.ApiKey.allocate(props) |> Repo.insert
-    json conn, created, serialize(key)
+    {conn, created, key}
   end
 
   def handle({:destroy, conn, params, module, bundle}) do
     key = params[:id]
     [row] = (from a in model, where: a.key == ^key, select: a) |> Repo.all 
     Repo.delete(row)
-    json conn, accepted, serialize(row)
+    {conn, accepted, row}
   end
 
   def model do

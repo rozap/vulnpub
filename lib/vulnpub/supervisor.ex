@@ -7,7 +7,10 @@ defmodule Vulnpub.Supervisor do
 
   def init([]) do
     IO.puts("INIT")
-    children = [worker(Repo, [])]
+    children = [
+      worker(Repo, []), 
+      worker(Service.MonitorConsumer, [{}, []])
+    ]
 
     # See http://elixir-lang.org/docs/stable/Supervisor.Behaviour.html
     # for other strategies and supported options

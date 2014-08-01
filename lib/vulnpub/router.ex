@@ -9,6 +9,7 @@ defmodule Vulnpub.Router do
       resources "users", Resources.User, except: []
       resources "monitors", Resources.Monitor, except: []
       resources "apikey", Resources.ApiKey, only: [:create, :destroy]
+      resources "vulns", Resources.Vuln, only: [:create, :show, :index]
 
     end
   end

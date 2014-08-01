@@ -1,14 +1,12 @@
 defmodule Resources.Resource do
   import Phoenix.Controller
 
-  defp opts, do: [:exclude, :id_attr, :middleware]
+  defp opts, do: [:exclude, :id_attr, :middleware, :triggers]
   def default_for(:exclude), do: []
   def default_for(:id_attr), do: "id"
 
   def default_for(:middleware), do: []
-
-
-
+  def default_for(:triggers), do: []
 
 
 
@@ -22,13 +20,14 @@ defmodule Resources.Resource do
     all_opts = Resources.Resource.default_opts(options)
 
     quote do
-      use Phoenix.Controller
+      use Phoenix.Controller, unquote(all_opts)
 
       def bad_request, do: 400
       def unauthorized, do: 401
       def forbidden, do: 403
       def created, do: 201
       def accepted, do: 202
+      def ok, do: 200
      
       import Ecto.Query, only: [from: 2]
 
@@ -40,11 +39,15 @@ defmodule Resources.Resource do
 
       def dispatch(verb, conn, params) do
         middleware = unquote(all_opts[:middleware])
+        triggers = unquote(all_opts[:triggers])
         #convert the string => val map to atom => val map
         params =  Enum.into(Enum.map(params, fn {key, value} -> {String.to_atom(key), value} end), Map.new)
         try do
-          acc = {verb, conn, params, __MODULE__, %{}}
-          Enum.reduce(middleware, acc, fn(layer, acc) -> layer.handle(acc) end) |> handle
+          request = {verb, conn, params, __MODULE__, %{}}
+          request = Enum.reduce(middleware, request, fn(layer, req) -> layer.handle(req) end)
+          response = handle request
+          {verb, conn, status, entity} = Enum.reduce(triggers, Tuple.insert_at(response, 0, verb), fn(layer, res) -> layer.handle(res) end)
+          json conn, status, serialize(entity)
         catch
           {:bad_request, errors} -> json conn, bad_request, raw(errors)
           {:unauthorized, errors} -> json conn, unauthorized, raw(errors)
@@ -62,7 +65,7 @@ defmodule Resources.Resource do
       def handle({:index, conn, params, module, bundle}) do
         query = from u in model, select: u
         result = Repo.all(query)
-        json conn, serialize(result)
+        {conn, ok, result}
       end
 
       def handle({:create, conn, params, module, bundle}) do
@@ -70,21 +73,21 @@ defmodule Resources.Resource do
           params = Dict.put(params, :user_id, bundle[:user].id)
         end
         thing = model.allocate(params) |> Repo.insert
-        json conn, created, serialize(thing)
+        {conn, created, thing}
       end
 
       def handle({:show, conn, params, module, bundle}) do
         id = get_id(params)
         query = from u in model, where: u.id == ^id, select: u
         result = Repo.get(query)
-        json conn, serialize(result)
+        {conn, ok, result}
       end
 
       def handle({:update, conn, params, module, bundle}) do
         id = get_id(params)
         row = model.allocate(params)
         :ok = Ecto.Model.put_primary_key(row, id) |> Repo.update
-        json conn, accepted, serialize(row)
+        {conn, accepted, row}
       end
 
       def handle({:destroy, conn, params, module, bundle}) do
@@ -92,7 +95,7 @@ defmodule Resources.Resource do
         query = from u in model, where: u.id == ^id, select: u
         [row] = Repo.all(query)
         Repo.delete(row)
-        json conn, accepted, serialize(row)
+        {conn, accepted, row}
       end
 
 

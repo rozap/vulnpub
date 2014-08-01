@@ -3,6 +3,8 @@
   "decimal": {:package, "0.2.2"},
   "ecto": {:package, "0.2.2"},
   "ex_conf": {:package, "0.1.2"},
+  "httpotion": {:git, "git://github.com/myfreeweb/httpotion.git", "a6bcbbac7b6f15ee93c5c941de36d59ef8c85743", []},
+  "ibrowse": {:git, "git://github.com/cmullaparthi/ibrowse.git", "7871e2ebe8811efb64e1917e2de455fa87e8dfe3", [tag: "v4.1.0"]},
   "inflex": {:package, "0.2.4"},
   "jazz": {:package, "0.1.2"},
   "json": {:git, "git://github.com/cblage/elixir-json.git", "f386b18431bbc0a0b6d38519ec2f256b5a040668", []},

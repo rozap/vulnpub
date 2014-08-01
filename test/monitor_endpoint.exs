@@ -43,6 +43,17 @@ defmodule Test.MonitorTest do
     assert status == 200
   end
 
+  test "only get your monitors" do
+    {_, _, apikey_resp} = DBHelpers.create_apikey()
+    key = Dict.get(apikey_resp, "key")
+    headers = [{"authentication", "foo:#{key}"}]
+    simulate_json_file(Vulnpub.Router, :post, "api/v1/monitors", "test/json/new_monitor.json", headers)
+    {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/monitors", nil, headers)
+    assert status == 200
+  end
+
+
+
   test "can update a monitor" do
     {_, _, apikey_resp} = DBHelpers.create_apikey()
     key = Dict.get(apikey_resp, "key")
