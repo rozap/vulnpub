@@ -7,10 +7,13 @@
 	},
 	"managed": {
 		"package.json": {
-		"manager": "npm"
+			"manager": "npm"
 		},
 		"requirements.txt": {
 			"manager": "pypi"
+		},
+		"dpkg.txt": {
+			"manager": "dpkg"
 		}
 	}
 }

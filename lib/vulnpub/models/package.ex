@@ -1,9 +1,8 @@
 defmodule Models.Package do
   use Ecto.Model
 
-  schema "monitors" do
+  schema "packages" do
     field :name
-    belongs_to :manifest, Models.Manifest
     field :version
     field :created, :datetime
     field :modified, :datetime

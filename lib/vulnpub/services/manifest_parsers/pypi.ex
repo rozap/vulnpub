@@ -5,7 +5,7 @@ defmodule Manifest.Parser.PyPi do
   # use Manifest.Parser.Parser
 
   def parse(filename, details, monitor) do
-    # :io.format("PARSING ~p ~p ~p", [filename, details, monitor])
+    IO.puts("PARSING requirements.txt pypi file")
   end
 
 end

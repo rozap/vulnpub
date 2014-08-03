@@ -41,9 +41,14 @@ defmodule Repo.Migrations.CreateUser do
           id serial primary key,
           name text,
           version varchar(255),
-          monitor integer references monitors(id),
           created timestamp DEFAULT NOW(), 
           modified timestamp DEFAULT NOW()
+        )",
+    "CREATE TABLE IF NOT EXISTS
+        package_monitors(
+          id serial primary key,
+          monitor_id integer references monitors(id), 
+          package_id integer references packages(id)
         )",
     "CREATE TABLE IF NOT EXISTS
         alerts(
@@ -60,9 +65,10 @@ defmodule Repo.Migrations.CreateUser do
 
   def down do
     ["DROP TABLE IF EXISTS alerts",
+     "DROP TABLE IF EXISTS package_monitors",
      "DROP TABLE IF EXISTS packages",
      "DROP TABLE IF EXISTS monitors",
-     "DROP TABLE IF EXISTS apikey", 
+     "DROP TABLE IF EXISTS apikeys", 
      "DROP TABLE IF EXISTS vulns",
      "DROP TABLE IF EXISTS users"]
   end

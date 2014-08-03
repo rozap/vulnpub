@@ -14,6 +14,7 @@ defmodule Service.MonitorConsumer do
   require Manifest.Parser.NPM
   def get_parser(:npm), do: Manifest.Parser.NPM
   def get_parser(:pypi), do: Manifest.Parser.PyPi
+  def get_parser(:dpkg), do: Manifest.Parser.Dpkg
 
   defp allocate(package_name, version, homepage, monitor) do
     Models.Package.allocate(%{
@@ -36,9 +37,6 @@ defmodule Service.MonitorConsumer do
   defp parse(:managed, node, monitor) do
     Enum.map(node, fn {filename, details} -> fetch_managed(filename, details, monitor) end)
   end
-
-
-
 
 
   defp parse_manifest jsobj, monitor do
