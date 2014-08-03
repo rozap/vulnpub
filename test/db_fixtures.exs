@@ -14,6 +14,8 @@ defmodule Fixture do
 
   def load do
     IO.puts("Loading fixture") 
+    delete Models.PackageMonitor
+    delete Models.Package
     delete Models.ApiKey   
     delete Models.Monitor
     delete Models.User

@@ -4,6 +4,9 @@ defmodule Models.Vuln do
   schema "vulns" do
     field :name
     field :description
+    field :external_link
+    field :effects_version
+    field :effects_package
     field :created, :datetime
     field :modified, :datetime
   end

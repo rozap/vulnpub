@@ -18,10 +18,21 @@ defmodule Test.VulnTest do
 
   test "can create a vuln" do
     {status, req_body, resp_body} = create
-    assert Dict.get(req_body, "manifest") == Dict.get(resp_body, "manifest")
+    assert Dict.get(req_body, "description") == Dict.get(resp_body, "description")
     assert Dict.get(req_body, "name") == Dict.get(resp_body, "name")
+    assert Dict.get(req_body, "external_link") == Dict.get(resp_body, "external_link")
+    assert Dict.get(req_body, "effects_version") == Dict.get(resp_body, "effects_version")
+
     id = Dict.get(resp_body, "id")
+    assert status == 201
     assert id != nil
+  end
+
+  test "can't create with a bogus apikey" do
+    {_, _, apikey_resp} = DBHelpers.create_apikey()
+    key = Dict.get(apikey_resp, "key")
+    {status, req_body, resp_body} = simulate_json_file(Vulnpub.Router, :post, "api/v1/vulns", "test/json/new_vuln.json", [{"authentication", "foo:something"}])
+    assert status == 403
   end
 
   test "can't create invalid vuln" do
@@ -41,7 +52,7 @@ defmodule Test.VulnTest do
     assert status == 403
   end
 
-  test "can get monitors if logged in" do
+  test "can get vulns if logged in" do
     {_, _, apikey_resp} = DBHelpers.create_apikey()
     key = Dict.get(apikey_resp, "key")
     headers = [{"authentication", "foo:#{key}"}]

@@ -1,4 +1,7 @@
 {
 	"description": "foo",
-	"name": "baz"
+	"name": "baz",
+	"effects_package": "some-package-name",
+	"effects_version": "4.20",
+	"external_link": "http://some-blog/post"
 }

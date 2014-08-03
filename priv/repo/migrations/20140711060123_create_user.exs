@@ -24,6 +24,9 @@ defmodule Repo.Migrations.CreateUser do
           id serial primary key,
           name varchar(255), 
           description text,
+          effects_version varchar(255),
+          effects_package varchar(255),
+          external_link text DEFAULT '',
           created timestamp DEFAULT NOW(), 
           modified timestamp DEFAULT NOW()
         )",
@@ -51,6 +54,15 @@ defmodule Repo.Migrations.CreateUser do
           package_id integer references packages(id)
         )",
     "CREATE TABLE IF NOT EXISTS
+        vuln_effects(
+          id serial primary key,
+          vuln_id integer references vulns(id),
+          package_id integer references packages(id), 
+          created timestamp DEFAULT NOW(), 
+          modified timestamp DEFAULT NOW()
+        )",
+
+    "CREATE TABLE IF NOT EXISTS
         alerts(
           id serial primary key,
           vuln integer references vulns(id),
@@ -65,6 +77,7 @@ defmodule Repo.Migrations.CreateUser do
 
   def down do
     ["DROP TABLE IF EXISTS alerts",
+     "DROP TABLE IF EXISTS vuln_effects",
      "DROP TABLE IF EXISTS package_monitors",
      "DROP TABLE IF EXISTS packages",
      "DROP TABLE IF EXISTS monitors",

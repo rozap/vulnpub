@@ -6,13 +6,13 @@ defmodule Resources.Authenticator do
     try do
       req_headers = Enum.map(conn.req_headers, fn {key, value} -> {String.to_atom(key), value} end)
       [username, key] = String.split(Keyword.fetch!(req_headers, :authentication), ":")
-      user = (from a in Models.ApiKey, 
+      [user] = (from a in Models.ApiKey, 
         where: a.key == ^key,
         inner_join: u in Models.User,
         on: u.id == a.user_id,
         select: u,
         where: u.username == ^username) |> Repo.all
-      bundle = Dict.put(bundle, :user, List.first user)
+      bundle = Dict.put(bundle, :user, user)
       {verb, conn, params, module, bundle}
     rescue
       _ -> throw {:forbidden, [error: "You need to be logged in to do that"]}
