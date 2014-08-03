@@ -40,6 +40,7 @@ defmodule Resources.ModelValidator do
       ###
       # By default, all fields just work. override this for specific stuff tho
       def validate_field(_, _, _), do: :ok
+      def validate_together(_, _, _), do: :ok
 
 
       def ignore_fields(:create), do: [:id] ++ ignore_fields(nil)
@@ -51,18 +52,19 @@ defmodule Resources.ModelValidator do
       end
 
 
-      defp params_to_check(verb, params, field_types, module) do
+      defp params_to_check(verb, params, field_types) do
         included = Enum.filter(field_types, fn {name, _} -> not name in ignore_fields(verb) end) 
         Enum.map(included, fn {name, _type} -> {name, Dict.get(params, name)} end)
       end
 
       def validate({verb, conn, params, module, bundle}) do
         field_types = module.model.field_types
-        check_params = params_to_check(verb, params, field_types, module)
+        check_params = params_to_check(verb, params, field_types)
         checked = Enum.map(check_params, fn {name, value} -> validate_type(Keyword.fetch!(field_types, name), name, value) end)
         errors = Enum.filter(checked, fn {status, _, _} -> status == :error end)
         if length(errors) > 0, do: throw {:bad_request,  make_error_message(errors)}
         Enum.map(check_params, fn {name, value} -> validate_field(verb, name, value) end)
+        validate_together(verb, params, bundle)
         {verb, conn, params, module, bundle}
       end
 

@@ -5,11 +5,6 @@ defmodule Fixture do
 
   defp delete(model) do
     Repo.delete_all(model)
-    # query = from m in model, select: m
-    # rows = Repo.all(query)
-    # if length(rows) > 0 do
-    #   Repo.delete_all(rows)
-    # end
   end
 
   def load do
