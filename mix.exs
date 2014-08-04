@@ -28,8 +28,8 @@ defmodule Vulnpub.Mixfile do
       {:postgrex, ">= 0.0.0"},
       {:ecto, "~> 0.2.0"},
       {:plug, "0.5.1"},
-      {:json,   github: "cblage/elixir-json"},
-      {:httpotion, github: "myfreeweb/httpotion"}
+      {:httpotion, github: "myfreeweb/httpotion"},
+      {:jazz, "0.1.2"}
     ]
   end
 end

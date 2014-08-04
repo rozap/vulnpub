@@ -21,6 +21,8 @@ defmodule Resources.Resource do
 
     quote do
       use Phoenix.Controller, unquote(all_opts)
+      require Jazz
+      use Jazz
 
       def bad_request, do: 400
       def unauthorized, do: 401
@@ -68,7 +70,7 @@ defmodule Resources.Resource do
         offset = (Dict.get(params, :page, "0") |> String.to_integer) * page_size
         data = (from u in model, limit: page_size, offset: offset, select: u) |> Repo.all
         [count] = (from u in model, select: count(u.id)) |> Repo.all
-        result = [meta: [count: count, next: trunc((page_size + offset) / page_size)], data: data]
+        result = %{:meta => %{:count => count, :next => trunc((page_size + offset) / page_size)}, :data => data}
         {conn, ok, result}
       end
 
@@ -83,7 +85,7 @@ defmodule Resources.Resource do
       def handle({:show, conn, params, module, bundle}) do
         id = get_id(params)
         query = from u in model, where: u.id == ^id, select: u
-        result = Repo.get(query)
+        [result] = Repo.all(query)
         {conn, ok, result}
       end
 
@@ -104,12 +106,12 @@ defmodule Resources.Resource do
 
 
       def serialize(thing) do
-        Resources.Serializer.to_json(thing, model, unquote(all_opts))
+        exclude = unquote(all_opts)[:exclude]
+        Jazz.encode!(thing)
       end
 
       def raw(thing) do
-        {:ok, json} = JSON.encode(thing)
-        json
+        Jazz.encode!(thing)
       end
     end
   end
