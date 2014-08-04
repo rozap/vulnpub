@@ -36,6 +36,8 @@ defmodule Resources.Resource do
         String.to_integer(params[:id])
       end
 
+      def page_size, do: 40
+
 
       def dispatch(verb, conn, params) do
         middleware = unquote(all_opts[:middleware])
@@ -63,8 +65,10 @@ defmodule Resources.Resource do
 
 
       def handle({:index, conn, params, module, bundle}) do
-        query = from u in model, select: u
-        result = Repo.all(query)
+        offset = (Dict.get(params, :page, "0") |> String.to_integer) * page_size
+        data = (from u in model, limit: page_size, offset: offset, select: u) |> Repo.all
+        [count] = (from u in model, select: count(u.id)) |> Repo.all
+        result = [meta: [count: count, next: trunc((page_size + offset) / page_size)], data: data]
         {conn, ok, result}
       end
 

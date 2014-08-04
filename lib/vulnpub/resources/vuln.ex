@@ -24,7 +24,7 @@ end
 
 
 defmodule Resources.Vuln.Authenticator do
-  use Resources.Authenticator, []
+  use Resources.Authenticator, [except: [:index, :show]]
 end
 
 defmodule Resources.Vuln.Trigger do
