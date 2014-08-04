@@ -65,8 +65,8 @@ defmodule Repo.Migrations.CreateUser do
     "CREATE TABLE IF NOT EXISTS
         alerts(
           id serial primary key,
-          vuln integer references vulns(id),
-          monitor integer references monitors(id),
+          vuln_id integer references vulns(id),
+          monitor_id integer references monitors(id),
           created timestamp DEFAULT NOW(), 
           modified timestamp DEFAULT NOW(),
           fulfilled timestamp DEFAULT null
