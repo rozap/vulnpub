@@ -5,9 +5,11 @@ defmodule Resources.ApiKey.Validator do
   def validate({:create, conn, params, module, bundle}) do
     try do
       %{:username => username, :password => password} = params
-      hashed = Models.User.hash_password(password)
-      query = from u in Models.User, where: u.username == ^username and u.password == ^hashed, select: u
-      [result] = Repo.all(query)
+      [user] = (from u in Models.User, where: u.username == ^username, select: u) |> Repo.all
+      {:ok, provided_hash} = hashed = :bcrypt.hashpw(password, user.password)
+      if List.to_string(provided_hash) != user.password do
+        raise :invalid
+      end
     rescue
       _ -> throw {:bad_request, %{:username => "The username/password combination is invalid"}}
     end
