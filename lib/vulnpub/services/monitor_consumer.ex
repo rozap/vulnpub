@@ -10,8 +10,6 @@ defmodule Service.MonitorConsumer do
     {:ok, initial_state}
   end
 
-
-  require Manifest.Parser.NPM
   def get_parser(:npm), do: Manifest.Parser.NPM
   def get_parser(:pypi), do: Manifest.Parser.PyPi
   def get_parser(:dpkg), do: Manifest.Parser.Dpkg

@@ -1,6 +1,11 @@
 defmodule Service.VulnConsumer do
   use GenServer
   import Ecto.Query, only: [from: 2]
+
+  alias Models.PackageMonitor
+  alias Models.Package
+  alias Models.Monitor
+
   def start_link(state, opts) do
     GenServer.start_link(__MODULE__, state, opts)
   end
@@ -19,18 +24,25 @@ defmodule Service.VulnConsumer do
   end
 
   def is_effected_package?(package, vuln) do
-    to_version_list package.version
+    to_version_list(package.version) <= to_version_list(vuln.effects_version)
+  end
+
+  defp create_alert(package) do
+    monitors = (from pm in PackageMonitor, 
+      join: m in Monitor, on: m.id == pm.monitor_id,
+      where: pm.package_id == ^package.id, 
+      select: m)
+      |> Repo.all
+
+    :io.format("alerting monitor ~p~n", [monitors])
   end
 
 
-
   def handle_cast({:create, vuln}, state) do
-    :io.format("new vuln created ~n~p~n~p~n~p~n", [vuln.effects_package, vuln.effects_version, vuln.name])
-    effected = (from p in Models.Package, where: ilike(p.name, ^vuln.effects_package), select: p)
+    effected = (from p in Package, where: ilike(p.name, ^vuln.effects_package), select: p)
        |> Repo.all
        |> Enum.filter(fn package -> is_effected_package?(package, vuln) end)
-
-    :io.format("PACKAGES ~p ~n", [effected])
+       |> Enum.map(&(create_alert &1))
 
 
     {:noreply, state}
