@@ -15,7 +15,7 @@ defmodule Resources.Authenticator do
       bundle = Dict.put(bundle, :user, user)
       {verb, conn, params, module, bundle}
     rescue
-      _ -> throw {:forbidden, [error: "You need to be logged in to do that"]}
+      _ -> throw {:forbidden, %{error: "You need to be logged in to do that"}}
     end
   end
 

@@ -20,7 +20,7 @@ defmodule Resources.Monitor.Authorizor do
       [monitor] = (from m in Models.Monitor, where: m.user_id == ^user_id and m.id == ^id, select: m) |> Repo.all
       {verb, conn, params, module, bundle}
     rescue
-      _ -> throw {:unauthorized, [error: "You are not authorized to do that"]}
+      _ -> throw {:unauthorized, %{error: "You are not authorized to do that"}}
     end
   end
 

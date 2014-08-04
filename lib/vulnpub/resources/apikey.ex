@@ -33,7 +33,7 @@ defmodule Resources.ApiKey do
     key = params[:id]
     [row] = (from a in model, where: a.key == ^key, select: a) |> Repo.all 
     Repo.delete(row)
-    {conn, accepted, row}
+    {conn, accepted, to_serializable(row)}
   end
 
   def model do

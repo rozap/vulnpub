@@ -103,7 +103,6 @@ defmodule Resources.Resource do
       end
 
       def to_serializable(thing) do
-        :io.format("TO SERIALIZABLE ~p~n", [thing])
         Resources.Serializer.to_serializable(thing, model, unquote(all_opts))
       end
 

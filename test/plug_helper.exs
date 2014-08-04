@@ -16,10 +16,8 @@ defmodule PlugHelper do
         headers = [{"content-type", "application/json"}] ++ headers
         conn = conn(http_method, path, body, [headers: headers])
 
-        IO.puts(body)
         req_body = Jazz.decode!(body)
         conn = router.call(conn, [])
-        IO.puts(conn.resp_body)
         resp_body = Jazz.decode!(conn.resp_body)
         {conn.status, req_body, resp_body}
       end

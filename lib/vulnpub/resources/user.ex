@@ -6,7 +6,7 @@ defmodule Resources.User.Validator do
     query = from u in Models.User, where: u.username == ^username, select: u
     result = Repo.all(query)
     if length(result) > 0 do
-      throw {:bad_request, [username: "The username #{username} is already taken"]}
+      throw {:bad_request, %{:username => "The username #{username} is already taken"}}
     end
     :ok
   end

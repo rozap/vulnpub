@@ -43,7 +43,6 @@ defmodule Test.UserTest do
     {_, _, apikey_resp} = DBHelpers.create_apikey()
     %{"key" => key} = apikey_resp
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/users", nil, [{"authentication", "foo:#{key}"}])
-    :io.format("resp body ~p~n", [resp_body])
     %{"data" => data} = resp_body
     assert length(data) == 1
 
