@@ -48,7 +48,7 @@ defmodule Resources.ModelValidator do
 
 
       def make_error_message(errors) do
-        {"errors", Enum.map(errors, fn {:error, name, value} -> {name, value} end)}
+        %{:errors => Enum.map(errors, fn {:error, name, value} -> {name, value} end) |> Enum.into(%{})}
       end
 
 

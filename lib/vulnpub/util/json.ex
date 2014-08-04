@@ -5,9 +5,3 @@ defimpl Jazz.Encoder, for: Ecto.DateTime do
   end
   
 end
-
-
-
-
-
-

@@ -9,7 +9,7 @@ defmodule Resources.ApiKey.Validator do
       query = from u in Models.User, where: u.username == ^username and u.password == ^hashed, select: u
       [result] = Repo.all(query)
     rescue
-      _ -> throw {:bad_request, [username: "The username/password combination is invalid"]}
+      _ -> throw {:bad_request, %{:username => "The username/password combination is invalid"}}
     end
     {:create, conn, params, module, bundle}
   end
@@ -25,7 +25,7 @@ defmodule Resources.ApiKey do
     %{:username => username, :password => password} = params
     [user] = (from u in Models.User, where: u.username == ^username, select: u) |> Repo.all
     props = %{:user_id => user.id, :key => Models.ApiKey.gen_key}
-    key = Models.ApiKey.allocate(props) |> Repo.insert
+    key = Models.ApiKey.allocate(props) |> Repo.insert |> to_serializable
     {conn, created, key}
   end
 

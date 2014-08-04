@@ -23,28 +23,30 @@ defmodule Test.UserTest do
 
   test "cannot create a user that is missing fields" do
     {status, req_body, resp_body} = simulate_json_file(Vulnpub.Router, :post, "api/v1/users", "test/json/invalid_new_user.json")
-    [root, error_dict] = resp_body
-    assert root == "errors"
-    assert Dict.get(error_dict, "password") == "This needs to be a string"
-    assert Dict.get(error_dict, "username") == "This needs to be a string"
+    %{"errors" => errors} = resp_body
+    %{"errors" => %{"password" => pw_msg, "username" => un_msg}} = resp_body
+    assert pw_msg == "This needs to be a string"
+    assert un_msg == "This needs to be a string"
     assert status == 400
   end
 
   test "cannot create a user that is missing fields" do
     {status, req_body, resp_body} = simulate_json_file(Vulnpub.Router, :post, "api/v1/users", "test/json/invalid_new_user_1.json")
-    [root, error_dict] = resp_body
-    assert root == "errors"
-    assert Dict.get(error_dict, "password") == "This needs to be a string"
-    assert Dict.get(error_dict, "username") == "This needs to be a string"
+    %{"errors" => %{"password" => pw_msg, "username" => un_msg}} = resp_body
+    assert pw_msg == "This needs to be a string"
+    assert un_msg == "This needs to be a string"
     assert status == 400
   end
 
 
   test "can get a list of users when logged in" do
     {_, _, apikey_resp} = DBHelpers.create_apikey()
-    key = Dict.get(apikey_resp, "key")
+    %{"key" => key} = apikey_resp
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/users", nil, [{"authentication", "foo:#{key}"}])
-    assert length(resp_body) > 0
+    :io.format("resp body ~p~n", [resp_body])
+    %{"data" => data} = resp_body
+    assert length(data) == 1
+
     assert status == 200
   end
 

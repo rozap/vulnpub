@@ -7,7 +7,7 @@ defmodule PlugHelper do
         headers = [{"content-type", "application/json"}]
         conn = conn(http_method, path, params_or_body, [headers: headers])
         conn = router.call(conn, [])
-        {conn.status,  JSON.decode(conn.resp_body)}
+        {conn.status,  Jazz.decode!(conn.resp_body)}
       end
 
 
@@ -15,9 +15,12 @@ defmodule PlugHelper do
         body = File.read! filename
         headers = [{"content-type", "application/json"}] ++ headers
         conn = conn(http_method, path, body, [headers: headers])
-        {:ok, req_body} = JSON.decode(body)
+
+        IO.puts(body)
+        req_body = Jazz.decode!(body)
         conn = router.call(conn, [])
-        {:ok, resp_body} = JSON.decode(conn.resp_body)
+        IO.puts(conn.resp_body)
+        resp_body = Jazz.decode!(conn.resp_body)
         {conn.status, req_body, resp_body}
       end
 
@@ -27,11 +30,11 @@ defmodule PlugHelper do
         conn = case req_body do
           nil -> conn(http_method, path, "{}", [headers: headers])
           _ -> 
-            {:ok, json_body} = JSON.encode(req_body)
+            json_body = Jazz.encode!(req_body)
             conn(http_method, path, json_body, [headers: headers])
         end
         conn = router.call(conn, [])
-        {:ok, resp_body} = JSON.decode(conn.resp_body)
+        resp_body = Jazz.decode!(conn.resp_body)
         {conn.status, req_body, resp_body}
       end
     end

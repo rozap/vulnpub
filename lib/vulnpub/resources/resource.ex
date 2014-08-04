@@ -53,9 +53,9 @@ defmodule Resources.Resource do
           {verb, conn, status, entity} = Enum.reduce(triggers, Tuple.insert_at(response, 0, verb), fn(layer, res) -> layer.handle(res) end)
           json conn, status, serialize(entity)
         catch
-          {:bad_request, errors} -> json conn, bad_request, raw(errors)
-          {:unauthorized, errors} -> json conn, unauthorized, raw(errors)
-          {:forbidden, errors} -> json conn, forbidden, raw(errors)
+          {:bad_request, errors} -> json conn, bad_request, serialize(errors)
+          {:unauthorized, errors} -> json conn, unauthorized, serialize(errors)
+          {:forbidden, errors} -> json conn, forbidden, serialize(errors)
         end
       end
 
@@ -68,7 +68,7 @@ defmodule Resources.Resource do
 
       def handle({:index, conn, params, module, bundle}) do
         offset = (Dict.get(params, :page, "0") |> String.to_integer) * page_size
-        data = (from u in model, limit: page_size, offset: offset, select: u) |> Repo.all
+        data = (from u in model, limit: page_size, offset: offset, select: u) |> Repo.all |> to_serializable
         [count] = (from u in model, select: count(u.id)) |> Repo.all
         result = %{:meta => %{:count => count, :next => trunc((page_size + offset) / page_size)}, :data => data}
         {conn, ok, result}
@@ -78,14 +78,13 @@ defmodule Resources.Resource do
         if model.has_user? and Dict.get(bundle, :user, false) do
           params = Dict.put(params, :user_id, bundle[:user].id)
         end
-        thing = model.allocate(params) |> Repo.insert
+        thing = model.allocate(params) |> Repo.insert |> to_serializable
         {conn, created, thing}
       end
 
       def handle({:show, conn, params, module, bundle}) do
         id = get_id(params)
-        query = from u in model, where: u.id == ^id, select: u
-        [result] = Repo.all(query)
+        result = (from u in model, where: u.id == ^id, select: u) |> Repo.all |> to_serializable
         {conn, ok, result}
       end
 
@@ -93,24 +92,22 @@ defmodule Resources.Resource do
         id = get_id(params)
         row = model.allocate(params)
         :ok = Ecto.Model.put_primary_key(row, id) |> Repo.update
-        {conn, accepted, row}
+        {conn, accepted, to_serializable(row)}
       end
 
       def handle({:destroy, conn, params, module, bundle}) do
         id = get_id(params)
-        query = from u in model, where: u.id == ^id, select: u
-        [row] = Repo.all(query)
+        [row] = (from u in model, where: u.id == ^id, select: u) |> Repo.all
         Repo.delete(row)
-        {conn, accepted, row}
+        {conn, accepted, to_serializable(row)}
       end
 
+      def to_serializable(thing) do
+        :io.format("TO SERIALIZABLE ~p~n", [thing])
+        Resources.Serializer.to_serializable(thing, model, unquote(all_opts))
+      end
 
       def serialize(thing) do
-        exclude = unquote(all_opts)[:exclude]
-        Jazz.encode!(thing)
-      end
-
-      def raw(thing) do
         Jazz.encode!(thing)
       end
     end
