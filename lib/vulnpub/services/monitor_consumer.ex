@@ -40,8 +40,8 @@ defmodule Service.MonitorConsumer do
 
 
   defp parse_manifest jsobj, monitor do
-    Dict.to_list(jsobj)
-      |> Enum.map(fn {kind, details} -> {String.to_atom(kind), Dict.to_list(details)} end)
+    Map.to_list(jsobj)
+      |> Enum.map(fn {kind, details} -> {String.to_atom(kind), Map.to_list(details)} end)
       |> Enum.map(fn {kind, node} -> parse(kind, node, monitor) end)
   end
 
@@ -49,10 +49,8 @@ defmodule Service.MonitorConsumer do
     HTTPotion.start
     response = HTTPotion.get monitor.manifest
     if HTTPotion.Response.success? response do
-      case  JSON.decode response.body do
-        {:ok, jsobj} -> parse_manifest jsobj, monitor
-        _ -> :io.format("malformed json")
-      end
+      Jazz.decode!(response.body)
+        |> parse_manifest(monitor)
     else
       :io.format("manifest failed, not accessible~n")
     end
