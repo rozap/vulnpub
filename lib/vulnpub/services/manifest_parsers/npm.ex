@@ -31,7 +31,7 @@ defmodule Manifest.Parser.NPM do
       ++
     (Enum.filter(deps, fn {name, version} -> String.at(version, 0) == "~" end) 
           |> Enum.map(fn {name, version} -> {name, replace_minor version} end))
-      end
+  end
   
   def parse_deps(jsobj, monitor) do
     convert_versions(jsobj["dependencies"])

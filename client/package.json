@@ -1,0 +1,24 @@
+{
+    "name": "",
+    "private": true,
+    "version": "0.0.0",
+    "description": "",
+    "dependencies": {
+        "optimist": "0.3.4",
+        "browserify": "latest",
+        "backbone": "latest",
+        "underscore": "latest",
+        "jquery": "latest",
+        "gulp": "latest",
+        "gulp-less": "latest",
+        "gulp-uglify": "latest",
+        "gulp-minify-css": "latest",
+        "gulp-browserify": "latest",
+        "moment": "latest",
+        "vinyl-source-stream": "latest",
+        "stringify": "latest"
+    },
+    "repository": "",
+    "author": "",
+    "license": ""
+}
