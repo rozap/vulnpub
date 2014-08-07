@@ -1,1 +1,64 @@
 @import "pure.less";
+
+
+@gray-dark: #2e2e2e;
+@gray-light: #efefef;
+@margin-width:16px;
+@blue: 0E90D2;
+
+@header-height: @margin-width*8;
+
+* {
+	box-sizing: border-box;
+}
+
+.inner {
+}
+
+
+.header {
+
+	h4 {
+		margin:0px;
+		padding:@margin-width;
+		color:@gray-light;
+	}
+	height: @header-height;
+	background: @gray-dark;
+}
+
+
+a {
+	text-decoration: none;
+}
+
+.side-nav {
+	position: fixed;
+	width:256px;
+	height: ~"calc(100% - " @header-height ~")";
+	background: @gray-light;
+	ul {
+		list-style: none;
+		padding:0px;
+
+		li {
+			display: block;
+			padding:@margin-width;
+			a {
+				color:@gray-dark;
+			}
+		}
+
+		li.divider {
+			padding:0px;
+			border-top: 1px solid darken(@gray-light, 10%);
+			border-bottom: 1px solid darken(@gray-light, 20%);
+		}
+
+		li:hover {
+			background: lighten(@gray-light, 10%);
+		}
+	}
+}
+
+
