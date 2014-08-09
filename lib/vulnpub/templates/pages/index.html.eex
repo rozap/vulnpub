@@ -10,8 +10,12 @@
     <!-- separate --> 
     <li class="divider"></li>
     <li>
-      <a href="vulns">Known Vulnerabilities</a>
+      <a href="#vulns">Known Vulnerabilities</a>
     </li>
 
   </ul>
+</div>
+
+<div id="main">
+  <h2>hi</h2>
 </div>

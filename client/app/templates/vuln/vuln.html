@@ -1,0 +1,8 @@
+<% if(!vulns.length) { %> 
+	<h6>No vulnerabilities found</h6>
+	
+<% } else { %>
+	<% vulns.each(function(vuln) { %> 
+		<li><%- vuln.get('name') %></li>
+	<% }); %>
+<% } %>
