@@ -6,9 +6,6 @@
     <li>
       <a href="#monitors">Your Monitors</a>
     </li>
-    <li>
-      <a href="#monitors">New Monitor</a>
-    </li>
 
     <!-- separate --> 
     <li class="divider"></li>

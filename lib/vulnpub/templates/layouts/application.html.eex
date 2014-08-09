@@ -13,9 +13,11 @@
 
   <body>
     <div class="header">
-      <h4 class="title">
-        vuln.pub
-      </h4>
+      <h1 class="title">
+        <a href="/">
+          vuln.pub
+        </a>
+      </h1>
     </div>
 
     <div class="inner">

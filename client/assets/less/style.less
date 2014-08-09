@@ -17,19 +17,47 @@
 
 
 .header {
-
-	h4 {
+	position: relative;
+	border-top: @margin-width/3 solid @gray-dark;
+	h1 {
+		padding:@margin-width*2;
 		margin:0px;
-		padding:@margin-width;
-		color:@gray-light;
+		a {
+
+			padding:@margin-width * 2;
+			margin-top: @margin-width * 2;
+			color:@gray-light;
+			text-shadow: 2px 2px 5px @gray-dark;
+			font-size: 1.6em;
+
+		}
+			a:hover {
+				color: darken(@gray-light, 15%);
+			};
+
+
 	}
 	height: @header-height;
-	background: @gray-dark;
+}
+
+.header::after {
+	content: "";
+	background: url(image.jpg);
+	background-image: url("/static/images/old-school.jpg");
+	background-size:contain;
+	opacity:.5;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	position: absolute;
+	z-index: -1;   
 }
 
 
 a {
 	text-decoration: none;
+	transition: .2s all;
 }
 
 .side-nav {
@@ -42,9 +70,9 @@ a {
 		padding:0px;
 
 		li {
-			display: block;
-			padding:@margin-width;
 			a {
+				display: block;
+				padding:@margin-width;
 				color:@gray-dark;
 			}
 		}
@@ -52,7 +80,6 @@ a {
 		li.divider {
 			padding:0px;
 			border-top: 1px solid darken(@gray-light, 10%);
-			border-bottom: 1px solid darken(@gray-light, 20%);
 		}
 
 		li:hover {
