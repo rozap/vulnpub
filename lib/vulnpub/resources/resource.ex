@@ -70,7 +70,8 @@ defmodule Resources.Resource do
         offset = (Dict.get(params, :page, "0") |> String.to_integer) * page_size
         data = (from u in model, limit: page_size, offset: offset, select: u) |> Repo.all |> to_serializable
         [count] = (from u in model, select: count(u.id)) |> Repo.all
-        result = %{:meta => %{:count => count, :next => trunc((page_size + offset) / page_size)}, :data => data}
+        pages = trunc(count / page_size)
+        result = %{:meta => %{:pages => pages, :count => count, :next => trunc((page_size + offset) / page_size)}, :data => data}
         {conn, ok, result}
       end
 
@@ -84,7 +85,7 @@ defmodule Resources.Resource do
 
       def handle({:show, conn, params, module, bundle}) do
         id = get_id(params)
-        result = (from u in model, where: u.id == ^id, select: u) |> Repo.all |> to_serializable
+        result = (from u in model, where: u.id == ^id, select: u) |> Repo.all |> List.first |> to_serializable
         {conn, ok, result}
       end
 

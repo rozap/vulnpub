@@ -1,6 +1,7 @@
 var Backbone = require('backbone'),
 	_ = require('underscore'),
-	VulnView = require('./views/vuln')
+	VulnList = require('./views/vuln-list'),
+	Vuln = require('./views/vuln');
 
 
 ;
@@ -8,6 +9,7 @@ module.exports = Backbone.Router.extend({
 
 	routes: {
 		'vulns': 'vulns',
+		'vulns/:id': 'vuln',
 
 	},
 
@@ -18,18 +20,25 @@ module.exports = Backbone.Router.extend({
 		};
 	},
 
-	_create: function(View) {
+	_create: function(View, opts) {
 		if (this.view) this.view.end();
-		this.view = new View({
+		this.view = new View(_.extend({
 			app: this.app
-		});
+		}, opts));
 		this.app.dispatcher.trigger('module', this.view);
 		this.view.onStart();
 	},
 
 	vulns: function() {
-		this._create(VulnView);
+		this._create(VulnList);
+	},
+
+	vuln: function(id) {
+		this._create(Vuln, {
+			vuln_id: parseInt(id)
+		});
 	}
+
 
 
 });

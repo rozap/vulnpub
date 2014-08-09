@@ -14,30 +14,79 @@ $(document).ready(function() {
 	var router = new Router();
 	Backbone.history.start();
 })
-},{"./router":4,"backbone":8,"jquery":9}],2:[function(require,module,exports){
+},{"./router":6,"backbone":14,"jquery":15}],2:[function(require,module,exports){
 var Backbone = require('backbone'),
-	_ = require('underscore');
+    _ = require('underscore');
 
 
 module.exports = Backbone.Collection.extend({
 
-	initialize: function(models, opts) {
-		this.app = opts.app;
-		if (!this.app) throw new Error("supply an app to the collection pls");
-	},
+    initialize: function(models, opts) {
+        this.app = opts.app;
+        if (!this.app) throw new Error("supply an app to the collection pls");
+        this.listenTo(this, 'request', this._onRequest);
+        this.listenTo(this, 'sync', this._onSync);
+        this.listenTo(this, 'error', this._onError);
 
-	url: function() {
-		return '/api/v1/' + this.api();
-	},
+    },
 
-	parse: function(resp) {
-		this.meta = resp.meta;
-		return resp.data;
-	}
+    url: function() {
+        return '/api/v1/' + this.api();
+    },
+
+    parse: function(resp) {
+        this.meta = resp.meta;
+        return resp.data;
+    },
+
+    pageCount: function() {
+        return this.meta ? this.meta.pages : 0;
+    },
+
+    fetch: function(opts) {
+        opts = opts || {};
+        opts.data = opts.data || {
+            page: this.getPage()
+        };
+        return Backbone.Collection.prototype.fetch.call(this, opts);
+    },
+
+    setPage: function(p) {
+        this._page = p;
+        return this;
+    },
+
+    getPage: function() {
+        return this._page || 0;
+    },
+
+    isLoading: function() {
+        return !!this._isRequesting;
+    },
+
+    _onSync: function() {
+        this._hasSynced = true;
+        this._isRequesting = false;
+        this._hasErrored = false;
+
+    },
+
+    _onRequest: function() {
+        this._hasSynced = false;
+        this._isRequesting = true;
+        this._hasErrored = false;
+    },
+
+    _onError: function() {
+        this._hasSynced = false;
+        this._isRequesting = false;
+        this._hasErrored = true;
+    }
+
 
 
 });
-},{"backbone":8,"underscore":10}],3:[function(require,module,exports){
+},{"backbone":14,"underscore":16}],3:[function(require,module,exports){
 var Collection = require('./abstract');
 
 
@@ -51,8 +100,36 @@ module.exports = Collection.extend({
 });
 },{"./abstract":2}],4:[function(require,module,exports){
 var Backbone = require('backbone'),
+    _ = require('underscore');
+
+
+module.exports = Backbone.Model.extend({
+
+    initialize: function(models, opts) {
+        this.app = opts.app;
+        if (!this.app) throw new Error("supply an app to the model pls");
+    },
+
+    url: function() {
+        return '/api/v1/' + this.api() + (this.get('id') ? '/' + this.get('id') : '');
+    }
+
+
+});
+},{"backbone":14,"underscore":16}],5:[function(require,module,exports){
+var Model = require('./abstract');
+
+
+module.exports = Model.extend({
+	api: function() {
+		return 'vulns';
+	}
+});
+},{"./abstract":4}],6:[function(require,module,exports){
+var Backbone = require('backbone'),
 	_ = require('underscore'),
-	VulnView = require('./views/vuln')
+	VulnList = require('./views/vuln-list'),
+	Vuln = require('./views/vuln');
 
 
 ;
@@ -60,6 +137,7 @@ module.exports = Backbone.Router.extend({
 
 	routes: {
 		'vulns': 'vulns',
+		'vulns/:id': 'vuln',
 
 	},
 
@@ -70,22 +148,29 @@ module.exports = Backbone.Router.extend({
 		};
 	},
 
-	_create: function(View) {
+	_create: function(View, opts) {
 		if (this.view) this.view.end();
-		this.view = new View({
+		this.view = new View(_.extend({
 			app: this.app
-		});
+		}, opts));
 		this.app.dispatcher.trigger('module', this.view);
 		this.view.onStart();
 	},
 
 	vulns: function() {
-		this._create(VulnView);
+		this._create(VulnList);
+	},
+
+	vuln: function(id) {
+		this._create(Vuln, {
+			vuln_id: parseInt(id)
+		});
 	}
 
 
+
 });
-},{"./views/vuln":6,"backbone":8,"underscore":10}],5:[function(require,module,exports){
+},{"./views/vuln":10,"./views/vuln-list":9,"backbone":14,"underscore":16}],7:[function(require,module,exports){
 var Backbone = require('backbone'),
 	_ = require('underscore'),
 	$ = require('jquery');
@@ -96,6 +181,7 @@ module.exports = Backbone.View.extend({
 
 	initialize: function(opts) {
 		_.extend(this, opts);
+		this._views = {};
 		if (!this.app) throw new Error('can u not');
 	},
 
@@ -104,6 +190,10 @@ module.exports = Backbone.View.extend({
 		ctx = this.context(ctx);
 		this.pre(ctx);
 		this._render(ctx);
+		_.each(this._views, function(view, name) {
+			view.setElement(this.$el.find(view.el));
+			view.render();
+		}.bind(this));
 		this.post(ctx);
 	},
 
@@ -140,39 +230,159 @@ module.exports = Backbone.View.extend({
 		return _.extend({
 			app: this.app
 		}, os);
+	},
+
+	renderIt: function() {
+		this.render();
+	},
+
+	spawn: function(name, view) {
+		this._views[name] && this._views[name].end();
+		this._views[name] = view;
+		view.onStart();
+	},
+
+	end: function() {
+		_.each(this._views, function(v, name) {
+			v.end();
+		});
+		this.undelegateEvents();
+		this.stopListening();
+		this.$el.html('');
+		this.trigger('end', this);
+		return this;
 	}
 
 });
-},{"backbone":8,"jquery":9,"underscore":10}],6:[function(require,module,exports){
+},{"backbone":14,"jquery":15,"underscore":16}],8:[function(require,module,exports){
 var View = require('./abstract'),
-	_ = require('underscore'),
-	Vulns = require('../collections/vulns'),
-	VulnTemplate = require('../../templates/vuln/vuln.html');
+    _ = require('underscore'),
+    PagerTemplate = require('../../templates/util/pager.html');
 
 module.exports = View.extend({
 
-	el: '#main',
-	template: _.template(VulnTemplate),
+    template: _.template(PagerTemplate),
 
-	include: ['vulns'],
+    include: ['fib', 'collection'],
 
-	initialize: function(opts) {
-		View.prototype.initialize.call(this, opts);
-		this.vulns = new Vulns([], this.opts());
-		this.listenTo(this.vulns, 'sync', this.renderIt);
-		this.vulns.fetch();
-	},
+    events: {
+        'click .to-page': 'goToPage'
+    },
 
-	onStart: function() {
-		this.render();
-	}
+
+    onStart: function() {
+        this.render();
+        console.log(this.$el);
+    },
+
+    fib: function() {
+        var i;
+        var arr = [];
+        arr[0] = 0;
+
+        arr[1] = 1;
+        for (i = 2; i <= 18; i++) {
+            arr[i] = arr[i - 2] + arr[i - 1];
+        }
+        return arr.filter(function(i) {
+            return i < this.collection.pageCount();
+        }.bind(this));
+    },
+
+
+    goToPage: function(e) {
+        var page = $(e.currentTarget).data('page');
+        this.collection.setPage(parseInt(page)).fetch();
+
+    }
+
 
 
 });
-},{"../../templates/vuln/vuln.html":7,"../collections/vulns":3,"./abstract":5,"underscore":10}],7:[function(require,module,exports){
-module.exports = "<% if(!vulns.length) { %> \n\t<h6>No vulnerabilities found</h6>\n\t\n<% } else { %>\n\t<% vulns.each(function(vuln) { %> \n\t\t<li><%- vuln.get('name') %></li>\n\t<% }); %>\n<% } %>";
+},{"../../templates/util/pager.html":11,"./abstract":7,"underscore":16}],9:[function(require,module,exports){
+var View = require('./abstract'),
+    _ = require('underscore'),
+    Vulns = require('../collections/vulns'),
+    VulnTemplate = require('../../templates/vuln/vuln-list.html'),
+    Pager = require('./pager');
 
-},{}],8:[function(require,module,exports){
+module.exports = View.extend({
+
+    el: '#main',
+    template: _.template(VulnTemplate),
+
+    include: ['vulns', 'shorten'],
+
+    initialize: function(opts) {
+        View.prototype.initialize.call(this, opts);
+        this.vulns = new Vulns([], this.opts());
+        this.listenTo(this.vulns, 'sync', this.renderIt);
+        this.vulns.fetch();
+    },
+
+    onStart: function() {
+        this.render();
+    },
+
+    post: function() {
+        if (this.vulns.pageCount() > 0) {
+            this.spawn('pager', new Pager(this.opts({
+                el: this.$el.find('#vuln-pager').selector,
+                collection: this.vulns
+            })));
+        }
+    },
+
+    shorten: function(str, to) {
+        to = to || 20;
+        if (str.length > to) {
+            return str.slice(0, to - 3) + '...';
+        }
+        return str;
+    }
+
+
+});
+},{"../../templates/vuln/vuln-list.html":12,"../collections/vulns":3,"./abstract":7,"./pager":8,"underscore":16}],10:[function(require,module,exports){
+var View = require('./abstract'),
+    _ = require('underscore'),
+    Vuln = require('../models/vuln'),
+    VulnTemplate = require('../../templates/vuln/vuln.html'),
+    Pager = require('./pager');
+
+module.exports = View.extend({
+
+    el: '#main',
+    template: _.template(VulnTemplate),
+
+    include: ['vuln'],
+
+    initialize: function(opts) {
+        View.prototype.initialize.call(this, opts);
+        this.vuln = new Vuln({
+            id: this.vuln_id
+        }, this.opts());
+        this.listenTo(this.vuln, 'sync', this.renderIt);
+        this.vuln.fetch();
+    },
+
+    onStart: function() {
+        this.render();
+    },
+
+
+
+});
+},{"../../templates/vuln/vuln.html":13,"../models/vuln":5,"./abstract":7,"./pager":8,"underscore":16}],11:[function(require,module,exports){
+module.exports = "<div class=\"pager\">\n\t<div class=\"page-counter\">\n\t\t<span><%- collection.getPage() %></span> of <span><%- collection.pageCount() %></span>\n\t</div>\n\n\t<ul>\n\t\t<% if(collection.getPage() > 0) { %>\n\t\t\t<li class=\"prev\">\n\t\t\t\t<a class=\"to-page\" \n\t\t\t\t\tdata-page=\"<%- collection.getPage() - 1 %>\"\n\t\t\t\t\thref=\"javascript:void(0)\">Previous</a>\n\t\t\t</li>\n\t\t<% } %>\n\t\t<% fib().slice(2).forEach(function(num) { %>\n\t\t\t<li>\n\t\t\t\t<a href=\"javascript:void(0)\"\n\t\t\t\t\tdata-page=\"<%- num %>\"\n\t\t\t\t\tclass=\"to-page <%- collection.getPage() === num? 'active' : '' %>\">\n\t\t\t\t\t<%- num %>\n\t\t\t\t</a>\n\t\t\t</li>\n\t\t<% }); %>\n\t\t<% if(collection.getPage() < collection.pageCount()) { %>\n\t\t\t<li class=\"next\">\n\t\t\t\t<a class=\"to-page\" \n\t\t\t\t\tdata-page=\"<%- collection.getPage() + 1 %>\"\n\t\t\t\t\thref=\"javascript:void(0)\">Next</a>\n\t\t\t</li>\n\t\t<% } %>\n\t</ul>\n</div>";
+
+},{}],12:[function(require,module,exports){
+module.exports = "<h3 class=\"module-header\">Vulnerabilities</h3>\n\n<div class=\"vuln-list pure-g\">\n\n\t<% if(!vulns.length && !vulns.isLoading()) { %> \n\t\t<div class=\"pure-u-1-1\">\n\t\t\t<h6>No vulnerabilities found</h6>\n\t\t</div>\n\t<% } else { %>\n\t\t<% vulns.each(function(vuln) { %> \n\t\t<div class=\"vuln-item\">\n\t\t\t<div class=\"pure-u-2-3\">\n\t\t\t\t<a href=\"#vulns/<%- vuln.get('id') %>\">\n\t\t\t\t\t<%- vuln.get('name') %>\n\t\t\t\t</a>\n\t\t\t</div>\n\t\t\t<div class=\"pure-u-1-3 details text-muted\">\n\t\t\t\t<p>\n\t\t\t\t\t<%- shorten(vuln.get('effects_package')) %>\n\t\t\t\t\t<%- shorten(vuln.get('effects_version')) %>\n\t\t\t\t</p>\n\t\t\t</div>\n\t\t</div>\n\t\t<% }); %>\n\t<% } %>\n</div>\n\n<div id=\"vuln-pager\"></div>";
+
+},{}],13:[function(require,module,exports){
+module.exports = "<div class=\"pure-g vuln-detail\">\n\t<div class=\"pure-u-1-1\">\n\n\n\n\t\t<h1><%- vuln.get('name') %></h1>\n\n\t\t<h4><span class=\"text-muted\">Effects Package:</span> <%- vuln.get('effects_package') %></h4>\n\t\t<h4><span class=\"text-muted\">Effects Version:</span> <%- vuln.get('effects_version') %></h4>\n\n\n\n\t\t<h5 class=\"vuln-section text-muted\">Description</h5>\n\t\t<p>\n\t\t\t<%- vuln.get('description') %>\n\t\t</p>\n\n\t\t<h5 class=\"vuln-section text-muted\">External Resources</h5>\n\t\t<a href=\"<%- vuln.get('external_link') %>\"><%- vuln.get('external_link') %></a>\n\t</div>\n</div>";
+
+},{}],14:[function(require,module,exports){
 //     Backbone.js 1.1.2
 
 //     (c) 2010-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -1782,7 +1992,7 @@ module.exports = "<% if(!vulns.length) { %> \n\t<h6>No vulnerabilities found</h6
 
 }));
 
-},{"underscore":10}],9:[function(require,module,exports){
+},{"underscore":16}],15:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.1
  * http://jquery.com/
@@ -10974,7 +11184,7 @@ return jQuery;
 
 }));
 
-},{}],10:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 //     Underscore.js 1.6.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors

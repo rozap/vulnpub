@@ -44,6 +44,8 @@ defmodule Resources.Vuln do
     Models.Vuln
   end
 
+  def page_size, do: 20
+
 	use Resources.Resource, [
     middleware: [
       Resources.Vuln.Authenticator,

@@ -1,0 +1,31 @@
+<div class="pager">
+	<div class="page-counter">
+		<span><%- collection.getPage() %></span> of <span><%- collection.pageCount() %></span>
+	</div>
+
+	<ul>
+		<% if(collection.getPage() > 0) { %>
+			<li class="prev">
+				<a class="to-page" 
+					data-page="<%- collection.getPage() - 1 %>"
+					href="javascript:void(0)">Previous</a>
+			</li>
+		<% } %>
+		<% fib().slice(2).forEach(function(num) { %>
+			<li>
+				<a href="javascript:void(0)"
+					data-page="<%- num %>"
+					class="to-page <%- collection.getPage() === num? 'active' : '' %>">
+					<%- num %>
+				</a>
+			</li>
+		<% }); %>
+		<% if(collection.getPage() < collection.pageCount()) { %>
+			<li class="next">
+				<a class="to-page" 
+					data-page="<%- collection.getPage() + 1 %>"
+					href="javascript:void(0)">Next</a>
+			</li>
+		<% } %>
+	</ul>
+</div>

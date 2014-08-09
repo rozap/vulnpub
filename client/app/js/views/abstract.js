@@ -8,6 +8,7 @@ module.exports = Backbone.View.extend({
 
 	initialize: function(opts) {
 		_.extend(this, opts);
+		this._views = {};
 		if (!this.app) throw new Error('can u not');
 	},
 
@@ -16,6 +17,10 @@ module.exports = Backbone.View.extend({
 		ctx = this.context(ctx);
 		this.pre(ctx);
 		this._render(ctx);
+		_.each(this._views, function(view, name) {
+			view.setElement(this.$el.find(view.el));
+			view.render();
+		}.bind(this));
 		this.post(ctx);
 	},
 
@@ -52,6 +57,27 @@ module.exports = Backbone.View.extend({
 		return _.extend({
 			app: this.app
 		}, os);
+	},
+
+	renderIt: function() {
+		this.render();
+	},
+
+	spawn: function(name, view) {
+		this._views[name] && this._views[name].end();
+		this._views[name] = view;
+		view.onStart();
+	},
+
+	end: function() {
+		_.each(this._views, function(v, name) {
+			v.end();
+		});
+		this.undelegateEvents();
+		this.stopListening();
+		this.$el.html('');
+		this.trigger('end', this);
+		return this;
 	}
 
 });

@@ -1,8 +1,21 @@
-<% if(!vulns.length) { %> 
-	<h6>No vulnerabilities found</h6>
-	
-<% } else { %>
-	<% vulns.each(function(vuln) { %> 
-		<li><%- vuln.get('name') %></li>
-	<% }); %>
-<% } %>
+<div class="pure-g vuln-detail">
+	<div class="pure-u-1-1">
+
+
+
+		<h1><%- vuln.get('name') %></h1>
+
+		<h4><span class="text-muted">Effects Package:</span> <%- vuln.get('effects_package') %></h4>
+		<h4><span class="text-muted">Effects Version:</span> <%- vuln.get('effects_version') %></h4>
+
+
+
+		<h5 class="vuln-section text-muted">Description</h5>
+		<p>
+			<%- vuln.get('description') %>
+		</p>
+
+		<h5 class="vuln-section text-muted">External Resources</h5>
+		<a href="<%- vuln.get('external_link') %>"><%- vuln.get('external_link') %></a>
+	</div>
+</div>

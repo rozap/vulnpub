@@ -13,7 +13,7 @@ var paths = {
         client: {
             src: './app/js/app.js',
             dest: '../priv/static/js/',
-            watch: ['./app/**/*.js', './app/*.js']
+            watch: ['./app/**/*.js', './app/*.js', './app/**/*.html']
         },
         server: {
             watch: ['./**/*.js', '!./assets/**/*.js']
