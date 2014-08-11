@@ -1,5 +1,6 @@
 var Backbone = require('backbone'),
-    _ = require('underscore');
+    _ = require('underscore'),
+    DataMixin = require('../util/data-layer-mixin');
 
 
 module.exports = Backbone.Model.extend({
@@ -7,11 +8,14 @@ module.exports = Backbone.Model.extend({
     initialize: function(models, opts) {
         this.app = opts.app;
         if (!this.app) throw new Error("supply an app to the model pls");
+
+        _.extend(this, DataMixin);
+        this.onStart();
     },
 
     url: function() {
         return '/api/v1/' + this.api() + (this.get('id') ? '/' + this.get('id') : '');
-    }
+    },
 
 
 });

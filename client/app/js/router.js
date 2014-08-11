@@ -1,16 +1,20 @@
 var Backbone = require('backbone'),
 	_ = require('underscore'),
 	VulnList = require('./views/vuln-list'),
-	Vuln = require('./views/vuln');
+	Vuln = require('./views/vuln'),
+	Login = require('./views/login'),
+	SideNav = require('./views/side-nav'),
+	Home = require('./views/home');
 
 
 ;
 module.exports = Backbone.Router.extend({
 
 	routes: {
+		'': 'home',
 		'vulns': 'vulns',
 		'vulns/:id': 'vuln',
-
+		'login': 'login'
 	},
 
 	initialize: function() {
@@ -18,6 +22,11 @@ module.exports = Backbone.Router.extend({
 			router: this,
 			dispatcher: _.clone(Backbone.Events)
 		};
+
+		this.nav = new SideNav({
+			app: this.app
+		});
+		this.nav.onStart();
 	},
 
 	_create: function(View, opts) {
@@ -29,6 +38,10 @@ module.exports = Backbone.Router.extend({
 		this.view.onStart();
 	},
 
+	home: function() {
+		this._create(Home);
+	},
+
 	vulns: function() {
 		this._create(VulnList);
 	},
@@ -37,6 +50,10 @@ module.exports = Backbone.Router.extend({
 		this._create(Vuln, {
 			vuln_id: parseInt(id)
 		});
+	},
+
+	login: function() {
+		this._create(Login);
 	}
 
 

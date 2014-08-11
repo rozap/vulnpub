@@ -52,9 +52,8 @@ defmodule Resources.Monitor do
   
 
 
-  def model do
-    Models.Monitor
-  end
+  def model, do: Models.Monitor
+  def page_size, do: 100
 
 	use Resources.Resource, [
     exclude: [], 

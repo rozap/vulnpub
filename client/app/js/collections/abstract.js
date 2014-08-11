@@ -1,16 +1,15 @@
 var Backbone = require('backbone'),
-    _ = require('underscore');
-
+    _ = require('underscore'),
+    DataMixin = require('../util/data-layer-mixin');
 
 module.exports = Backbone.Collection.extend({
 
     initialize: function(models, opts) {
         this.app = opts.app;
         if (!this.app) throw new Error("supply an app to the collection pls");
-        this.listenTo(this, 'request', this._onRequest);
-        this.listenTo(this, 'sync', this._onSync);
-        this.listenTo(this, 'error', this._onError);
 
+        _.extend(this, DataMixin);
+        this.onStart();
     },
 
     url: function() {
@@ -43,27 +42,14 @@ module.exports = Backbone.Collection.extend({
         return this._page || 0;
     },
 
-    isLoading: function() {
-        return !!this._isRequesting;
+    nextPage: function() {
+        if (this.getPage() >= this.pageCount()) return false;
+        return this.setPage(this.getPage() + 1);
     },
 
-    _onSync: function() {
-        this._hasSynced = true;
-        this._isRequesting = false;
-        this._hasErrored = false;
-
-    },
-
-    _onRequest: function() {
-        this._hasSynced = false;
-        this._isRequesting = true;
-        this._hasErrored = false;
-    },
-
-    _onError: function() {
-        this._hasSynced = false;
-        this._isRequesting = false;
-        this._hasErrored = true;
+    prevPage: function() {
+        if (this.getPage() <= 0) return false;
+        return this.setPage(this.getPage() - 1);
     }
 
 

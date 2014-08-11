@@ -1,0 +1,32 @@
+
+
+<div class="pure-g">
+    <div class="pure-u-1-1">
+        <form class="pure-form pure-form-aligned form-centered">
+			<h3>Login</h3>
+            <fieldset>
+                <div class="pure-control-group">
+                	<%= showError('username', apikey) %>
+                    <input id="name" 
+                    	name="username" 
+                    	type="text" 
+                    	value="<%- apikey.get('username') %>"
+                    	placeholder="Username">
+                </div>
+
+                <div class="pure-control-group">
+                	<%= showError('password', apikey) %>
+                    <input id="password" 
+                    	name="password" 
+                    	type="password" 
+                    	value="<%- apikey.get('password') %>"
+                    	placeholder="Password">
+                </div>
+
+                <button type="button" class="pure-button pure-button-primary login-button">
+                    Login
+                </button>
+            </fieldset>
+        </form>
+    </div>
+</div>

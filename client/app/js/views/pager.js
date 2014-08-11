@@ -15,7 +15,6 @@ module.exports = View.extend({
 
     onStart: function() {
         this.render();
-        console.log(this.$el);
     },
 
     fib: function() {

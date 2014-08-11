@@ -3,31 +3,46 @@ console.log('beep boop');
 
 var Router = require('./router'),
 	$ = require('jquery');
+
+$.fn.serializeObject = function() {
+	var obj = {};
+
+	$.each(this.serializeArray(), function(i, o) {
+		var n = o.name,
+			v = o.value;
+
+		obj[n] = obj[n] === undefined ? v : $.isArray(obj[n]) ? obj[n].concat(v) : [obj[n], v];
+	});
+
+	return obj;
+};
+
 var Backbone = require('backbone');
 Backbone.$ = $;
+
 
 
 /////just for debugging
 window.$ = $;
 
 $(document).ready(function() {
+
 	var router = new Router();
 	Backbone.history.start();
 })
-},{"./router":6,"backbone":14,"jquery":15}],2:[function(require,module,exports){
+},{"./router":8,"backbone":25,"jquery":26}],2:[function(require,module,exports){
 var Backbone = require('backbone'),
-    _ = require('underscore');
-
+    _ = require('underscore'),
+    DataMixin = require('../util/data-layer-mixin');
 
 module.exports = Backbone.Collection.extend({
 
     initialize: function(models, opts) {
         this.app = opts.app;
         if (!this.app) throw new Error("supply an app to the collection pls");
-        this.listenTo(this, 'request', this._onRequest);
-        this.listenTo(this, 'sync', this._onSync);
-        this.listenTo(this, 'error', this._onError);
 
+        _.extend(this, DataMixin);
+        this.onStart();
     },
 
     url: function() {
@@ -60,33 +75,32 @@ module.exports = Backbone.Collection.extend({
         return this._page || 0;
     },
 
-    isLoading: function() {
-        return !!this._isRequesting;
+    nextPage: function() {
+        if (this.getPage() >= this.pageCount()) return false;
+        return this.setPage(this.getPage() + 1);
     },
 
-    _onSync: function() {
-        this._hasSynced = true;
-        this._isRequesting = false;
-        this._hasErrored = false;
-
-    },
-
-    _onRequest: function() {
-        this._hasSynced = false;
-        this._isRequesting = true;
-        this._hasErrored = false;
-    },
-
-    _onError: function() {
-        this._hasSynced = false;
-        this._isRequesting = false;
-        this._hasErrored = true;
+    prevPage: function() {
+        if (this.getPage() <= 0) return false;
+        return this.setPage(this.getPage() - 1);
     }
 
 
 
 });
-},{"backbone":14,"underscore":16}],3:[function(require,module,exports){
+},{"../util/data-layer-mixin":10,"backbone":25,"underscore":27}],3:[function(require,module,exports){
+var Collection = require('./abstract');
+
+
+module.exports = Collection.extend({
+
+	api: function() {
+		return 'monitors'
+	},
+
+
+});
+},{"./abstract":2}],4:[function(require,module,exports){
 var Collection = require('./abstract');
 
 
@@ -98,9 +112,10 @@ module.exports = Collection.extend({
 
 
 });
-},{"./abstract":2}],4:[function(require,module,exports){
+},{"./abstract":2}],5:[function(require,module,exports){
 var Backbone = require('backbone'),
-    _ = require('underscore');
+    _ = require('underscore'),
+    DataMixin = require('../util/data-layer-mixin');
 
 
 module.exports = Backbone.Model.extend({
@@ -108,15 +123,33 @@ module.exports = Backbone.Model.extend({
     initialize: function(models, opts) {
         this.app = opts.app;
         if (!this.app) throw new Error("supply an app to the model pls");
+
+        _.extend(this, DataMixin);
+        this.onStart();
     },
 
     url: function() {
         return '/api/v1/' + this.api() + (this.get('id') ? '/' + this.get('id') : '');
-    }
+    },
 
 
 });
-},{"backbone":14,"underscore":16}],5:[function(require,module,exports){
+},{"../util/data-layer-mixin":10,"backbone":25,"underscore":27}],6:[function(require,module,exports){
+var Model = require('./abstract');
+
+module.exports = Model.extend({
+	api: function() {
+		return 'apikey'
+	},
+
+	persist: function() {
+		localStorage['vulnpub-apikey'] = JSON.stringify({
+			username: this.get('username'),
+			key: this.get('key')
+		});
+	}
+});
+},{"./abstract":5}],7:[function(require,module,exports){
 var Model = require('./abstract');
 
 
@@ -125,20 +158,24 @@ module.exports = Model.extend({
 		return 'vulns';
 	}
 });
-},{"./abstract":4}],6:[function(require,module,exports){
+},{"./abstract":5}],8:[function(require,module,exports){
 var Backbone = require('backbone'),
 	_ = require('underscore'),
 	VulnList = require('./views/vuln-list'),
-	Vuln = require('./views/vuln');
+	Vuln = require('./views/vuln'),
+	Login = require('./views/login'),
+	SideNav = require('./views/side-nav'),
+	Home = require('./views/home');
 
 
 ;
 module.exports = Backbone.Router.extend({
 
 	routes: {
+		'': 'home',
 		'vulns': 'vulns',
 		'vulns/:id': 'vuln',
-
+		'login': 'login'
 	},
 
 	initialize: function() {
@@ -146,6 +183,11 @@ module.exports = Backbone.Router.extend({
 			router: this,
 			dispatcher: _.clone(Backbone.Events)
 		};
+
+		this.nav = new SideNav({
+			app: this.app
+		});
+		this.nav.onStart();
 	},
 
 	_create: function(View, opts) {
@@ -157,6 +199,10 @@ module.exports = Backbone.Router.extend({
 		this.view.onStart();
 	},
 
+	home: function() {
+		this._create(Home);
+	},
+
 	vulns: function() {
 		this._create(VulnList);
 	},
@@ -165,96 +211,265 @@ module.exports = Backbone.Router.extend({
 		this._create(Vuln, {
 			vuln_id: parseInt(id)
 		});
+	},
+
+	login: function() {
+		this._create(Login);
 	}
 
 
 
 });
-},{"./views/vuln":10,"./views/vuln-list":9,"backbone":14,"underscore":16}],7:[function(require,module,exports){
+},{"./views/home":12,"./views/login":13,"./views/side-nav":15,"./views/vuln":17,"./views/vuln-list":16,"backbone":25,"underscore":27}],9:[function(require,module,exports){
+var name = 'vulnpub-apikey';
+
+module.exports = {
+	headers: function() {
+		try {
+			var key = JSON.parse(localStorage[name]);
+			return {
+				'authentication': key.username + ':' + key.key
+			}
+		} catch (e) {
+
+		}
+	},
+
+
+	logout: function() {
+		localStorage[name] = null;
+	}
+}
+},{}],10:[function(require,module,exports){
 var Backbone = require('backbone'),
-	_ = require('underscore'),
-	$ = require('jquery');
-
-module.exports = Backbone.View.extend({
-
-	include: [],
-
-	initialize: function(opts) {
-		_.extend(this, opts);
-		this._views = {};
-		if (!this.app) throw new Error('can u not');
-	},
+	Auth = require('./auth');
 
 
-	render: function(ctx) {
-		ctx = this.context(ctx);
-		this.pre(ctx);
-		this._render(ctx);
-		_.each(this._views, function(view, name) {
-			view.setElement(this.$el.find(view.el));
-			view.render();
-		}.bind(this));
-		this.post(ctx);
-	},
+module.exports = {
 
-	_render: function(ctx) {
-		this.$el.html(this.template(ctx));
-	},
-
-	context: function(ctx) {
-		ctx = ctx || {};
-
-		var included = {};
-		this.include.forEach(function(name) {
-			included[name] = _.isFunction(this[name]) ? this[name].bind(this) : this[name]
-		}.bind(this))
-
-		return _.extend({
-			_: _
-		}, included, ctx);
-	},
-
-	pre: function(ctx) {
-
-	},
-
-	post: function(ctx) {
-
+	isLoading: function() {
+		return !!this._isRequesting;
 	},
 
 	onStart: function() {
+		this.listenTo(this, 'request', this._onRequest);
+		this.listenTo(this, 'sync', this._onSync);
+		this.listenTo(this, 'error', this._onError);
+	},
+
+	_onSync: function() {
+		this._hasSynced = true;
+		this._isRequesting = false;
+		this._hasErrored = false;
+		this._lastError = null;
 
 	},
 
-	opts: function(os) {
-		return _.extend({
-			app: this.app
-		}, os);
+	_onRequest: function() {
+		this._hasSynced = false;
+		this._isRequesting = true;
+		this._hasErrored = false;
+		this._lastError = null;
 	},
 
-	renderIt: function() {
+	_onError: function(model, resp, opts) {
+		this._hasSynced = false;
+		this._isRequesting = false;
+		this._hasErrored = true;
+		this._lastError = resp;
+	},
+
+
+	getErrors: function() {
+		return this._lastError;
+	},
+
+
+	sync: function() {
+		var args = Array.prototype.slice.call(arguments);
+		opts = arguments[2] || {};
+		opts.headers = Auth.headers()
+		args[2] = opts;
+		return Backbone.sync.apply(this, args);
+	}
+}
+},{"./auth":9,"backbone":25}],11:[function(require,module,exports){
+var Backbone = require('backbone'),
+    _ = require('underscore'),
+    $ = require('jquery'),
+    ErrorTemplate = require('../../templates/util/error.html');
+
+module.exports = Backbone.View.extend({
+
+    include: [],
+
+    _errorTemplate: _.template(ErrorTemplate),
+
+    initialize: function(opts) {
+        _.extend(this, opts);
+        this._views = {};
+        if (!this.app) throw new Error('can u not');
+    },
+
+
+    render: function(ctx) {
+        ctx = this.context(ctx);
+        this.pre(ctx);
+        this._render(ctx);
+        _.each(this._views, function(view, name) {
+            view.setElement(this.$el.find(view.el));
+            view.render();
+        }.bind(this));
+        this.post(ctx);
+    },
+
+    _render: function(ctx) {
+        this.$el.html(this.template(ctx));
+    },
+
+    listenTo: function(obj, evs, cb) {
+        return evs.split(' ').map(function(name) {
+            Backbone.View.prototype.listenTo.call(this, obj, name, cb);
+        }.bind(this));
+    },
+
+    context: function(ctx) {
+        ctx = ctx || {};
+
+        var included = {};
+        this.include.forEach(function(name) {
+            included[name] = _.isFunction(this[name]) ? this[name].bind(this) : this[name]
+        }.bind(this))
+
+        return _.extend({
+            _: _,
+            showError: this._errors.bind(this)
+        }, included, ctx);
+    },
+
+
+    _errors: function(name, model) {
+        var errors = model.getErrors();
+        if (errors) {
+            errors = JSON.parse(errors.responseText)
+            return this._errorTemplate({
+                name: name,
+                errors: errors
+            });
+        }
+    },
+
+    pre: function(ctx) {
+
+    },
+
+    post: function(ctx) {
+
+    },
+
+    onStart: function() {
+
+    },
+
+    opts: function(os) {
+        return _.extend({
+            app: this.app
+        }, os);
+    },
+
+    renderIt: function() {
+        this.render();
+    },
+
+    spawn: function(name, view) {
+        this._views[name] && this._views[name].end();
+        this._views[name] = view;
+        view.onStart();
+    },
+
+    end: function() {
+        _.each(this._views, function(v, name) {
+            v.end();
+        });
+        this.undelegateEvents();
+        this.stopListening();
+        this.$el.html('');
+        this.trigger('end', this);
+        return this;
+    }
+
+});
+},{"../../templates/util/error.html":20,"backbone":25,"jquery":26,"underscore":27}],12:[function(require,module,exports){
+var View = require('./abstract'),
+	_ = require('underscore'),
+	Monitors = require('../collections/monitors'),
+	HomeTemplate = require('../../templates/home/home.html'),
+	Pager = require('./pager');
+
+module.exports = View.extend({
+
+	el: '#main',
+	template: _.template(HomeTemplate),
+
+	include: ['monitors'],
+
+
+	initialize: function(opts) {
+		View.prototype.initialize.call(this, opts);
+		this.monitors = new Monitors([], this.opts());
+		this.listenTo(this.monitors, 'sync error', this.renderIt);
+		this.monitors.fetch();
+	},
+
+	onStart: function() {
 		this.render();
 	},
 
-	spawn: function(name, view) {
-		this._views[name] && this._views[name].end();
-		this._views[name] = view;
-		view.onStart();
-	},
 
-	end: function() {
-		_.each(this._views, function(v, name) {
-			v.end();
-		});
-		this.undelegateEvents();
-		this.stopListening();
-		this.$el.html('');
-		this.trigger('end', this);
-		return this;
-	}
 
 });
-},{"backbone":14,"jquery":15,"underscore":16}],8:[function(require,module,exports){
+},{"../../templates/home/home.html":19,"../collections/monitors":3,"./abstract":11,"./pager":14,"underscore":27}],13:[function(require,module,exports){
+var View = require('./abstract'),
+    _ = require('underscore'),
+    ApiKey = require('../models/apikey'),
+    LoginTemplate = require('../../templates/auth/login.html');
+
+module.exports = View.extend({
+    el: '#raw',
+    template: _.template(LoginTemplate),
+
+    include: ['apikey'],
+
+    events: {
+        'click .login-button': 'login',
+        'keyup': 'onKeyup'
+    },
+
+    onStart: function() {
+        this.app.dispatcher.trigger('nav.hide');
+        this.apikey = new ApiKey({}, this.opts());
+        this.listenTo(this.apikey, 'sync error', this.renderIt);
+        this.render();
+    },
+
+    redirect: function() {
+        this.apikey.persist();
+        this.app.router.navigate('#', {
+            trigger: true
+        });
+    },
+
+    login: function() {
+        this.apikey.set(this.$el.find('form').serializeObject()).save().then(this.redirect.bind(this));
+    },
+
+    onKeyup: function(e) {
+        if (e.keyCode === 13) this.login();
+    }
+
+
+});
+},{"../../templates/auth/login.html":18,"../models/apikey":6,"./abstract":11,"underscore":27}],14:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     PagerTemplate = require('../../templates/util/pager.html');
@@ -272,7 +487,6 @@ module.exports = View.extend({
 
     onStart: function() {
         this.render();
-        console.log(this.$el);
     },
 
     fib: function() {
@@ -299,7 +513,35 @@ module.exports = View.extend({
 
 
 });
-},{"../../templates/util/pager.html":11,"./abstract":7,"underscore":16}],9:[function(require,module,exports){
+},{"../../templates/util/pager.html":21,"./abstract":11,"underscore":27}],15:[function(require,module,exports){
+var View = require('./abstract'),
+	_ = require('underscore'),
+	SideNavTemplate = require('../../templates/util/side-nav.html');
+
+module.exports = View.extend({
+	el: '#side-nav',
+	template: _.template(SideNavTemplate),
+
+	onStart: function() {
+		this.listenTo(this.app.dispatcher, 'nav.hide', this.hide);
+		this.listenTo(this.app.dispatcher, 'nav.show', this.show);
+		this.render();
+	},
+
+	hide: function() {
+		$('#main').hide();
+		$('#raw').show();
+		this.$el.hide();
+	},
+
+	show: function() {
+		this.render();
+		$('#main').show();
+		$('#raw').hide();
+		this.$el.show();
+	}
+})
+},{"../../templates/util/side-nav.html":22,"./abstract":11,"underscore":27}],16:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     Vulns = require('../collections/vulns'),
@@ -312,6 +554,10 @@ module.exports = View.extend({
     template: _.template(VulnTemplate),
 
     include: ['vulns', 'shorten'],
+
+    events: {
+        // 'mousewheel': 'onMouseWheel'
+    },
 
     initialize: function(opts) {
         View.prototype.initialize.call(this, opts);
@@ -333,6 +579,18 @@ module.exports = View.extend({
         }
     },
 
+    onMouseWheel: function(e) {
+        if (e.originalEvent.wheelDelta < 0 ? this.vulns.nextPage() : this.vulns.prevPage()) {
+            this.fetch();
+            this.render();
+        }
+    },
+
+    fetch: _.debounce(function() {
+        this.vulns.fetch();
+    }, 300),
+
+
     shorten: function(str, to) {
         to = to || 20;
         if (str.length > to) {
@@ -343,7 +601,7 @@ module.exports = View.extend({
 
 
 });
-},{"../../templates/vuln/vuln-list.html":12,"../collections/vulns":3,"./abstract":7,"./pager":8,"underscore":16}],10:[function(require,module,exports){
+},{"../../templates/vuln/vuln-list.html":23,"../collections/vulns":4,"./abstract":11,"./pager":14,"underscore":27}],17:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     Vuln = require('../models/vuln'),
@@ -373,16 +631,28 @@ module.exports = View.extend({
 
 
 });
-},{"../../templates/vuln/vuln.html":13,"../models/vuln":5,"./abstract":7,"./pager":8,"underscore":16}],11:[function(require,module,exports){
+},{"../../templates/vuln/vuln.html":24,"../models/vuln":7,"./abstract":11,"./pager":14,"underscore":27}],18:[function(require,module,exports){
+module.exports = "\n\n<div class=\"pure-g\">\n    <div class=\"pure-u-1-1\">\n        <form class=\"pure-form pure-form-aligned form-centered\">\n\t\t\t<h3>Login</h3>\n            <fieldset>\n                <div class=\"pure-control-group\">\n                \t<%= showError('username', apikey) %>\n                    <input id=\"name\" \n                    \tname=\"username\" \n                    \ttype=\"text\" \n                    \tvalue=\"<%- apikey.get('username') %>\"\n                    \tplaceholder=\"Username\">\n                </div>\n\n                <div class=\"pure-control-group\">\n                \t<%= showError('password', apikey) %>\n                    <input id=\"password\" \n                    \tname=\"password\" \n                    \ttype=\"password\" \n                    \tvalue=\"<%- apikey.get('password') %>\"\n                    \tplaceholder=\"Password\">\n                </div>\n\n                <button type=\"button\" class=\"pure-button pure-button-primary login-button\">\n                    Login\n                </button>\n            </fieldset>\n        </form>\n    </div>\n</div>";
+
+},{}],19:[function(require,module,exports){
+module.exports = "<h3>home</h3>\n\n<div class=\"pure-g home-summary\">\n\n</div>\n\n\n<h3 class=\"section\">Monitors</h3>\n<div class=\"pure-g monitor-list\">\n\t<% monitors.each(function(mon) { %>\n\t\t<div class=\"pure-u-1-2 monitor-card-wrap\">\n\t\t\t<div class=\"monitor-card\">\n\n\t\t\t\t<h4><%- mon.get('name') %></h4>\n\n\t\t\t\t<a class=\"pure-button button-secondary button-xsmall\" \n\t\t\t\t\thref=\"<%- mon.get('manifest') %>\"\n\t\t\t\t\ttarget=\"_blank\">\n\t\t\t\t\tView Manifest\n\t\t\t\t</a>\n\t\t\t</div>\n\n\t\t</div>\n\t<% }); %>\n</div>";
+
+},{}],20:[function(require,module,exports){
+module.exports = "\n<% if(errors[name]) { %>\n\t<div class=\"alert alert-error\">\n\t\t<%- errors[name] %>\n\t</div>\n<% } %>";
+
+},{}],21:[function(require,module,exports){
 module.exports = "<div class=\"pager\">\n\t<div class=\"page-counter\">\n\t\t<span><%- collection.getPage() %></span> of <span><%- collection.pageCount() %></span>\n\t</div>\n\n\t<ul>\n\t\t<% if(collection.getPage() > 0) { %>\n\t\t\t<li class=\"prev\">\n\t\t\t\t<a class=\"to-page\" \n\t\t\t\t\tdata-page=\"<%- collection.getPage() - 1 %>\"\n\t\t\t\t\thref=\"javascript:void(0)\">Previous</a>\n\t\t\t</li>\n\t\t<% } %>\n\t\t<% fib().slice(2).forEach(function(num) { %>\n\t\t\t<li>\n\t\t\t\t<a href=\"javascript:void(0)\"\n\t\t\t\t\tdata-page=\"<%- num %>\"\n\t\t\t\t\tclass=\"to-page <%- collection.getPage() === num? 'active' : '' %>\">\n\t\t\t\t\t<%- num %>\n\t\t\t\t</a>\n\t\t\t</li>\n\t\t<% }); %>\n\t\t<% if(collection.getPage() < collection.pageCount()) { %>\n\t\t\t<li class=\"next\">\n\t\t\t\t<a class=\"to-page\" \n\t\t\t\t\tdata-page=\"<%- collection.getPage() + 1 %>\"\n\t\t\t\t\thref=\"javascript:void(0)\">Next</a>\n\t\t\t</li>\n\t\t<% } %>\n\t</ul>\n</div>";
 
-},{}],12:[function(require,module,exports){
-module.exports = "<h3 class=\"module-header\">Vulnerabilities</h3>\n\n<div class=\"vuln-list pure-g\">\n\n\t<% if(!vulns.length && !vulns.isLoading()) { %> \n\t\t<div class=\"pure-u-1-1\">\n\t\t\t<h6>No vulnerabilities found</h6>\n\t\t</div>\n\t<% } else { %>\n\t\t<% vulns.each(function(vuln) { %> \n\t\t<div class=\"vuln-item\">\n\t\t\t<div class=\"pure-u-2-3\">\n\t\t\t\t<a href=\"#vulns/<%- vuln.get('id') %>\">\n\t\t\t\t\t<%- vuln.get('name') %>\n\t\t\t\t</a>\n\t\t\t</div>\n\t\t\t<div class=\"pure-u-1-3 details text-muted\">\n\t\t\t\t<p>\n\t\t\t\t\t<%- shorten(vuln.get('effects_package')) %>\n\t\t\t\t\t<%- shorten(vuln.get('effects_version')) %>\n\t\t\t\t</p>\n\t\t\t</div>\n\t\t</div>\n\t\t<% }); %>\n\t<% } %>\n</div>\n\n<div id=\"vuln-pager\"></div>";
+},{}],22:[function(require,module,exports){
+module.exports = "<div class=\"side-nav\">\n  <ul>\n    <li>\n      <a href=\"#\">home</a>\n    </li>\n\n\n    <!-- separate --> \n    <li class=\"divider\"></li>\n    <li>\n      <a href=\"#vulns\">Known Vulnerabilities</a>\n    </li>\n\n  </ul>\n</div>";
 
-},{}],13:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
+module.exports = "<h3 class=\"section\">Vulnerabilities</h3>\n\n<div class=\"vuln-list pure-g\">\n\n\t<% if(!vulns.length && !vulns.isLoading()) { %> \n\t\t<div class=\"pure-u-1-1\">\n\t\t\t<h6>No vulnerabilities found</h6>\n\t\t</div>\n\t<% } else { %>\n\t\t<% vulns.each(function(vuln) { %> \n\t\t<div class=\"vuln-item\">\n\t\t\t<div class=\"pure-u-2-3\">\n\t\t\t\t<a href=\"#vulns/<%- vuln.get('id') %>\">\n\t\t\t\t\t<%- vuln.get('name') %>\n\t\t\t\t</a>\n\t\t\t</div>\n\t\t\t<div class=\"pure-u-1-3 details text-muted\">\n\t\t\t\t<p>\n\t\t\t\t\t<%- shorten(vuln.get('effects_package')) %>\n\t\t\t\t\t<%- shorten(vuln.get('effects_version')) %>\n\t\t\t\t</p>\n\t\t\t</div>\n\t\t</div>\n\t\t<% }); %>\n\t<% } %>\n</div>\n\n<div id=\"vuln-pager\"></div>";
+
+},{}],24:[function(require,module,exports){
 module.exports = "<div class=\"pure-g vuln-detail\">\n\t<div class=\"pure-u-1-1\">\n\n\n\n\t\t<h1><%- vuln.get('name') %></h1>\n\n\t\t<h4><span class=\"text-muted\">Effects Package:</span> <%- vuln.get('effects_package') %></h4>\n\t\t<h4><span class=\"text-muted\">Effects Version:</span> <%- vuln.get('effects_version') %></h4>\n\n\n\n\t\t<h5 class=\"vuln-section text-muted\">Description</h5>\n\t\t<p>\n\t\t\t<%- vuln.get('description') %>\n\t\t</p>\n\n\t\t<h5 class=\"vuln-section text-muted\">External Resources</h5>\n\t\t<a href=\"<%- vuln.get('external_link') %>\"><%- vuln.get('external_link') %></a>\n\t</div>\n</div>";
 
-},{}],14:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 //     Backbone.js 1.1.2
 
 //     (c) 2010-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -1992,7 +2262,7 @@ module.exports = "<div class=\"pure-g vuln-detail\">\n\t<div class=\"pure-u-1-1\
 
 }));
 
-},{"underscore":16}],15:[function(require,module,exports){
+},{"underscore":27}],26:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.1
  * http://jquery.com/
@@ -11184,7 +11454,7 @@ return jQuery;
 
 }));
 
-},{}],16:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 //     Underscore.js 1.6.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors

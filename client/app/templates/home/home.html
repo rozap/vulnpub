@@ -1,0 +1,25 @@
+<h3>home</h3>
+
+<div class="pure-g home-summary">
+
+</div>
+
+
+<h3 class="section">Monitors</h3>
+<div class="pure-g monitor-list">
+	<% monitors.each(function(mon) { %>
+		<div class="pure-u-1-2 monitor-card-wrap">
+			<div class="monitor-card">
+
+				<h4><%- mon.get('name') %></h4>
+
+				<a class="pure-button button-secondary button-xsmall" 
+					href="<%- mon.get('manifest') %>"
+					target="_blank">
+					View Manifest
+				</a>
+			</div>
+
+		</div>
+	<% }); %>
+</div>

@@ -1,21 +1,11 @@
-<div class="side-nav">
-  <ul>
-    <li>
-      <a href="#alerts">Alerts</a>
-    </li>
-    <li>
-      <a href="#monitors">Your Monitors</a>
-    </li>
-
-    <!-- separate --> 
-    <li class="divider"></li>
-    <li>
-      <a href="#vulns">Known Vulnerabilities</a>
-    </li>
-
-  </ul>
-</div>
+<div id="side-nav"></div>
 
 <div id="main">
-  <h2>hi</h2>
+
+
+</div>
+
+<div id="raw">
+
+
 </div>
