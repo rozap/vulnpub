@@ -1,0 +1,41 @@
+<h5 class="section">Create a new Monitor</h5>
+
+
+
+<div class="pure-g">
+    <div class="pure-u-1-1">
+        <form class="pure-form pure-form-stacked">
+            <fieldset>
+                <div class="pure-control-group">
+                    <label for="name">
+                        Name
+                    </label>
+                	<%= showError('name', monitor) %>
+                    <input id="name" 
+                        class="pure-input-1-2"
+                    	name="name" 
+                    	type="text" 
+                    	value="<%- monitor.get('name') %>"
+                    	placeholder="Name"/>
+                </div>
+
+                <div class="pure-control-group">
+                    <label for="manifest">
+                        Publicly Accessible <a href="#about-manifest">manifest file</a>
+                    </label>
+                	<%= showError('manifest', monitor) %>
+                    <input id="manifest" 
+                        class="pure-input-1-2"
+                    	name="manifest" 
+                    	type="text" 
+                    	value="<%- monitor.get('manifest') %>"
+                    	placeholder="Manifest URL"/>
+                </div>
+
+                <button type="button" class="pure-button pure-button-primary save">
+                    Create
+                </button>
+            </fieldset>
+        </form>
+    </div>
+</div>

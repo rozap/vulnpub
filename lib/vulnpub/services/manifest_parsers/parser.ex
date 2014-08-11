@@ -10,7 +10,6 @@ defmodule Manifest.Parser.Parser do
 
 
   def create_package_monitors(monitor, packages) do
-    :io.format("PACAKGES ~p~n", [packages])
     package_monitors = Enum.map(packages, fn package -> PackageMonitor.allocate(%{:package_id => package.id, :monitor_id => monitor.id}) end)
     case Repo.transaction(fn -> Enum.map(package_monitors, fn pm -> Repo.insert(pm) end) end) do
       {:ok, package_monitors} -> :ok

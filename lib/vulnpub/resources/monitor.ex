@@ -49,11 +49,34 @@ end
 
 defmodule Resources.Monitor do
   require Resources.Resource
-  
+  import Ecto.Query, only: [from: 2]
+  alias Models.Monitor
+  alias Models.PackageMonitor
+  alias Models.Package
 
 
-  def model, do: Models.Monitor
+  def model, do: Monitor
   def page_size, do: 100
+
+  def handle({:show, conn, params, module, bundle}) do
+    id = get_id(params)
+    result = (from m in model,
+      where: m.id == ^id, 
+      select: m) 
+      |> Repo.all 
+      |> List.first 
+      |> to_serializable
+
+    packages = (from pm in PackageMonitor,
+      join: p in Package, on: pm.package_id == p.id,
+      where: pm.monitor_id == ^id,
+      select: p)
+      |> Repo.all
+      |> Resources.Serializer.to_serializable(Package, [exclude: []])
+
+    result = Dict.put(result, "packages", packages)
+    {conn, ok, result}
+  end
 
 	use Resources.Resource, [
     exclude: [], 

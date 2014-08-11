@@ -1,25 +1,45 @@
-<h3>home</h3>
+<h3>Home</h3>
 
 <div class="pure-g home-summary">
 
 </div>
 
 
-<h3 class="section">Monitors</h3>
-<div class="pure-g monitor-list">
-	<% monitors.each(function(mon) { %>
-		<div class="pure-u-1-2 monitor-card-wrap">
-			<div class="monitor-card">
+<div id="create-monitor"></div>
 
-				<h4><%- mon.get('name') %></h4>
 
-				<a class="pure-button button-secondary button-xsmall" 
-					href="<%- mon.get('manifest') %>"
-					target="_blank">
-					View Manifest
-				</a>
-			</div>
+<h5 class="section">
+	Monitors 
+	<a href="javascript:void(0)" class="new-monitor pure-button button-primary button-small">New Monitor</a>
+</h5>
 
+
+<% if(!monitors.length) { %>
+	<div class="pure-g monitor-list">
+		<div class="pure-u-1-1">
+			<h6>You aren't monitoring any repositories yet<h6>
 		</div>
-	<% }); %>
-</div>
+	</div>
+<% } else { %>
+	<div class="pure-g monitor-list">
+		<% monitors.each(function(mon, i) { %>
+			<div class="pure-u-1-2 monitor-card-wrap">
+				<div class="card <%- i % 2 == 0? 'left' : 'right' %>">
+
+					<h4>
+						<a href="#monitors/<%- mon.get('id') %>">
+							<%- mon.get('name') %>
+						</a>
+					</h4>
+
+					<a class="pure-button button-secondary button-xsmall" 
+						href="<%- mon.get('manifest') %>"
+						target="_blank">
+						View Manifest
+					</a>
+				</div>
+
+			</div>
+		<% }); %>
+	</div>
+<% } %>

@@ -2,9 +2,11 @@ var Backbone = require('backbone'),
 	_ = require('underscore'),
 	VulnList = require('./views/vuln-list'),
 	Vuln = require('./views/vuln'),
+	Monitor = require('./views/monitor'),
 	Login = require('./views/login'),
 	SideNav = require('./views/side-nav'),
-	Home = require('./views/home');
+	Home = require('./views/home'),
+	CreateMonitor = require('./views/create-monitor');
 
 
 ;
@@ -14,7 +16,9 @@ module.exports = Backbone.Router.extend({
 		'': 'home',
 		'vulns': 'vulns',
 		'vulns/:id': 'vuln',
-		'login': 'login'
+		'monitors/:id': 'monitor',
+		'login': 'login',
+		'create': 'create'
 	},
 
 	initialize: function() {
@@ -54,6 +58,12 @@ module.exports = Backbone.Router.extend({
 
 	login: function() {
 		this._create(Login);
+	},
+
+	monitor: function(id) {
+		this._create(Monitor, {
+			monitor_id: parseInt(id)
+		});
 	}
 
 

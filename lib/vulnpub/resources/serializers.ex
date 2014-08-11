@@ -18,6 +18,7 @@ end
 
 defimpl Resources.Serializer, for: Any do
 
+  def to_serializable(nil, _, _), do: nil
 
   def to_serializable(model, schema, options) do
     exclude = options[:exclude]

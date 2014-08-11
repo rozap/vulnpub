@@ -42,8 +42,8 @@ module.exports = Backbone.View.extend({
 
         var included = {};
         this.include.forEach(function(name) {
-            included[name] = _.isFunction(this[name]) ? this[name].bind(this) : this[name]
-        }.bind(this))
+            included[name] = _.isFunction(this[name]) ? this[name].bind(this) : this[name];
+        }.bind(this));
 
         return _.extend({
             _: _,
@@ -55,10 +55,9 @@ module.exports = Backbone.View.extend({
     _errors: function(name, model) {
         var errors = model.getErrors();
         if (errors) {
-            errors = JSON.parse(errors.responseText)
             return this._errorTemplate({
                 name: name,
-                errors: errors
+                errors: errors.errors
             });
         }
     },
@@ -86,9 +85,10 @@ module.exports = Backbone.View.extend({
     },
 
     spawn: function(name, view) {
-        this._views[name] && this._views[name].end();
+        if (this._views[name]) this._views[name].end();
         this._views[name] = view;
         view.onStart();
+        return view;
     },
 
     end: function() {

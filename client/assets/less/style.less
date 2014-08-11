@@ -207,6 +207,7 @@ ul {
 .section {
 	border-bottom: 1px solid @gray-light;
 	margin-bottom:@margin-width/4;
+	.text-muted();
 }
 
 
@@ -214,6 +215,11 @@ ul {
     color: white;
     border-radius: 4px;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.button-primary {
+	background: @blue;
+	color:@white;
 }
 
 .button-success {
@@ -233,5 +239,33 @@ ul {
     background: @gray-dark; /* this is a light blue */
 }
 
+.pure-form {
+	
+	label {
+		font-weight: 100;
+		.text-muted();
+		margin-top:1em;
+	}
+}
+
+.card {
+	border: 1px solid @gray-light;
+	padding:@margin-width;
+	margin: @margin-width/2;
+	h4 {
+		color:@blue;
+		margin-top:0px;
+	}
+}
+
+.card.left {
+	margin-left:0px;
+}
+.card.right {
+	margin-right:0px;
+}
+
+
 @import "vulns.less";
 @import "home.less";
+@import "monitor.less";

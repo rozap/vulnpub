@@ -33,7 +33,7 @@ module.exports = {
 		this._hasSynced = false;
 		this._isRequesting = false;
 		this._hasErrored = true;
-		this._lastError = resp;
+		this._lastError = JSON.parse(resp.responseText);
 	},
 
 

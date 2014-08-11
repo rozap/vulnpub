@@ -12,7 +12,14 @@ defmodule Resources.ModelValidator do
       def validate_type(:integer, name, value) when is_integer(value), do: {:ok, name, value}
       def validate_type(:integer, name, _), do: {:error, name, "This needs to be an integer"}
 
-      def validate_type(:string, name, value) when is_bitstring(value), do: {:ok, name, value}
+
+      def validate_type(:string, name, value) when is_bitstring(value) do
+        if String.length(value) > 0 do
+          {:ok, name, value}
+        else
+          {:error, name, "#{name} cannot be blank"}
+        end
+      end
       def validate_type(:string, name, _), do: {:error, name, "This needs to be a string"}
 
       def validate_type(:float, name, value) when is_float(value), do: {:ok, name, value}

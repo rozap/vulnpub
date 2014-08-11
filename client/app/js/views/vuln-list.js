@@ -17,6 +17,7 @@ module.exports = View.extend({
 
     initialize: function(opts) {
         View.prototype.initialize.call(this, opts);
+        this.app.dispatcher.trigger('nav.show');
         this.vulns = new Vulns([], this.opts());
         this.listenTo(this.vulns, 'sync', this.renderIt);
         this.vulns.fetch();
