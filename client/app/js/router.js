@@ -6,10 +6,12 @@ var Backbone = require('backbone'),
 	Login = require('./views/login'),
 	SideNav = require('./views/side-nav'),
 	Home = require('./views/home'),
+	Report = require('./views/report'),
+	Auth = require('./util/auth'),
 	CreateMonitor = require('./views/create-monitor');
 
 
-;
+
 module.exports = Backbone.Router.extend({
 
 	routes: {
@@ -18,13 +20,15 @@ module.exports = Backbone.Router.extend({
 		'vulns/:id': 'vuln',
 		'monitors/:id': 'monitor',
 		'login': 'login',
-		'create': 'create'
+		'create': 'create',
+		'report': 'report'
 	},
 
 	initialize: function() {
 		this.app = {
 			router: this,
-			dispatcher: _.clone(Backbone.Events)
+			dispatcher: _.clone(Backbone.Events),
+			auth: Auth
 		};
 
 		this.nav = new SideNav({
@@ -64,6 +68,10 @@ module.exports = Backbone.Router.extend({
 		this._create(Monitor, {
 			monitor_id: parseInt(id)
 		});
+	},
+
+	report: function() {
+		this._create(Report);
 	}
 
 

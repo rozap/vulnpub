@@ -1,0 +1,92 @@
+<h3>Report a new Vulnerability</h3>
+
+<div class="pure-g report-grid">
+    <div class="pure-u-11-24">
+        <form class="pure-form pure-form-stacked">
+            <fieldset>
+                <div class="pure-control-group">
+                    <label for="name">
+                        Name
+                    </label>
+                	<%= showError('name', vuln) %>
+                    <input id="name" 
+                        class="pure-input-1"
+                    	name="name" 
+                    	type="text" 
+                    	value="<%- vuln.get('name') %>"
+                    	placeholder="Name"/>
+                </div>
+                <div class="pure-control-group">
+                    <label for="effects_package">
+                        Effected Package
+                    </label>
+                	<%= showError('name', vuln) %>
+                    <input id="effects_package" 
+                        class="pure-input-1"
+                    	name="effects_package" 
+                    	type="text" 
+                    	value="<%- vuln.get('effects_package') %>"
+                    	placeholder="Package Name"/>
+                </div>
+
+                <div id="search-view"></div>
+
+
+                <div class="pure-control-group">
+                    <label for="effects_version">
+                        Effected Version
+                    </label>
+                	<%= showError('name', vuln) %>
+                    <input id="effects_version" 
+                        class="pure-input-1"
+                    	name="effects_version" 
+                    	type="text" 
+                    	value="<%- vuln.get('effects_version') %>"
+                    	placeholder="Version"/>
+                </div>
+
+
+                <div class="pure-control-group">
+                    <label for="name">
+                        Description
+                    </label>
+                	<%= showError('description', vuln) %>
+                    <textarea id="description" 
+                        class="pure-input-1"
+                    	name="description" 
+                    	type="text" 
+                    	placeholder="A detailed description of why it is a vulnerability, how it works, and how to mitigate it."><%- vuln.get('description') %></textarea>
+                </div>
+                <h6>Use <a target="blank" href="http://daringfireball.net/projects/markdown/syntax">markdown</a> for formatting</h6>
+
+
+                <div class="pure-control-group">
+                    <label for="external_link">
+                    	External Link
+                    </label>
+                	<%= showError('external_link', vuln) %>
+                    <input id="external_link" 
+                        class="pure-input-1"
+                    	name="external_link" 
+                    	type="text" 
+                    	value="<%- vuln.get('external_link') %>"
+                    	placeholder="Eg: CVE page, ExploitDB, Pastebin, etc"/>
+                </div>
+
+                <div class="pure-control-group action-row">
+
+                    <button type="button" class="pure-button button-primary save">
+                        Create
+                    </button>
+                    <button type="button" class="pure-button cancel">
+                        Cancel
+                    </button>
+
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div class="pure-u-11-24 preview-wrap">
+    	<div id="report-preview"></div>
+    </div>
+</div>

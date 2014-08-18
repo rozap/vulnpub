@@ -26,7 +26,7 @@ defmodule Vulnpub.Mixfile do
       {:phoenix, "0.3.0"},
       {:cowboy, "~> 0.10.0", github: "extend/cowboy", optional: true},
       {:postgrex, ">= 0.0.0"},
-      {:ecto, "~> 0.2.0"},
+      {:ecto, "0.2.2"},
       {:plug, "0.5.1"},
       {:httpotion, github: "myfreeweb/httpotion"},
       {:jazz, "0.1.2"},

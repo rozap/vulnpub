@@ -4,6 +4,8 @@ var Backbone = require('backbone'),
 
 module.exports = Backbone.Collection.extend({
 
+    _filter: {},
+
     initialize: function(models, opts) {
         this.app = opts.app;
         if (!this.app) throw new Error("supply an app to the collection pls");
@@ -28,8 +30,9 @@ module.exports = Backbone.Collection.extend({
     fetch: function(opts) {
         opts = opts || {};
         opts.data = opts.data || {
-            page: this.getPage()
+            page: this.getPage(),
         };
+        if (this._filter.name && this._filter.value) opts.data.filter = this._getFilters();
         return Backbone.Collection.prototype.fetch.call(this, opts);
     },
 
@@ -50,6 +53,18 @@ module.exports = Backbone.Collection.extend({
     prevPage: function() {
         if (this.getPage() <= 0) return false;
         return this.setPage(this.getPage() - 1);
+    },
+
+    _getFilters: function() {
+        return this._filter.name + ':' + this._filter.value;
+    },
+
+    setFilter: function(name, value) {
+        var ogName = this._filter.name;
+        var ogVal = this._filter.value;
+        this._filter.name = name;
+        this._filter.value = value;
+        return this._filter.name !== ogName || this._filter.value !== ogVal;
     }
 
 

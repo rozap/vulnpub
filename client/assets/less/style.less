@@ -1,17 +1,18 @@
 @import "pure.less";
-@gray-dark: #2e2e2e;
+@gray-dark: #444444;
 @white: #ffffff;
-@gray-light: #efefef;
+@gray-light: #eeeeee;
 @gray: darken(@gray-light, 8%);
 @margin-width: 16px;
-@blue: #0E90D2;
-@orange: #F37B1D;
-@red: #ff0000;
-@green: #00ff00;
+@blue: #1A4F63;
+@light-blue: #068587;
+@orange: #FCB03C;
+@red: #FC5B3F;
+@green: #6FB07F;
 
 @nav-width: 256px;
 @header-height: @margin-width*8;
-@link-color: @gray-dark;
+@link-color: @blue;
 
 * {
 	box-sizing: border-box;
@@ -223,20 +224,20 @@ ul {
 }
 
 .button-success {
-    background: rgb(28, 184, 65); /* this is a green */
+    background: @green; /* this is a green */
 }
 
 .button-error {
-    background: rgb(202, 60, 60); /* this is a maroon */
+    background: @red; /* this is a maroon */
 }
 
 .button-warning {
-    background: rgb(223, 117, 20); /* this is an orange */
+    background: @orange; /* this is an orange */
 }
 
 
 .button-secondary {
-    background: @gray-dark; /* this is a light blue */
+    background: @light-blue; /* this is a light blue */
 }
 
 .pure-form {
@@ -249,9 +250,9 @@ ul {
 }
 
 .card {
-	border: 1px solid @gray-light;
 	padding:@margin-width;
 	margin: @margin-width/2;
+	box-shadow:0 0 @margin-width/2 rgba(0, 0, 0, 0.15);
 	h4 {
 		color:@blue;
 		margin-top:0px;
@@ -265,7 +266,16 @@ ul {
 	margin-right:0px;
 }
 
+.action-row {
+	margin-top:@margin-width;
+}
+
+.divider {
+	border-left: 1px solid @gray-light;
+	height: 100%;
+}
 
 @import "vulns.less";
 @import "home.less";
+@import "loaders.less";
 @import "monitor.less";

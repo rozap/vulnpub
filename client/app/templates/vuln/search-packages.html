@@ -1,0 +1,11 @@
+<ul class="package-search">
+<% _.each(packageSearch.slice(currentIndex, currentIndex+ 8), function(p) { %> 
+	<li>
+		<a href="javascript:void(0)"
+			class="select-package"
+			data-package=<%- p.get('id') %>>
+			<%- p.get('name') %>
+		</a>
+	</li>
+<% }); %>
+</ul>

@@ -15,5 +15,9 @@ module.exports = {
 
 	logout: function() {
 		localStorage[name] = null;
+	},
+
+	getUsername: function() {
+		return JSON.parse(localStorage[name]).username;
 	}
-}
+};

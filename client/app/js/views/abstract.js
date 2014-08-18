@@ -1,6 +1,7 @@
 var Backbone = require('backbone'),
     _ = require('underscore'),
     $ = require('jquery'),
+    viewMixins = require('../util/view-mixins'),
     ErrorTemplate = require('../../templates/util/error.html');
 
 module.exports = Backbone.View.extend({
@@ -47,8 +48,8 @@ module.exports = Backbone.View.extend({
 
         return _.extend({
             _: _,
-            showError: this._errors.bind(this)
-        }, included, ctx);
+            showError: this._errors.bind(this),
+        }, viewMixins, included, ctx);
     },
 
 
@@ -80,6 +81,13 @@ module.exports = Backbone.View.extend({
         }, os);
     },
 
+    set: function(name, val) {
+        var og = this[name];
+        this[name] = val;
+        if (og !== val && _.contains(this.include, name)) this.render();
+        return this;
+    },
+
     renderIt: function() {
         this.render();
     },
@@ -87,8 +95,12 @@ module.exports = Backbone.View.extend({
     spawn: function(name, view) {
         if (this._views[name]) this._views[name].end();
         this._views[name] = view;
-        view.onStart();
+        view.onStart(this);
         return view;
+    },
+
+    getView: function(name) {
+        return this._views[name];
     },
 
     end: function() {

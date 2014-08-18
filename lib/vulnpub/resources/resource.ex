@@ -31,7 +31,7 @@ defmodule Resources.Resource do
       def accepted, do: 202
       def ok, do: 200
      
-      import Ecto.Query, only: [from: 2]
+      import Ecto.Query
 
 
       def get_id(params) do
@@ -68,7 +68,22 @@ defmodule Resources.Resource do
 
       def handle({:index, conn, params, module, bundle}) do
         offset = (Dict.get(params, :page, "0") |> String.to_integer) * page_size
-        data = (from u in model, limit: page_size, offset: offset, select: u) |> Repo.all |> to_serializable
+        filter = Dict.get(params, :filter, false)
+
+        data = model
+        if filter do
+          [field, value] = String.split(filter, ":")
+          value = "%" <> value <> "%"
+          data = data |> where([u], ilike(u.name, ^value))
+        end
+
+        data = data
+          |> limit(page_size)
+          |> offset(offset)
+          |> select([u], u) 
+          |> Repo.all 
+          |> to_serializable
+
         [count] = (from u in model, select: count(u.id)) |> Repo.all
         pages = trunc(count / page_size)
         result = %{:meta => %{:pages => pages, :count => count, :next => trunc((page_size + offset) / page_size)}, :data => data}

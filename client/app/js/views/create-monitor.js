@@ -11,7 +11,8 @@ module.exports = View.extend({
     include: ['monitor'],
 
     events: {
-        'click .save': 'save'
+        'click .save': 'save',
+        'click .cancel': 'end'
     },
 
 

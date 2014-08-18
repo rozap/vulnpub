@@ -16,7 +16,8 @@
         "gulp-browserify": "latest",
         "moment": "latest",
         "vinyl-source-stream": "latest",
-        "stringify": "latest"
+        "stringify": "latest",
+        "markdown": "latest"
     },
     "repository": "",
     "author": "",
