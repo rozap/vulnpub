@@ -69,12 +69,21 @@ defmodule Resources.Resource do
       def handle({:index, conn, params, module, bundle}) do
         offset = (Dict.get(params, :page, "0") |> String.to_integer) * page_size
         filter = Dict.get(params, :filter, false)
+        order = Dict.get(params, :order, false)
 
         data = model
         if filter do
-          [field, value] = String.split(filter, ":")
+          [fname, value] = String.split(filter, ":")
+          fname = String.to_atom fname
+          :io.format("Filtering ~p ~p ~n", [fname, value])
           value = "%" <> value <> "%"
-          data = data |> where([u], ilike(u.name, ^value))
+          data = data |> where([u], ilike(field(u, ^fname), ^value))
+        end
+
+        if order do
+          #implement backwards ordering too...
+          order = String.to_atom order
+          data = data |> order_by([u], desc: field(u, ^order))
         end
 
         data = data

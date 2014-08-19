@@ -22,7 +22,7 @@ module.exports = Backbone.View.extend({
         this.pre(ctx);
         this._render(ctx);
         _.each(this._views, function(view, name) {
-            view.setElement(this.$el.find(view.el));
+            view.setElement($(view.$el.selector));
             view.render();
         }.bind(this));
         this.post(ctx);
@@ -53,11 +53,12 @@ module.exports = Backbone.View.extend({
     },
 
 
-    _errors: function(name, model) {
+    _errors: function(name, model, nameMap) {
         var errors = model.getErrors();
         if (errors) {
             return this._errorTemplate({
                 name: name,
+                nameMap: nameMap,
                 errors: errors.errors
             });
         }
@@ -103,6 +104,10 @@ module.exports = Backbone.View.extend({
         return this._views[name];
     },
 
+    hasView: function(name) {
+        return !!this.getView(name);
+    },
+
     end: function() {
         _.each(this._views, function(v, name) {
             v.end();
@@ -112,6 +117,11 @@ module.exports = Backbone.View.extend({
         this.$el.html('');
         this.trigger('end', this);
         return this;
+    },
+
+    endView: function(name) {
+        this.getView(name).end();
+        delete this._views[name];
     }
 
 });

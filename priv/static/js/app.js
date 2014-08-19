@@ -64,6 +64,7 @@ module.exports = Backbone.Collection.extend({
         opts = opts || {};
         opts.data = opts.data || {
             page: this.getPage(),
+            order: this._currentOrder
         };
         if (this._filter.name && this._filter.value) opts.data.filter = this._getFilters();
         return Backbone.Collection.prototype.fetch.call(this, opts);
@@ -133,9 +134,11 @@ var Collection = require('./abstract');
 
 module.exports = Collection.extend({
 
-    api: function() {
-        return 'vulns'
-    },
+	_currentOrder: 'created',
+
+	api: function() {
+		return 'vulns';
+	}
 
 
 });
@@ -388,7 +391,7 @@ module.exports = Backbone.View.extend({
         this.pre(ctx);
         this._render(ctx);
         _.each(this._views, function(view, name) {
-            view.setElement(this.$el.find(view.el));
+            view.setElement($(view.$el.selector));
             view.render();
         }.bind(this));
         this.post(ctx);
@@ -419,11 +422,12 @@ module.exports = Backbone.View.extend({
     },
 
 
-    _errors: function(name, model) {
+    _errors: function(name, model, nameMap) {
         var errors = model.getErrors();
         if (errors) {
             return this._errorTemplate({
                 name: name,
+                nameMap: nameMap,
                 errors: errors.errors
             });
         }
@@ -469,6 +473,10 @@ module.exports = Backbone.View.extend({
         return this._views[name];
     },
 
+    hasView: function(name) {
+        return !!this.getView(name);
+    },
+
     end: function() {
         _.each(this._views, function(v, name) {
             v.end();
@@ -478,6 +486,11 @@ module.exports = Backbone.View.extend({
         this.$el.html('');
         this.trigger('end', this);
         return this;
+    },
+
+    endView: function(name) {
+        this.getView(name).end();
+        delete this._views[name];
     }
 
 });
@@ -703,25 +716,36 @@ var View = require('./abstract'),
 var SearchView = View.extend({
 
     el: '#search-view',
-    include: ['packageSearch', 'currentIndex'],
+    include: ['packageSearch', 'currentIndex', 'sliceSize', 'sliceOffset'],
     template: _.template(SearchViewTemplate),
 
     currentIndex: 0,
+    sliceOffset: 0,
+    sliceSize: 8,
 
+    events: {
+        'mousewheel': 'onWheel',
+        'click .select-package': 'onClickPackage'
+    },
 
     onStart: function(parent) {
         this.packageSearch = new PackageCollection([], this.opts());
         this.listenTo(this.packageSearch, 'sync', this.renderIt);
-        this.listenTo(parent, 'keyup', this.dispatchKey);
+        this.listenTo(parent, 'keyup', this.keyUp);
+        this.listenTo(parent, 'keydown', this.keyDown);
     },
 
-    dispatchKey: function(e) {
+    keyDown: function(e) {
         if (e.keyCode === 40) {
             this.onDown();
         } else if (e.keyCode === 38) {
             this.onUp();
-        } else if (e.keyCode == 13) {
+        }
+    },
 
+    keyUp: function(e) {
+        if (e.keyCode === 13) {
+            this.select();
         } else {
             this.typeahead($(e.currentTarget).val());
         }
@@ -729,20 +753,49 @@ var SearchView = View.extend({
 
     typeahead: function(value) {
         if (this.packageSearch.setFilter('name', value)) {
+            this.reset();
             this.packageSearch.fetch();
         }
     },
 
+    post: function() {
+        console.log("DONE RENDER", this.$el, this.el);
+    },
+
     onDown: function() {
-        if (this.currentIndex < this.packageSearch.length) {
+        if (this.currentIndex < this.packageSearch.length - this.sliceSize) {
             this.set('currentIndex', this.currentIndex + 1);
+        } else if ((this.currentIndex + this.sliceOffset) < this.packageSearch.length - 1) {
+            this.set('sliceOffset', this.sliceOffset + 1);
         }
     },
 
+    reset: function() {
+        this.currentIndex = 0;
+        this.sliceOffset = 0;
+    },
+
     onUp: function() {
-        if (this.currentIndex > 0) {
+        if (this.sliceOffset > 0) {
+            this.set('sliceOffset', this.sliceOffset - 1);
+        } else if (this.currentIndex > 0) {
             this.set('currentIndex', this.currentIndex - 1);
         }
+    },
+
+    select: function() {
+        this.trigger('select', this.packageSearch.at(this.currentIndex + this.sliceOffset));
+        this.reset();
+    },
+
+    onClickPackage: function(e) {
+        var id = parseInt($(e.currentTarget).data('package'));
+        this.trigger('select', this.packageSearch.get(id));
+        this.reset();
+    },
+
+    onWheel: function(e) {
+        (e.originalEvent.wheelDelta > 0 ? this.onUp : this.onDown).call(this);
     }
 
 });
@@ -758,7 +811,9 @@ module.exports = View.extend({
     events: {
         'keyup input': 'update',
         'keyup textarea': 'update',
-        'keyup #effects_package': 'typeahead'
+        'keydown #effects_package': 'keydown',
+        'keyup #effects_package': 'keyup',
+        'click .save': 'save'
     },
 
     initialize: function(opts) {
@@ -774,15 +829,39 @@ module.exports = View.extend({
             vuln: this.vuln,
             el: '#report-preview'
         })));
-        this.spawn('search', new SearchView(this.opts()));
+        this.addSearch();
+    },
+
+    addSearch: function() {
+        var search = this.spawn('search', new SearchView(this.opts()));
+        this.listenTo(search, 'select', this.onSelected);
     },
 
     update: function() {
-        this.vuln.set(this.$el.find('form').serializeObject());
+        return this.vuln.set(this.$el.find('form').serializeObject());
     },
 
-    typeahead: function(e) {
+    post: function() {
+        console.log("DONE");
+    },
+
+    keydown: function(e) {
+        this.trigger('keydown', e);
+    },
+
+    keyup: function(e) {
+        if (!this.hasView('search')) this.addSearch();
         this.trigger('keyup', e);
+    },
+
+    onSelected: function(pack) {
+        this.vuln.set('effects_package', pack.get('name'));
+        this.endView('search');
+        this.render();
+    },
+
+    save: function() {
+        this.update().save();
     }
 
 });
@@ -927,7 +1006,7 @@ module.exports = "<h3><%- greet() %></h3>\n\n<div class=\"pure-g home-summary\">
 module.exports = "<h3><%- monitor.get('name') %></h3>\n\n<% if(monitor.isLoading()) { %>\n\t<%= inject('loader') %>\n<% } else { %>\n\t<h5 class=\"section\">This monitor is monitoring the following packages</h5>\n\t<div class=\"pure-g package-list\">\n\t\t<% _.each(monitor.get('packages'), function(p, idx) { %>\n\t\t\t<div class=\"pure-u-1-3\">\n\t\t\t\t<div class=\"card package-card\n\t\t\t\t\t<%- idx % 3 == 0? 'left' : '' %>\n\t\t\t\t\t<%- (idx + 1) % 3 == 0? 'right' : '' %>\">\n\t\t\t\t\t<h4><%- p.name %></h4>\n\t\t\t\t\t<p class=\"text-muted\"><%- p.version %></p>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t<% }) %>\n\t</div>\n<% } %>";
 
 },{}],28:[function(require,module,exports){
-module.exports = "\n<% if(errors[name]) { %>\n\t<div class=\"alert alert-error\">\n\t\t<%- errors[name] %>\n\t</div>\n<% } %>";
+module.exports = "\n<% if(errors[name]) { %>\n\t<div class=\"alert alert-error\">\n\t\t<%- errors[name].replace(name,\n\t\t nameMap || (name.slice(0, 1).toUpperCase() + name.slice(1))) %>\n\t</div>\n<% } %>";
 
 },{}],29:[function(require,module,exports){
 module.exports = "\t<div class=\"indef-loader\">\n\t\t<div class=\"stick\"></div>\n\t\t<div class=\"stick\"></div>\n\t\t<div class=\"stick\"></div>\n\t\t<div class=\"stick\"></div>\n\t\t<div class=\"stick\"></div>\n\t\t<div class=\"stick\"></div>\n\t\t<h1>Loading</h1>\n\t</div>";
@@ -939,10 +1018,10 @@ module.exports = "<div class=\"pager\">\n\t<div class=\"page-counter\">\n\t\t<sp
 module.exports = "<div class=\"side-nav\">\n  <ul>\n    <li>\n      <a href=\"#\">home</a>\n    </li>\n\n\n    <!-- separate --> \n    <li class=\"divider\"></li>\n    <li>\n      <a href=\"#vulns\">Known Vulnerabilities</a>\n    </li>\n    <li>\n      <a href=\"#report\">Report a Vulnerability</a>\n    </li>\n\n  </ul>\n</div>";
 
 },{}],32:[function(require,module,exports){
-module.exports = "<h3>Report a new Vulnerability</h3>\n\n<div class=\"pure-g report-grid\">\n    <div class=\"pure-u-11-24\">\n        <form class=\"pure-form pure-form-stacked\">\n            <fieldset>\n                <div class=\"pure-control-group\">\n                    <label for=\"name\">\n                        Name\n                    </label>\n                \t<%= showError('name', vuln) %>\n                    <input id=\"name\" \n                        class=\"pure-input-1\"\n                    \tname=\"name\" \n                    \ttype=\"text\" \n                    \tvalue=\"<%- vuln.get('name') %>\"\n                    \tplaceholder=\"Name\"/>\n                </div>\n                <div class=\"pure-control-group\">\n                    <label for=\"effects_package\">\n                        Effected Package\n                    </label>\n                \t<%= showError('name', vuln) %>\n                    <input id=\"effects_package\" \n                        class=\"pure-input-1\"\n                    \tname=\"effects_package\" \n                    \ttype=\"text\" \n                    \tvalue=\"<%- vuln.get('effects_package') %>\"\n                    \tplaceholder=\"Package Name\"/>\n                </div>\n\n                <div id=\"search-view\"></div>\n\n\n                <div class=\"pure-control-group\">\n                    <label for=\"effects_version\">\n                        Effected Version\n                    </label>\n                \t<%= showError('name', vuln) %>\n                    <input id=\"effects_version\" \n                        class=\"pure-input-1\"\n                    \tname=\"effects_version\" \n                    \ttype=\"text\" \n                    \tvalue=\"<%- vuln.get('effects_version') %>\"\n                    \tplaceholder=\"Version\"/>\n                </div>\n\n\n                <div class=\"pure-control-group\">\n                    <label for=\"name\">\n                        Description\n                    </label>\n                \t<%= showError('description', vuln) %>\n                    <textarea id=\"description\" \n                        class=\"pure-input-1\"\n                    \tname=\"description\" \n                    \ttype=\"text\" \n                    \tplaceholder=\"A detailed description of why it is a vulnerability, how it works, and how to mitigate it.\"><%- vuln.get('description') %></textarea>\n                </div>\n                <h6>Use <a target=\"blank\" href=\"http://daringfireball.net/projects/markdown/syntax\">markdown</a> for formatting</h6>\n\n\n                <div class=\"pure-control-group\">\n                    <label for=\"external_link\">\n                    \tExternal Link\n                    </label>\n                \t<%= showError('external_link', vuln) %>\n                    <input id=\"external_link\" \n                        class=\"pure-input-1\"\n                    \tname=\"external_link\" \n                    \ttype=\"text\" \n                    \tvalue=\"<%- vuln.get('external_link') %>\"\n                    \tplaceholder=\"Eg: CVE page, ExploitDB, Pastebin, etc\"/>\n                </div>\n\n                <div class=\"pure-control-group action-row\">\n\n                    <button type=\"button\" class=\"pure-button button-primary save\">\n                        Create\n                    </button>\n                    <button type=\"button\" class=\"pure-button cancel\">\n                        Cancel\n                    </button>\n\n                </div>\n            </fieldset>\n        </form>\n    </div>\n    <div class=\"pure-u-11-24 preview-wrap\">\n    \t<div id=\"report-preview\"></div>\n    </div>\n</div>";
+module.exports = "<h3>Report a new Vulnerability</h3>\n\n<div class=\"pure-g report-grid\">\n    <div class=\"pure-u-11-24\">\n        <form class=\"pure-form pure-form-stacked\">\n            <fieldset>\n                <div class=\"pure-control-group\">\n                    <label for=\"name\">\n                        Name\n                    </label>\n                \t<%= showError('name', vuln) %>\n                    <input id=\"name\" \n                        class=\"pure-input-1\"\n                    \tname=\"name\" \n                    \ttype=\"text\" \n                    \tvalue=\"<%- vuln.get('name') %>\"\n                    \tplaceholder=\"Name\"/>\n                </div>\n                <div class=\"pure-control-group\">\n                    <label for=\"effects_package\">\n                        Effected Package\n                    </label>\n                \t<%= showError('effects_package', vuln, 'Effected Package') %>\n                    <input id=\"effects_package\" \n                        class=\"pure-input-1\"\n                    \tname=\"effects_package\" \n                    \ttype=\"text\" \n                    \tvalue=\"<%- vuln.get('effects_package') %>\"\n                    \tplaceholder=\"Package Name\"/>\n                </div>\n\n                <div id=\"search-view\"></div>\n\n\n                <div class=\"pure-control-group\">\n                    <label for=\"effects_version\">\n                        Effected Version\n                    </label>\n                \t<%= showError('effects_version', vuln, 'Effected Version') %>\n                    <input id=\"effects_version\" \n                        class=\"pure-input-1\"\n                    \tname=\"effects_version\" \n                    \ttype=\"text\" \n                    \tvalue=\"<%- vuln.get('effects_version') %>\"\n                    \tplaceholder=\"Version\"/>\n                </div>\n\n\n                <div class=\"pure-control-group\">\n                    <label for=\"name\">\n                        Description\n                    </label>\n                \t<%= showError('description', vuln) %>\n                    <textarea id=\"description\" \n                        class=\"pure-input-1\"\n                    \tname=\"description\" \n                    \ttype=\"text\" \n                    \tplaceholder=\"A detailed description of why it is a vulnerability, how it works, and how to mitigate it.\"><%- vuln.get('description') %></textarea>\n                </div>\n                <h6>Use <a target=\"blank\" href=\"http://daringfireball.net/projects/markdown/syntax\">markdown</a> for formatting</h6>\n\n\n                <div class=\"pure-control-group\">\n                    <label for=\"external_link\">\n                    \tExternal Link\n                    </label>\n                \t<%= showError('external_link', vuln) %>\n                    <input id=\"external_link\" \n                        class=\"pure-input-1\"\n                    \tname=\"external_link\" \n                    \ttype=\"text\" \n                    \tvalue=\"<%- vuln.get('external_link') %>\"\n                    \tplaceholder=\"Eg: CVE page, ExploitDB, Pastebin, etc\"/>\n                </div>\n\n                <div class=\"pure-control-group action-row\">\n\n                    <button type=\"button\" class=\"pure-button button-primary save\">\n                        Create\n                    </button>\n                    <button type=\"button\" class=\"pure-button cancel\">\n                        Cancel\n                    </button>\n\n                </div>\n            </fieldset>\n        </form>\n    </div>\n    <div class=\"pure-u-11-24 preview-wrap\">\n    \t<div id=\"report-preview\"></div>\n    </div>\n</div>";
 
 },{}],33:[function(require,module,exports){
-module.exports = "<ul class=\"package-search\">\n<% _.each(packageSearch.slice(currentIndex, currentIndex+ 8), function(p) { %> \n\t<li>\n\t\t<a href=\"javascript:void(0)\"\n\t\t\tclass=\"select-package\"\n\t\t\tdata-package=<%- p.get('id') %>>\n\t\t\t<%- p.get('name') %>\n\t\t</a>\n\t</li>\n<% }); %>\n</ul>";
+module.exports = "<ul class=\"package-search\">\n<% _.each(packageSearch.slice(currentIndex, currentIndex + sliceSize), function(p, i) { %> \n\t<li class=\"<%- i === sliceOffset? 'active' : '' %>\">\n\t\t<a href=\"javascript:void(0)\"\n\t\t\tclass=\"select-package\"\n\t\t\tdata-package=<%- p.get('id') %>>\n\t\t\t<%- p.get('name') %>\n\t\t</a>\n\t</li>\n<% }); %>\n</ul>";
 
 },{}],34:[function(require,module,exports){
 module.exports = "<h3 class=\"section\">Vulnerabilities</h3>\n\n<div class=\"vuln-list pure-g\">\n\n\t<% if(!vulns.length && !vulns.isLoading()) { %> \n\t\t<div class=\"pure-u-1-1\">\n\t\t\t<h6>No vulnerabilities found</h6>\n\t\t</div>\n\t<% } else { %>\n\t\t<% vulns.each(function(vuln) { %> \n\t\t<div class=\"vuln-item\">\n\t\t\t<div class=\"pure-u-2-3\">\n\t\t\t\t<a href=\"#vulns/<%- vuln.get('id') %>\">\n\t\t\t\t\t<%- vuln.get('name') %>\n\t\t\t\t</a>\n\t\t\t</div>\n\t\t\t<div class=\"pure-u-1-3 details text-muted\">\n\t\t\t\t<p>\n\t\t\t\t\t<%- shorten(vuln.get('effects_package')) %>\n\t\t\t\t\t<%- shorten(vuln.get('effects_version')) %>\n\t\t\t\t</p>\n\t\t\t</div>\n\t\t</div>\n\t\t<% }); %>\n\t<% } %>\n</div>\n\n<div id=\"vuln-pager\"></div>";

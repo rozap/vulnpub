@@ -11,25 +11,36 @@ var View = require('./abstract'),
 var SearchView = View.extend({
 
     el: '#search-view',
-    include: ['packageSearch', 'currentIndex'],
+    include: ['packageSearch', 'currentIndex', 'sliceSize', 'sliceOffset'],
     template: _.template(SearchViewTemplate),
 
     currentIndex: 0,
+    sliceOffset: 0,
+    sliceSize: 8,
 
+    events: {
+        'mousewheel': 'onWheel',
+        'click .select-package': 'onClickPackage'
+    },
 
     onStart: function(parent) {
         this.packageSearch = new PackageCollection([], this.opts());
         this.listenTo(this.packageSearch, 'sync', this.renderIt);
-        this.listenTo(parent, 'keyup', this.dispatchKey);
+        this.listenTo(parent, 'keyup', this.keyUp);
+        this.listenTo(parent, 'keydown', this.keyDown);
     },
 
-    dispatchKey: function(e) {
+    keyDown: function(e) {
         if (e.keyCode === 40) {
             this.onDown();
         } else if (e.keyCode === 38) {
             this.onUp();
-        } else if (e.keyCode == 13) {
+        }
+    },
 
+    keyUp: function(e) {
+        if (e.keyCode === 13) {
+            this.select();
         } else {
             this.typeahead($(e.currentTarget).val());
         }
@@ -37,20 +48,49 @@ var SearchView = View.extend({
 
     typeahead: function(value) {
         if (this.packageSearch.setFilter('name', value)) {
+            this.reset();
             this.packageSearch.fetch();
         }
     },
 
+    post: function() {
+        console.log("DONE RENDER", this.$el, this.el);
+    },
+
     onDown: function() {
-        if (this.currentIndex < this.packageSearch.length) {
+        if (this.currentIndex < this.packageSearch.length - this.sliceSize) {
             this.set('currentIndex', this.currentIndex + 1);
+        } else if ((this.currentIndex + this.sliceOffset) < this.packageSearch.length - 1) {
+            this.set('sliceOffset', this.sliceOffset + 1);
         }
     },
 
+    reset: function() {
+        this.currentIndex = 0;
+        this.sliceOffset = 0;
+    },
+
     onUp: function() {
-        if (this.currentIndex > 0) {
+        if (this.sliceOffset > 0) {
+            this.set('sliceOffset', this.sliceOffset - 1);
+        } else if (this.currentIndex > 0) {
             this.set('currentIndex', this.currentIndex - 1);
         }
+    },
+
+    select: function() {
+        this.trigger('select', this.packageSearch.at(this.currentIndex + this.sliceOffset));
+        this.reset();
+    },
+
+    onClickPackage: function(e) {
+        var id = parseInt($(e.currentTarget).data('package'));
+        this.trigger('select', this.packageSearch.get(id));
+        this.reset();
+    },
+
+    onWheel: function(e) {
+        (e.originalEvent.wheelDelta > 0 ? this.onUp : this.onDown).call(this);
     }
 
 });
@@ -66,7 +106,9 @@ module.exports = View.extend({
     events: {
         'keyup input': 'update',
         'keyup textarea': 'update',
-        'keyup #effects_package': 'typeahead'
+        'keydown #effects_package': 'keydown',
+        'keyup #effects_package': 'keyup',
+        'click .save': 'save'
     },
 
     initialize: function(opts) {
@@ -82,15 +124,39 @@ module.exports = View.extend({
             vuln: this.vuln,
             el: '#report-preview'
         })));
-        this.spawn('search', new SearchView(this.opts()));
+        this.addSearch();
+    },
+
+    addSearch: function() {
+        var search = this.spawn('search', new SearchView(this.opts()));
+        this.listenTo(search, 'select', this.onSelected);
     },
 
     update: function() {
-        this.vuln.set(this.$el.find('form').serializeObject());
+        return this.vuln.set(this.$el.find('form').serializeObject());
     },
 
-    typeahead: function(e) {
+    post: function() {
+        console.log("DONE");
+    },
+
+    keydown: function(e) {
+        this.trigger('keydown', e);
+    },
+
+    keyup: function(e) {
+        if (!this.hasView('search')) this.addSearch();
         this.trigger('keyup', e);
+    },
+
+    onSelected: function(pack) {
+        this.vuln.set('effects_package', pack.get('name'));
+        this.endView('search');
+        this.render();
+    },
+
+    save: function() {
+        this.update().save();
     }
 
 });

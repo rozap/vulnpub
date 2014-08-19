@@ -1,6 +1,6 @@
 <ul class="package-search">
-<% _.each(packageSearch.slice(currentIndex, currentIndex+ 8), function(p) { %> 
-	<li>
+<% _.each(packageSearch.slice(currentIndex, currentIndex + sliceSize), function(p, i) { %> 
+	<li class="<%- i === sliceOffset? 'active' : '' %>">
 		<a href="javascript:void(0)"
 			class="select-package"
 			data-package=<%- p.get('id') %>>

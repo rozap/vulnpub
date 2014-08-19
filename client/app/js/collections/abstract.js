@@ -31,6 +31,7 @@ module.exports = Backbone.Collection.extend({
         opts = opts || {};
         opts.data = opts.data || {
             page: this.getPage(),
+            order: this._currentOrder
         };
         if (this._filter.name && this._filter.value) opts.data.filter = this._getFilters();
         return Backbone.Collection.prototype.fetch.call(this, opts);
