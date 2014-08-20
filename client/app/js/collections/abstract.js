@@ -66,7 +66,18 @@ module.exports = Backbone.Collection.extend({
         this._filter.name = name;
         this._filter.value = value;
         return this._filter.name !== ogName || this._filter.value !== ogVal;
-    }
+    },
+
+    _prepareModel: function(attrs, options) {
+        if (attrs instanceof Backbone.Model) return attrs;
+        options = options ? _.clone(options) : {};
+        options.app = this.app;
+        options.collection = this;
+        var model = new this.model(attrs, options);
+        if (!model.validationError) return model;
+        this.trigger('invalid', this, model.validationError, options);
+        return false;
+    },
 
 
 

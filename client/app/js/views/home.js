@@ -1,50 +1,81 @@
 var View = require('./abstract'),
-	_ = require('underscore'),
-	Monitors = require('../collections/monitors'),
-	CreateMonitor = require('./create-monitor'),
-	HomeTemplate = require('../../templates/home/home.html'),
-	Pager = require('./pager');
+    _ = require('underscore'),
+    Monitors = require('../collections/monitors'),
+    Alerts = require('../collections/alerts'),
+    CreateMonitor = require('./create-monitor'),
+    HomeTemplate = require('../../templates/home/home.html'),
+    Pager = require('./pager');
 
 module.exports = View.extend({
 
-	el: '#main',
-	template: _.template(HomeTemplate),
+    el: '#main',
+    template: _.template(HomeTemplate),
 
-	include: ['monitors', 'greet'],
+    include: ['monitors', 'greet', 'alerts'],
 
-	events: {
-		'click .new-monitor': 'create'
-	},
+    events: {
+        'click .new-monitor': 'create',
+        'click .dismiss-alert': 'dismiss',
+        'click .alert-item-inner': 'gotoVuln',
+    },
 
-	_greetings: ['hello', 'greetings', 'sup', 'what\'s happening'],
+    _greetings: ['hello', 'greetings', 'sup', 'what\'s happening'],
 
 
-	initialize: function(opts) {
-		View.prototype.initialize.call(this, opts);
-		this.app.dispatcher.trigger('nav.show');
-		this._greet = this._greetings[Math.floor(Math.random() * this._greetings.length)];
+    initialize: function(opts) {
+        View.prototype.initialize.call(this, opts);
+        this.app.dispatcher.trigger('nav.show');
+        this._greet = this._greetings[Math.floor(Math.random() * this._greetings.length)];
 
-		this.monitors = new Monitors([], this.opts());
-		this.listenTo(this.monitors, 'sync error add', this.renderIt);
-		this.monitors.fetch();
-	},
+        this.alerts = new Alerts([], this.opts());
+        this.listenTo(this.alerts, 'sync error remove', this.renderIt);
+        this.alerts.fetch();
 
-	onStart: function() {
-		this.render();
-	},
+        this.monitors = new Monitors([], this.opts());
+        this.listenTo(this.monitors, 'sync error add', this.renderIt);
+        this.monitors.fetch();
+    },
 
-	onCreated: function(monitor) {
-		this.monitors.add(monitor);
-	},
+    onStart: function() {
+        this.render();
+    },
 
-	create: function() {
-		var view = this.spawn('create', new CreateMonitor(this.opts()));
-		this.listenTo(view, 'created', this.onCreated);
-	},
+    post: function() {
+        if (this.alerts.pageCount() > 0) {
+            this.spawn('alert_pager', new Pager(this.opts({
+                el: this.$el.find('#alert-pager').selector,
+                collection: this.alerts
+            })))
+        }
+    },
 
-	greet: function() {
-		return this._greet + ' ' + this.app.auth.getUsername();
-	}
+    onCreated: function(monitor) {
+        this.monitors.add(monitor);
+    },
+
+    create: function() {
+        var view = this.spawn('create', new CreateMonitor(this.opts()));
+        this.listenTo(view, 'created', this.onCreated);
+    },
+
+    greet: function() {
+        return this._greet + ' ' + this.app.auth.getUsername();
+    },
+
+    gotoVuln: function(e) {
+        if (e.isDefaultPrevented()) return;
+        var url = 'vulns/' + $(e.currentTarget).data('vuln');
+        this.app.router.navigate(url, {
+            trigger: true
+        });
+    },
+
+    dismiss: function(e) {
+        var al = this.alerts.get(parseInt($(e.currentTarget).data('alert')));
+        al.set('acknowledged', true).save();
+        this.alerts.fetch();
+        e.preventDefault();
+    }
 
 
 

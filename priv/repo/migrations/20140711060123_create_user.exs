@@ -69,7 +69,8 @@ defmodule Repo.Migrations.CreateUser do
           monitor_id integer references monitors(id),
           created timestamp DEFAULT NOW(), 
           modified timestamp DEFAULT NOW(),
-          fulfilled timestamp DEFAULT null
+          fulfilled timestamp DEFAULT null,
+          acknowledged boolean DEFAULT FALSE
         )"
 
     ]

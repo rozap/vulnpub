@@ -66,16 +66,29 @@ defmodule Resources.Resource do
       def destroy(conn, params), do: dispatch(:destroy, conn, params)
 
 
+
+      def query({:index, conn, params, module, bundle}), do: model |> select([u], u)
+      def query({:show, conn, params, module, bundle}) do
+        id = get_id(params)
+        model 
+          |> where([u], u.id == ^id)
+          |> select([u], u)
+      end
+
+
+
+
+
+
       def handle({:index, conn, params, module, bundle}) do
         offset = (Dict.get(params, :page, "0") |> String.to_integer) * page_size
         filter = Dict.get(params, :filter, false)
         order = Dict.get(params, :order, false)
 
-        data = model
+        data = query({:index, conn, params, module, bundle})
         if filter do
           [fname, value] = String.split(filter, ":")
           fname = String.to_atom fname
-          :io.format("Filtering ~p ~p ~n", [fname, value])
           value = "%" <> value <> "%"
           data = data |> where([u], ilike(field(u, ^fname), ^value))
         end
@@ -89,7 +102,6 @@ defmodule Resources.Resource do
         data = data
           |> limit(page_size)
           |> offset(offset)
-          |> select([u], u) 
           |> Repo.all 
           |> to_serializable
 
@@ -108,8 +120,10 @@ defmodule Resources.Resource do
       end
 
       def handle({:show, conn, params, module, bundle}) do
-        id = get_id(params)
-        result = (from u in model, where: u.id == ^id, select: u) |> Repo.all |> List.first |> to_serializable
+        result = query({:show, conn, params, module, bundle}) 
+          |> Repo.all 
+          |> List.first 
+          |> to_serializable
         {conn, ok, result}
       end
 

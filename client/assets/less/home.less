@@ -6,3 +6,36 @@
 	position: relative;
 	top:-@margin-width/1.2;
 }
+
+.alert-item {
+	border-bottom: 1px solid @gray-light;
+	.alert-item-inner {
+		padding: @margin-width/2;
+		position: relative;
+		margin:4px 0px;
+		border-left: 4px solid @gray-light;
+		transition: .2s all;
+
+		h4, h5 {
+			margin:0px;
+		}
+
+		&:hover {
+			border-left: 4px solid @orange;
+			cursor: pointer;
+
+			.dismiss-alert {
+				opacity: 1;
+			}
+		};
+
+		.dismiss-alert {
+			transition: .2s all;
+			opacity: 0;
+			position: absolute;
+			top:@margin-width - 3px;
+			right:@margin-width;
+		}
+	}
+}
+

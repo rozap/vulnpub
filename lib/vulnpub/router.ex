@@ -11,7 +11,7 @@ defmodule Vulnpub.Router do
       resources "apikey", Resources.ApiKey, only: [:create, :destroy]
       resources "vulns", Resources.Vuln, only: [:create, :show, :index]
       resources "packages", Resources.Package, only: [:show, :index]
-      resources "alerts", Resources.Alert, only: [:index]
+      resources "alerts", Resources.Alert, only: [:index, :update]
 
     end
   end

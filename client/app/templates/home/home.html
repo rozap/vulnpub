@@ -1,8 +1,29 @@
 <h3><%- greet() %></h3>
 
-<div class="pure-g home-summary">
-
-</div>
+<h5 class="section">
+	Alerts
+</h5>
+<% if(alerts.length === 0) { %>
+	<h6>You have no outstanding vulnerability alerts. Hooray!</h6>
+<% } else { %>
+	<div class="pure-g alert-list">
+		<% alerts.each(function(al) { %>
+		<div class="pure-u-1-1 alert-item">
+			<div class="alert-item-inner"
+				data-vuln="<%- al.get('vuln').id %>">
+				<h4><%- al.get('vuln').name %></h4>
+				<h5 class="text-muted">Effecting <%- al.get('monitor').name %></h5>
+				<a href="javascript:void(0)" 
+					data-alert="<%- al.get('id') %>"
+					class="pure-button button-warning button-xsmall dismiss-alert">
+					Dismiss
+				</a>
+			</div>
+		</div>
+		<% }) %>
+	</div>
+<% } %>
+<div id="alert-pager"></div>
 
 
 <div id="create-monitor"></div>
@@ -10,7 +31,10 @@
 
 <h5 class="section">
 	Monitors 
-	<a href="javascript:void(0)" class="new-monitor pure-button button-primary button-small">New Monitor</a>
+	<a href="javascript:void(0)" 
+		class="new-monitor pure-button button-primary button-small">
+			New Monitor
+	</a>
 </h5>
 
 <% if(monitors.isLoading()) { %>

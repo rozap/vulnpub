@@ -53,10 +53,6 @@ var SearchView = View.extend({
         }
     },
 
-    post: function() {
-        console.log("DONE RENDER", this.$el, this.el);
-    },
-
     onDown: function() {
         if (this.currentIndex < this.packageSearch.length - this.sliceSize) {
             this.set('currentIndex', this.currentIndex + 1);

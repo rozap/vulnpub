@@ -15,19 +15,18 @@ defmodule Resources.Alert do
   import Ecto.Query, only: [from: 2]
   alias Models.Monitor
   alias Models.Alert
-
+  alias Models.Vuln
 
   def model, do: Alert
+  def page_size, do: 5
 
-  def handle({:index, conn, params, module, bundle}) do
+  def query({:index, conn, params, module, bundle}) do
     %{:user => %{:id => user_id}} = bundle
      result = (from a in Alert,
-      join: m in Monitor, on: a.monitor_id == m.id,
+      left_join: m in a.monitor,
+      left_join: v in a.vuln,
       where: m.user_id == ^user_id,
-      select: a)
-      |> Repo.all
-      |> to_serializable
-    {conn, ok, result}
+      select: assoc(a, monitor: m, vuln: v))
   end
 
 	use Resources.Resource, [

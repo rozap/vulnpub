@@ -73,16 +73,24 @@
                     	placeholder="Eg: CVE page, ExploitDB, Pastebin, etc"/>
                 </div>
 
-                <div class="pure-control-group action-row">
+                <% if(vuln.get('id')) { %>
+                    <div class="pure-control-group">
+                        <div class="alert alert-success">
+                            New vulnerability has been created 
+                            <a href="#vulns/<%- vuln.get('id') %>">here</a>, thanks!
 
-                    <button type="button" class="pure-button button-primary save">
-                        Create
-                    </button>
-                    <button type="button" class="pure-button cancel">
-                        Cancel
-                    </button>
-
-                </div>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <div class="pure-control-group action-row">
+                        <button type="button" class="pure-button button-primary save">
+                            Create
+                        </button>
+                        <button type="button" class="pure-button cancel">
+                            Cancel
+                        </button>
+                    </div>
+                <% } %>
             </fieldset>
         </form>
     </div>
