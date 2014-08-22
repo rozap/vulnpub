@@ -10,7 +10,10 @@ defmodule Vulnpub.Supervisor do
     children = [
       worker(Repo, []), 
       worker(Service.MonitorConsumer, [{}, []]),
-      worker(Service.VulnConsumer, [{}, []])
+      worker(Service.VulnConsumer, [{}, []]),
+      worker(Service.Config, [[config: "/home/chris/secrets/vp-conf.json"], []])
+      worker(Service.Emailer, [[], []])
+
     ]
 
     # See http://elixir-lang.org/docs/stable/Supervisor.Behaviour.html
