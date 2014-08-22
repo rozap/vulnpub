@@ -38,15 +38,18 @@ module.exports = {
 
 
 	getErrors: function() {
-		return this._lastError;
+		if (this._lastError) return this._lastError;
+		if (this.validationError) return {
+			errors: this.validationError
+		};
 	},
 
 
 	sync: function() {
 		var args = Array.prototype.slice.call(arguments);
 		opts = arguments[2] || {};
-		opts.headers = Auth.headers()
+		opts.headers = Auth.headers();
 		args[2] = opts;
 		return Backbone.sync.apply(this, args);
 	}
-}
+};
