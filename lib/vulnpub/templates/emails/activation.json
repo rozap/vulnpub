@@ -1,0 +1,14 @@
+{
+    "key": "#{key}",
+    "message": {
+        "text": "Activate your account",
+        "subject": "Activate your vuln.pub account",
+        "from_email": "notifications@vuln.pub",
+        "from_name": "vuln.pub",
+        "to": [{
+            "email": "#{email}",
+            "name": "#{name}",
+            "type": "to"
+        }]
+    }
+}

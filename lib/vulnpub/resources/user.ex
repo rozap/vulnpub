@@ -19,6 +19,14 @@ defmodule Resources.User.Authenticator do
   use Resources.Authenticator, [except: [:create]]
 end
 
+defmodule Resources.User.Trigger do
+  def handle({:create, conn, status, user}) do
+    GenServer.cast(:emailer, {:activate, user})
+    {:create, conn, status, user}
+  end
+  def handle(res), do: res
+end
+
 
 defmodule Resources.User do
   require Resources.Resource
@@ -32,6 +40,9 @@ defmodule Resources.User do
     middleware: [
       Resources.User.Authenticator,
       Resources.User.Validator
+    ], 
+    triggers: [
+      Resources.User.Trigger
     ]
   ]
 end

@@ -9,7 +9,7 @@ defmodule Service.Config do
   def init([config: path]) do
     Process.register(self, :config)
     txt = File.read! path
-    js =JSON.decode! txt
+    js = JSON.decode! txt
     :io.format("conf ~p~n", [js])
     {:ok, js}
   end
