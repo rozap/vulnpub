@@ -7,7 +7,7 @@
         "from_name": "vuln.pub",
         "to": [{
             "email": "#{email}",
-            "name": "#{name}",
+            "name": "#{username}",
             "type": "to"
         }]
     }
