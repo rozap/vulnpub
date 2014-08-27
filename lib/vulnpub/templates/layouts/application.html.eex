@@ -14,7 +14,7 @@
   <body>
     <div class="header">
       <h1 class="title">
-        <a href="/">
+        <a href="#home">
           vuln.pub
         </a>
       </h1>

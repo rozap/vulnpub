@@ -35,12 +35,14 @@ defmodule Service.Emailer do
 
   def handle_cast({:activate, user}, state) do
     template = File.read! "lib/vulnpub/templates/emails/activation.json"
-    payload = interpolate(template, %{:key => "some key", :email => user.email, :username => user.username})
-    if HTTPotion.Response.success? (send payload) do
+    key = GenServer.call(:config, {:get, :email_apikey})
+    payload = interpolate(template, %{:key => key, :email => user.email, :username => user.username})
+    #send it off...
+    response = send payload
+    if HTTPotion.Response.success? response do
       :io.format("Email sent")
     else
-      #TODO error handle here
-      :io.format("Sending message failed! ~n Email ~p ~n payload ~p ~n", [user.email, payload])
+      GenServer.cast(:logger, {:error, [email: user.email, payload: payload, response: response]})
     end
     {:noreply, state}
   end

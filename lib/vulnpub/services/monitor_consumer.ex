@@ -13,6 +13,7 @@ defmodule Service.MonitorConsumer do
   def get_parser(:npm), do: Manifest.Parser.NPM
   def get_parser(:pypi), do: Manifest.Parser.PyPi
   def get_parser(:dpkg), do: Manifest.Parser.Dpkg
+  def get_parser(:manual), do: Manifest.Parser.Manual
 
   defp allocate(package_name, version, homepage, monitor) do
     Models.Package.allocate(%{
@@ -23,7 +24,10 @@ defmodule Service.MonitorConsumer do
   end
 
   defp parse(:packages, node, monitor) do
+
+
     Enum.map(node, fn {package_name, details} -> allocate(package_name, details["version"], "home", monitor) end)
+
   end
 
 

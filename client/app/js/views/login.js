@@ -23,7 +23,7 @@ module.exports = View.extend({
 
     redirect: function() {
         this.apikey.persist();
-        this.app.router.navigate('#', {
+        this.app.router.navigate('#home', {
             trigger: true
         });
     },
