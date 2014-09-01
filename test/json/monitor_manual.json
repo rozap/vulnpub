@@ -1,0 +1,4 @@
+{
+	"manifest": "http://localhost:7777/manual.json",
+	"name": "npm mon"
+}

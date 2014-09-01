@@ -1,0 +1,7 @@
+{
+	"managed": {
+		"requirements.txt": {
+			"manager": "pypi"
+		}
+	}
+}

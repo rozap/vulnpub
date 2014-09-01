@@ -33,7 +33,9 @@ defmodule Service.Emailer do
     post @message_send, payload
   end
 
-  def handle_cast({:activate, user}, state) do
+
+
+  defp handle(:prod, {:activate, user}, state) do
     template = File.read! "lib/vulnpub/templates/emails/activation.json"
     key = GenServer.call(:config, {:get, :email_apikey})
     payload = interpolate(template, %{:key => key, :email => user.email, :username => user.username})
@@ -47,4 +49,17 @@ defmodule Service.Emailer do
     {:noreply, state}
   end
 
+
+  defp handle(_, {:activate, user}, state) do
+    :io.format("Not sending activate email to user: ~p~n", [user.email])
+    {:noreply, state}
+  end
+
+
+
+
+
+
+
+  def handle_cast(thing, state), do: handle(Mix.env, thing, state)
 end

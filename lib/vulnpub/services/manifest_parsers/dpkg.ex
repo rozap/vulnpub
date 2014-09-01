@@ -20,12 +20,28 @@ defmodule Manifest.Parser.Dpkg do
     end
   end
 
+
+  defp remove_words version do
+    Regex.split(~r/\.[A-Za-z]/, version) |> List.first
+  end
+
+
+  defp parse_version({name, version}) do
+    vnum = String.split(version, "~")
+            |> List.first
+            |> String.split("-")
+            |> List.first
+            |> remove_words
+    {name, vnum}
+  end
+
   def parse_deps body, monitor do
     t = String.split(body, "\n")
-      |> Enum.drop(5)
-      |> Enum.map(&parse_line &1)
-      |> Enum.filter(fn val -> val != :error end)
-      |> create_packages(monitor) 
+          |> Enum.drop(5)
+          |> Enum.map(&parse_line &1)
+          |> Enum.filter(fn val -> val != :error end)
+          |> Enum.map(&parse_version &1)
+          |> create_packages(monitor) 
   end
 
 

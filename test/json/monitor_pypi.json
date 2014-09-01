@@ -1,0 +1,4 @@
+{
+	"manifest": "http://localhost:7777/pypi.json",
+	"name": "pypi mon"
+}

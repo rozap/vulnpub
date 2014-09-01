@@ -1,5 +1,5 @@
 {
-	"packages": {
+	"unmanaged": {
 		"some-package-name": {
 			"version": "5.3",
 			"homepage": "github.com/something/some-package-name"

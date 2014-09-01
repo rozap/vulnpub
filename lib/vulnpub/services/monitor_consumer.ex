@@ -13,22 +13,7 @@ defmodule Service.MonitorConsumer do
   def get_parser(:npm), do: Manifest.Parser.NPM
   def get_parser(:pypi), do: Manifest.Parser.PyPi
   def get_parser(:dpkg), do: Manifest.Parser.Dpkg
-  def get_parser(:manual), do: Manifest.Parser.Manual
-
-  defp allocate(package_name, version, homepage, monitor) do
-    Models.Package.allocate(%{
-      :name => package_name,
-      :version => version, 
-      :monitor_id => monitor.id
-    }) 
-  end
-
-  defp parse(:packages, node, monitor) do
-
-
-    Enum.map(node, fn {package_name, details} -> allocate(package_name, details["version"], "home", monitor) end)
-
-  end
+  def get_parser(:unmanaged), do: Manifest.Parser.Unmanaged
 
 
   defp fetch_managed(filename, details, monitor) do
@@ -37,13 +22,22 @@ defmodule Service.MonitorConsumer do
   end
 
   defp parse(:managed, node, monitor) do
-    Enum.map(node, fn {filename, details} -> fetch_managed(filename, details, monitor) end)
+    Map.to_list(node)
+      |> Enum.map(fn {filename, details} -> fetch_managed(filename, details, monitor) end)
+  end
+
+  defp parse(:unmanaged, node, monitor) do
+    get_parser(:unmanaged).parse(node, monitor)
+  end
+
+  defp parse(nodename, _, _) do
+    GenServer.cast(:logger, {:warn, [message: "Unknown manifest node named: ", name: nodename]})
   end
 
 
-  defp parse_manifest jsobj, monitor do
+  defp parse_manifest(jsobj, monitor) do
     Map.to_list(jsobj)
-      |> Enum.map(fn {kind, details} -> {String.to_atom(kind), Map.to_list(details)} end)
+      |> Enum.map(fn {kind, details} -> {String.to_atom(kind), details} end)
       |> Enum.map(fn {kind, node} -> parse(kind, node, monitor) end)
   end
 
@@ -54,7 +48,7 @@ defmodule Service.MonitorConsumer do
       Jazz.decode!(response.body)
         |> parse_manifest(monitor)
     else
-      :io.format("manifest failed, not accessible~n")
+      GenServer.cast(:logger, {:warn, [message: "manifest not accessible", location: monitor.manifest]})
     end
     {:noreply, state}
   end

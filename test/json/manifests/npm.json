@@ -1,0 +1,7 @@
+{
+	"managed": {
+		"package.json": {
+			"manager": "npm"
+		}
+	}
+}

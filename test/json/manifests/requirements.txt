@@ -1,0 +1,5 @@
+Twisted-Web==13.2.0
+python-apt==0.9.3.5
+python-dateutil==2.2
+python-debian==0.1.21-nmu2ubuntu2
+virtualenv==1.11.4

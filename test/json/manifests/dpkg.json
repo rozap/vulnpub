@@ -1,0 +1,7 @@
+{
+	"managed": {
+		"dpkg.txt": {
+			"manager": "dpkg"
+		}
+	}
+}
