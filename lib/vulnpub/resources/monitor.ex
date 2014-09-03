@@ -49,10 +49,11 @@ end
 
 defmodule Resources.Monitor do
   require Resources.Resource
-  import Ecto.Query, only: [from: 2]
+  import Ecto.Query
   alias Models.Monitor
   alias Models.PackageMonitor
   alias Models.Package
+  alias Models.User
 
 
   def model, do: Monitor
@@ -77,6 +78,15 @@ defmodule Resources.Monitor do
     result = Dict.put(result, "packages", packages)
     {conn, ok, result}
   end
+
+
+  def tap(data, {:index, conn, params, module, bundle}) do
+    user_id = bundle[:user].id
+    data |> where([m], m.user_id == ^user_id)
+  end
+
+
+
 
 	use Resources.Resource, [
     exclude: [], 

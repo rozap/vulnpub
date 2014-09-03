@@ -1,6 +1,6 @@
 
 
-defmodule Test.ParseNPMTest do
+defmodule Test.ParseDpkgTest do
   use ExUnit.Case
   use PlugHelper
 

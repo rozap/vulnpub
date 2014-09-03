@@ -1,10 +1,9 @@
 {
-	"unmanaged": {
-		"some-package-name": {
-			"version": "5.3",
-			"homepage": "github.com/something/some-package-name"
-		}
-	},
+	"unmanaged": [{
+		"name": "some package name",
+		"version": "5.3",
+		"homepage": "github.com/something/some-package-name"
+	}],
 	"managed": {
 		"package.json": {
 			"manager": "npm"

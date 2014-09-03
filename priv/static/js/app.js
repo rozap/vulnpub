@@ -306,12 +306,16 @@ module.exports = Backbone.Router.extend({
     _create: function() {
         var args = Array.prototype.slice.call(arguments);
         var View = args[0],
-            route = args[1];
+            route = args[1],
+            routeParams = /:\w+/gi.exec(route).map(function(n) {
+                return n.slice(1)
+            });
 
-        var opts = {
+        var opts = _.extend({
             app: this.app
-        };
-        console.log(route)
+        }, _.object(routeParams, _.compact(args.slice(2))));
+
+        console.log("create view with", opts)
         if (this.view) this.view.end();
         this.view = new View(opts);
         this.app.dispatcher.trigger('module', this.view);
@@ -1169,7 +1173,7 @@ module.exports = View.extend({
 module.exports = "\n\n<div class=\"pure-g\">\n    <div class=\"pure-u-1-1\">\n        <form class=\"pure-form pure-form-aligned form-centered\">\n\t\t\t<h3>Login</h3>\n            <fieldset>\n                <div class=\"pure-control-group\">\n                \t<%= showError('username', apikey) %>\n                    <input id=\"name\" \n                    \tname=\"username\" \n                    \ttype=\"text\" \n                    \tvalue=\"<%- apikey.get('username') %>\"\n                    \tplaceholder=\"Username\">\n                </div>\n\n                <div class=\"pure-control-group\">\n                \t<%= showError('password', apikey) %>\n                    <input id=\"password\" \n                    \tname=\"password\" \n                    \ttype=\"password\" \n                    \tvalue=\"<%- apikey.get('password') %>\"\n                    \tplaceholder=\"Password\">\n                </div>\n\n                <button type=\"button\" class=\"pure-button pure-button-primary login-button\">\n                    Login\n                </button>\n            </fieldset>\n        </form>\n    </div>\n</div>";
 
 },{}],31:[function(require,module,exports){
-module.exports = "\n\n<div class=\"pure-g\">\n    <div class=\"pure-u-1-1\">\n        <form class=\"pure-form pure-form-aligned form-centered\">\n\t\t\t<h3>You have logged out</h3>\n\n\n            <p class=\"text-muted\">choose your own adventure. you can...</p>\n            <p><a href=\"#login\">login again</a></p>\n            <p class=\"text-muted\">or</p>\n            <p><a href=\"#\">go home</a></p>\n            <p class=\"text-muted\">or</p>\n            <p><a href=\"<%- link.url %>\"><%- link.name %></a></p>\n        </form>\n    </div>\n</div>";
+module.exports = "\n\n<div class=\"pure-g\">\n    <div class=\"pure-u-1-1\">\n        <form class=\"pure-form pure-form-aligned form-centered\">\n\t\t\t<h2>You have logged out</h2>\n\n\n            <p class=\"text-muted\">choose your own adventure. you can...</p>\n            <p><a href=\"#login\">login again</a></p>\n            <p class=\"text-muted\">or</p>\n            <p><a href=\"#\">go home</a></p>\n            <p class=\"text-muted\">or</p>\n            <p><a href=\"<%- link.url %>\"><%- link.name %></a></p>\n        </form>\n    </div>\n</div>";
 
 },{}],32:[function(require,module,exports){
 module.exports = "\n\n<div class=\"pure-g\">\n    <div class=\"pure-u-1-1\">\n        <form class=\"pure-form pure-form-aligned form-centered\">\n\t\t\t<h3>Register</h3>\n            <fieldset>\n                <div class=\"pure-control-group\">\n                \t<%= showError('username', user) %>\n                    <input id=\"name\" \n                    \tname=\"username\" \n                    \ttype=\"text\" \n                    \tvalue=\"<%- user.get('username') %>\"\n                    \tplaceholder=\"Username\">\n                </div>\n\n                <div class=\"pure-control-group\">\n                    <%= showError('email', user) %>\n                    <input id=\"email\" \n                        name=\"email\" \n                        type=\"email\" \n                        value=\"<%- user.get('email') %>\"\n                        placeholder=\"Email\">\n                </div>\n\n\n                <div class=\"pure-control-group\">\n                \t<%= showError('password', user) %>\n                    <input id=\"password\" \n                    \tname=\"password\" \n                    \ttype=\"password\" \n                    \tvalue=\"<%- user.get('password') %>\"\n                    \tplaceholder=\"Password\">\n                </div>\n                <div class=\"pure-control-group\">\n                    <input id=\"confirm_password\" \n                        name=\"confirm_password\" \n                        type=\"password\" \n                        value=\"<%- user.get('password') %>\"\n                        placeholder=\"Confirm Password\">\n                </div>\n\n\n                <% if(user.get('id')) { %>\n                    <div class=\"alert alert-success\">\n                        Your account has been created. You should get a confirmation email, but you can log in immediately. \n                    </div>\n                <% } else if(user.isLoading()) { %>\n                    <div class=\"alert alert-info\">\n                        Loading...\n                    </div>\n                <% } else { %>\n                    <button type=\"button\" class=\"pure-button pure-button-primary register-button\">\n                        Create Account\n                    </button>\n                <% } %>\n\n                <p>Have an account? <a href=\"#login\">Login Here</a></p>\n\n            </fieldset>\n        </form>\n    </div>\n</div>";

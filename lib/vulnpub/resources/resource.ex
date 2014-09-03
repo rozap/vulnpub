@@ -77,7 +77,7 @@ defmodule Resources.Resource do
 
 
 
-
+      def tap(data, _), do: data 
 
 
       def handle({:index, conn, params, module, bundle}) do
@@ -100,6 +100,7 @@ defmodule Resources.Resource do
         end
 
         data = data
+          |> tap({:index, conn, params, module, bundle})
           |> limit(page_size)
           |> offset(offset)
           |> Repo.all 

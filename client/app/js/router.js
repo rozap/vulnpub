@@ -52,12 +52,16 @@ module.exports = Backbone.Router.extend({
     _create: function() {
         var args = Array.prototype.slice.call(arguments);
         var View = args[0],
-            route = args[1];
+            route = args[1],
+            routeParams = /:\w+/gi.exec(route).map(function(n) {
+                return n.slice(1)
+            });
 
-        var opts = {
+        var opts = _.extend({
             app: this.app
-        };
-        console.log(route)
+        }, _.object(routeParams, _.compact(args.slice(2))));
+
+        console.log("create view with", opts)
         if (this.view) this.view.end();
         this.view = new View(opts);
         this.app.dispatcher.trigger('module', this.view);
