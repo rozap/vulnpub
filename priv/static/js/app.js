@@ -307,7 +307,8 @@ module.exports = Backbone.Router.extend({
         var args = Array.prototype.slice.call(arguments);
         var View = args[0],
             route = args[1],
-            routeParams = /:\w+/gi.exec(route).map(function(n) {
+            params = /:\w+/gi.exec(route),
+            routeParams = params && params.map(function(n) {
                 return n.slice(1)
             });
 
@@ -1017,10 +1018,6 @@ module.exports = View.extend({
         return this.vuln.set(this.$el.find('form').serializeObject());
     },
 
-    post: function() {
-        console.log("DONE");
-    },
-
     keydown: function(e) {
         this.trigger('keydown', e);
     },
@@ -1084,7 +1081,7 @@ module.exports = View.extend({
     include: ['vulns', 'shorten'],
 
     events: {
-        // 'mousewheel': 'onMouseWheel'
+        'mousewheel': 'onMouseWheel'
     },
 
     initialize: function(opts) {

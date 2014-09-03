@@ -12,7 +12,7 @@ module.exports = View.extend({
     include: ['vulns', 'shorten'],
 
     events: {
-        // 'mousewheel': 'onMouseWheel'
+        'mousewheel': 'onMouseWheel'
     },
 
     initialize: function(opts) {

@@ -132,10 +132,6 @@ module.exports = View.extend({
         return this.vuln.set(this.$el.find('form').serializeObject());
     },
 
-    post: function() {
-        console.log("DONE");
-    },
-
     keydown: function(e) {
         this.trigger('keydown', e);
     },

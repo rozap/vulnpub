@@ -53,7 +53,8 @@ module.exports = Backbone.Router.extend({
         var args = Array.prototype.slice.call(arguments);
         var View = args[0],
             route = args[1],
-            routeParams = /:\w+/gi.exec(route).map(function(n) {
+            params = /:\w+/gi.exec(route),
+            routeParams = params && params.map(function(n) {
                 return n.slice(1)
             });
 
