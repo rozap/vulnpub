@@ -4,6 +4,7 @@ defmodule Models.Alert do
   schema "alerts" do
     belongs_to :vuln, Models.Vuln
     belongs_to :monitor, Models.Monitor
+    belongs_to :package, Models.Package
     field :created, :datetime
     field :modified, :datetime
     field :fulfilled, :datetime

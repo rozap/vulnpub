@@ -29,17 +29,17 @@ defmodule Service.VulnConsumer do
   end
 
 
-  defp create_monitor_alert(monitor, vuln) do
-    Alert.allocate(%{:monitor_id => monitor.id, :vuln_id => vuln.id}) |> Repo.insert
+  defp create_monitor_alert(monitor_id, package_id, vuln) do
+    Alert.allocate(%{:monitor_id => monitor_id, :vuln_id => vuln.id, :package_id => package_id}) 
+      |> Repo.insert
   end
 
   defp create_alert(package, vuln) do
     monitors = (from pm in PackageMonitor, 
-      join: m in Monitor, on: m.id == pm.monitor_id,
       where: pm.package_id == ^package.id, 
-      select: m)
+      select: pm)
       |> Repo.all
-      |> Enum.map(&(create_monitor_alert &1, vuln))
+      |> Enum.map(&(create_monitor_alert &1.monitor_id, &1.package_id, vuln))
 
   end
 
