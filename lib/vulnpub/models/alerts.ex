@@ -7,6 +7,7 @@ defmodule Models.Alert do
     field :created, :datetime
     field :modified, :datetime
     field :fulfilled, :datetime
+    field :acknowledged, :boolean
   end
 
   def adapt(keylist) do

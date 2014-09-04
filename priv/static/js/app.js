@@ -662,8 +662,11 @@ module.exports = View.extend({
 
     dismiss: function(e) {
         var al = this.alerts.get(parseInt($(e.currentTarget).data('alert')));
-        al.set('acknowledged', true).save();
-        this.alerts.fetch();
+        al.set({
+            'acknowledged': true
+        })
+        console.log(al.toJSON());
+        al.save().then(this.alerts.fetch.bind(this.alerts));
         e.preventDefault();
     }
 

@@ -12,8 +12,10 @@ defmodule Fixture do
     delete Models.PackageMonitor
     delete Models.Package
     delete Models.ApiKey   
+    delete Models.Alert
     delete Models.Monitor
     delete Models.User
+    delete Models.Vuln
   end
 
 end

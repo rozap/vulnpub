@@ -45,7 +45,8 @@ defmodule Service.VulnConsumer do
 
 
   def handle_cast({:create, vuln}, state) do
-    effected = (from p in Package, where: ilike(p.name, ^vuln.effects_package), select: p)
+    name = "%" <>  vuln.effects_package <> "%"
+    effected = (from p in Package, where: ilike(p.name, ^name), select: p)
        |> Repo.all
        |> Enum.filter(fn package -> is_effected_package?(package, vuln) end)
        |> Enum.map(&(create_alert &1, vuln))

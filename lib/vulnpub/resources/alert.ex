@@ -25,7 +25,7 @@ defmodule Resources.Alert do
      result = (from a in Alert,
       left_join: m in a.monitor,
       left_join: v in a.vuln,
-      where: m.user_id == ^user_id,
+      where: m.user_id == ^user_id and a.acknowledged == false,
       select: assoc(a, monitor: m, vuln: v))
   end
 

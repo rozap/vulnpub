@@ -45,7 +45,6 @@ defmodule Test.UserTest do
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/users", nil, [{"authentication", "foo:#{key}"}])
     %{"data" => data} = resp_body
     assert length(data) == 1
-
     assert status == 200
   end
 

@@ -1,8 +1,0 @@
-{
-	"packages": {
-		"some-package": {
-			"version": "5.3",
-			"homepage": "github.com/something/some-package-name"
-		}
-	}
-}
