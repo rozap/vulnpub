@@ -3,9 +3,11 @@ defmodule Service.Emailer do
   use Jazz
   use HTTPotion.Base
 
+
   @api "https://mandrillapp.com/api/1.0/"
   @message_send "messages/send.json"
   @js_headers %{"Content-Type" => "application/json"}
+  @email_templates "lib/vulnpub/templates/emails/"
 
   def start_link(state, opts) do
     GenServer.start_link(__MODULE__, state, opts)
@@ -25,27 +27,28 @@ defmodule Service.Emailer do
 
   defp post(url, payload) do
     HTTPotion.start
-    :io.format("post to ~p ~n body: ~n ~p ~n", [@api <> url, payload])
     HTTPotion.post @api <> url, payload, @js_headers
   end
 
-  defp send(payload) do
-    post @message_send, payload
+  defp send_email(payload, user) do
+    response = post @message_send, payload
+
+    if HTTPotion.Response.success? response do
+      GenServer.cast(:logger, {:info, [email: user.email, message: "Sent email to person"]})
+    else
+      GenServer.cast(:logger, {:error, [email: user.email, payload: payload, response: response]})
+    end
   end
 
 
 
+  defp key, do: GenServer.call(:config, {:get, :email_apikey})
+
   defp handle(:prod, {:activate, user}, state) do
-    template = File.read! "lib/vulnpub/templates/emails/activation.json"
-    key = GenServer.call(:config, {:get, :email_apikey})
+    template = File.read! @email_templates <> "activation.json"
     payload = interpolate(template, %{:key => key, :email => user.email, :username => user.username})
     #send it off...
-    response = send payload
-    if HTTPotion.Response.success? response do
-      :io.format("Email sent")
-    else
-      GenServer.cast(:logger, {:error, [email: user.email, payload: payload, response: response]})
-    end
+    send_email payload, user
     {:noreply, state}
   end
 
@@ -56,6 +59,22 @@ defmodule Service.Emailer do
   end
 
 
+
+  defp handle(_, {:alert, alert, vuln, package, monitor, user}, state) do
+    template = File.read! @email_templates <> "alert.json"
+
+    payload = interpolate(template, %{
+      :key => key, 
+      :email => user.email, 
+      :username => user.name,
+      :vuln_name => vuln.name, 
+      :package_name => package.name, 
+      :monitor_name => monitor.name,
+      :vuln_link => "foobar.com"
+    })
+    send_email payload, user
+    {:noreply, state}
+  end
 
 
 

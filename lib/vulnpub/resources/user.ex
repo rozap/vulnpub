@@ -31,9 +31,7 @@ end
 defmodule Resources.User do
   require Resources.Resource
 
-  def model do
-    Models.User
-  end
+  def model, do: Models.User
 
   use Resources.Resource, [
     exclude: [:password], 

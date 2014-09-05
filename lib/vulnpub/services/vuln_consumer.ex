@@ -6,6 +6,7 @@ defmodule Service.VulnConsumer do
   alias Models.Package
   alias Models.Monitor
   alias Models.Alert
+  alias Models.User
 
   def start_link(state, opts) do
     GenServer.start_link(__MODULE__, state, opts)
@@ -30,8 +31,13 @@ defmodule Service.VulnConsumer do
 
 
   defp create_monitor_alert(monitor_id, package_id, vuln) do
-    Alert.allocate(%{:monitor_id => monitor_id, :vuln_id => vuln.id, :package_id => package_id}) 
+    alert = Alert.allocate(%{:monitor_id => monitor_id, :vuln_id => vuln.id, :package_id => package_id}) 
       |> Repo.insert
+
+    package = Repo.get(Package, package_id)
+    monitor = Repo.get(Monitor, monitor_id)
+    user = Repo.get(User, monitor.user_id)
+    GenServer.cast(:emailer, {:alert, alert, vuln, package, monitor, user})
   end
 
   defp create_alert(package, vuln) do
@@ -45,8 +51,7 @@ defmodule Service.VulnConsumer do
 
 
   def handle_cast({:create, vuln}, state) do
-    name = "%" <>  vuln.effects_package <> "%"
-    effected = (from p in Package, where: ilike(p.name, ^name), select: p)
+    effected = (from p in Package, where: ilike(p.name, ^vuln.effects_package), select: p)
        |> Repo.all
        |> Enum.filter(fn package -> is_effected_package?(package, vuln) end)
        |> Enum.map(&(create_alert &1, vuln))
