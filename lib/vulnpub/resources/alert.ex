@@ -12,7 +12,7 @@ end
 
 defmodule Resources.Alert do
   require Resources.Resource
-  import Ecto.Query, only: [from: 2]
+  import Ecto.Query
   alias Models.Monitor
   alias Models.Alert
   alias Models.Vuln
@@ -20,7 +20,7 @@ defmodule Resources.Alert do
   def model, do: Alert
   def page_size, do: 5
 
-  def query({:index, conn, params, module, bundle}) do
+  def query({:index, _, _, _, bundle}) do
     %{:user => %{:id => user_id}} = bundle
      result = (from a in Alert,
       left_join: m in a.monitor,
@@ -29,6 +29,17 @@ defmodule Resources.Alert do
       where: m.user_id == ^user_id and a.acknowledged == false,
       select: assoc(a, monitor: m, vuln: v, package: p))
   end
+
+  def index_size({:index, _, _, _, bundle}) do
+    %{:user => %{:id => user_id}} = bundle
+    (from a in Alert,
+      left_join: m in a.monitor,
+      where: m.user_id == ^user_id and a.acknowledged == false,
+      select: count(m.id)) |> Repo.all
+  end
+
+
+  
 
 	use Resources.Resource, [
     exclude: [], 

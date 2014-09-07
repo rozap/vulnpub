@@ -63,14 +63,16 @@ defmodule Service.Emailer do
   defp handle(_, {:alert, alert, vuln, package, monitor, user}, state) do
     template = File.read! @email_templates <> "alert.json"
 
+    link = "http://vuln.pub/#vulns/#{vuln.id}"
+
     payload = interpolate(template, %{
       :key => key, 
       :email => user.email, 
-      :username => user.name,
+      :username => user.username,
       :vuln_name => vuln.name, 
       :package_name => package.name, 
       :monitor_name => monitor.name,
-      :vuln_link => "foobar.com"
+      :vuln_link => link
     })
     send_email payload, user
     {:noreply, state}

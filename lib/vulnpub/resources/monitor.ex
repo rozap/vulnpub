@@ -80,12 +80,11 @@ defmodule Resources.Monitor do
   end
 
 
-  def tap(data, {:index, conn, params, module, bundle}) do
+
+  def tap(q, :where, {:index, conn, params, module, bundle}) do
     user_id = bundle[:user].id
-    data |> where([m], m.user_id == ^user_id)
+    q |> where([m], m.user_id == ^user_id) 
   end
-
-
 
 
 	use Resources.Resource, [

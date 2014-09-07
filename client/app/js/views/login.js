@@ -29,7 +29,10 @@ module.exports = View.extend({
     },
 
     login: function() {
-        this.apikey.set(this.$el.find('form').serializeObject()).save().then(this.redirect.bind(this));
+        this.apikey
+            .set(this.$el.find('form').serializeObject())
+            .save()
+            .then(this.redirect.bind(this));
     },
 
     onKeyup: function(e) {

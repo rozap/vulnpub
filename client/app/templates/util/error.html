@@ -1,7 +1,6 @@
 
 <% if(errors[name]) { %>
 	<div class="alert alert-error">
-		<%- errors[name].replace(name,
-		 nameMap || (name.slice(0, 1).toUpperCase() + name.slice(1))) %>
+		<%- errors[name] %>
 	</div>
 <% } %>

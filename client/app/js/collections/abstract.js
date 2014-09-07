@@ -4,10 +4,10 @@ var Backbone = require('backbone'),
 
 module.exports = Backbone.Collection.extend({
 
-    _filter: {},
 
     initialize: function(models, opts) {
         this.app = opts.app;
+        this._filter = {};
         if (!this.app) throw new Error("supply an app to the collection pls");
 
         _.extend(this, DataMixin);

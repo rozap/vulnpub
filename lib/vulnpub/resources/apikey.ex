@@ -11,7 +11,7 @@ defmodule Resources.ApiKey.Validator do
         raise :invalid
       end
     rescue
-      _ -> throw {:bad_request, %{:username => "The username/password combination is invalid"}}
+      _ -> throw {:bad_request, %{:errors => %{:username => "The username/password combination is invalid"}}}
     end
     {:create, conn, params, module, bundle}
   end
