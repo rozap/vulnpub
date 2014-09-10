@@ -6,7 +6,9 @@ defmodule Test.UserTest do
   require DBHelpers
 
   setup do
+    :timer.sleep(200)  #packages are checked async, so wait a lil bit
     Fixture.load
+
     :ok
   end
 

@@ -9,6 +9,7 @@ defmodule Fixture do
 
   def load do
     IO.puts("Loading fixture") 
+
     delete Models.Alert
     delete Models.PackageMonitor
     delete Models.Package

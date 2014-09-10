@@ -14,8 +14,6 @@ defmodule Vulnpub.Supervisor do
       worker(Service.Config, [[config: "/home/chris/secrets/vp-conf.json"], []]),
       worker(Service.Emailer, [[], []]),
       worker(Service.Logger, [[], []])
-
-
     ]
 
     # See http://elixir-lang.org/docs/stable/Supervisor.Behaviour.html

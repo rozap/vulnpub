@@ -39,7 +39,7 @@ defimpl Resources.Serializer, for: Any do
               end              
           end
         end)
-      |> Enum.filter(&(not nil? &1))
+      |> Enum.filter(&(not is_nil &1))
       |> Enum.into(%{})
     Enum.into(base, related)
   end

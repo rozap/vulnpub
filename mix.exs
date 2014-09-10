@@ -4,7 +4,7 @@ defmodule Vulnpub.Mixfile do
   def project do
     [ app: :vulnpub,
       version: "0.0.1",
-      elixir: "~> 0.14.2",
+      elixir: "~> 1.0.0",
       deps: deps ]
   end
 
@@ -23,11 +23,14 @@ defmodule Vulnpub.Mixfile do
   # { :barbat, "~> 0.1", github: "elixir-lang/barbat" }
   defp deps do
     [
-      {:phoenix, "0.3.0"},
-      {:postgrex, ">= 0.0.0"},
+      {:phoenix, "0.4.1"},
+      {:cowboy, "~> 1.0.0", optional: true},
+      {:plug, "0.7.0"},
+      {:postgrex, "0.6.0"},
       {:ecto, "0.2.4"},
       {:httpotion, github: "myfreeweb/httpotion"},
       {:jazz, github: "meh/jazz"},
+      { :decimal, "~> 0.2.4" },
       {:bcrypt, "0.5.0", github: "smarkets/erlang-bcrypt", compile: "make"}
     ]
   end
