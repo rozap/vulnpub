@@ -5,7 +5,8 @@ var Backbone = require('backbone'),
 
 module.exports = Backbone.Model.extend({
 
-    initialize: function(models, opts) {
+    initialize: function(attrs, opts) {
+        Backbone.Model.prototype.initialize.call(this, attrs, opts);
         this.app = opts.app;
         if (!this.app) throw new Error("supply an app to the model pls");
 

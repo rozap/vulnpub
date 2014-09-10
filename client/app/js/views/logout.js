@@ -34,7 +34,7 @@ module.exports = View.extend({
 
     onStart: function() {
         this.app.dispatcher.trigger('nav.hide');
-        Auth.logout();
+        this.app.auth.logout();
         this.link = _.sample(this.links);
         this.render();
     }

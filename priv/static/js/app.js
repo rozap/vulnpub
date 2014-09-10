@@ -26,9 +26,7 @@ Backbone.$ = $;
 window.$ = $;
 
 $(document).ready(function() {
-
 	var router = new Router();
-	Backbone.history.start();
 })
 },{"./router":13,"backbone":45,"jquery":50}],2:[function(require,module,exports){
 var Backbone = require('backbone'),
@@ -177,7 +175,8 @@ var Backbone = require('backbone'),
 
 module.exports = Backbone.Model.extend({
 
-    initialize: function(models, opts) {
+    initialize: function(attrs, opts) {
+        Backbone.Model.prototype.initialize.call(this, attrs, opts);
         this.app = opts.app;
         if (!this.app) throw new Error("supply an app to the model pls");
 
@@ -204,8 +203,9 @@ module.exports = Model.extend({
 var Model = require('./abstract');
 
 module.exports = Model.extend({
+	idAttribute: 'key',
 	api: function() {
-		return 'apikey'
+		return 'apikey' + (this.isNew() ? '' : '/' + this.get('key'));
 	},
 
 	persist: function() {
@@ -287,24 +287,28 @@ module.exports = Backbone.Router.extend({
         this.app = {
             router: this,
             dispatcher: _.clone(Backbone.Events),
-            auth: new Auth()
         };
-
-        this.app.auth.authenticate().then(function() {
-
-            _.each(this.views, function(Klass, descriptor) {
-                var nameRoute = descriptor.split(' '),
-                    access = nameRoute[0],
-                    name = nameRoute[1],
-                    route = nameRoute[2] || '';
-                this.route(route, name, _.partial(this._create, Klass, route, access).bind(this));
-            }, this);
-        }.bind(this));
+        this.app.auth = new Auth(this.app);
 
         this.nav = new SideNav({
             app: this.app
         });
         this.nav.onStart();
+
+        this.app.auth.authenticate().then(
+            this._setupRoutes.bind(this),
+            this._setupRoutes.bind(this));
+    },
+
+    _setupRoutes: function() {
+        _.each(this.views, function(Klass, descriptor) {
+            var nameRoute = descriptor.split(' '),
+                access = nameRoute[0],
+                name = nameRoute[1],
+                route = nameRoute[2] || '';
+            this.route(route, name, _.partial(this._create, Klass, route, access).bind(this));
+        }, this);
+        Backbone.history.start();
     },
 
     home: function() {
@@ -346,16 +350,28 @@ module.exports = Backbone.Router.extend({
 },{"./util/auth":14,"./views/create-monitor":18,"./views/home":19,"./views/landing":20,"./views/login":21,"./views/logout":22,"./views/monitor":23,"./views/register":25,"./views/report":26,"./views/side-nav":27,"./views/vuln":29,"./views/vuln-list":28,"backbone":45,"underscore":53}],14:[function(require,module,exports){
 var name = 'vulnpub-apikey';
 
-
-var Auth = function() {
-
+var Auth = function(app) {
+	this.app = app;
 }
 
 
 Auth.prototype = {
 
 	authenticate: function() {
+		console.log("authenticating...");
+		var ApiKey = require('../models/apikey');
+		var key = new ApiKey(JSON.parse(localStorage[name]), {
+			app: this.app
+		});
+		return key.fetch().then(this._onLoggedIn.bind(this), this._onLoginFail.bind(this));
+	},
 
+	_onLoginFail: function() {
+		this._isLoggedIn = false;
+	},
+
+	_onLoggedIn: function() {
+		this._isLoggedIn = true;
 	},
 
 	headers: function() {
@@ -365,10 +381,9 @@ Auth.prototype = {
 				'authentication': key.username + ':' + key.key
 			}
 		} catch (e) {
-
+			console.warn('cannot parse localstorage ;_;')
 		}
 	},
-
 
 	logout: function() {
 		localStorage[name] = null;
@@ -379,13 +394,13 @@ Auth.prototype = {
 	},
 
 	isLoggedIn: function() {
-
+		return !!this._isLoggedIn;
 	}
 };
 
 
 module.exports = Auth;
-},{}],15:[function(require,module,exports){
+},{"../models/apikey":9}],15:[function(require,module,exports){
 var Backbone = require('backbone'),
 	Auth = require('./auth');
 
@@ -421,7 +436,11 @@ module.exports = {
 		this._hasSynced = false;
 		this._isRequesting = false;
 		this._hasErrored = true;
-		this._lastError = JSON.parse(resp.responseText);
+		try {
+			this._lastError = JSON.parse(resp.responseText);
+		} catch (e) {
+			this._lastError = true;
+		}
 	},
 
 
@@ -809,7 +828,7 @@ module.exports = View.extend({
 
     onStart: function() {
         this.app.dispatcher.trigger('nav.hide');
-        Auth.logout();
+        this.app.auth.logout();
         this.link = _.sample(this.links);
         this.render();
     }

@@ -33,24 +33,28 @@ module.exports = Backbone.Router.extend({
         this.app = {
             router: this,
             dispatcher: _.clone(Backbone.Events),
-            auth: new Auth()
         };
-
-        this.app.auth.authenticate().then(function() {
-
-            _.each(this.views, function(Klass, descriptor) {
-                var nameRoute = descriptor.split(' '),
-                    access = nameRoute[0],
-                    name = nameRoute[1],
-                    route = nameRoute[2] || '';
-                this.route(route, name, _.partial(this._create, Klass, route, access).bind(this));
-            }, this);
-        }.bind(this));
+        this.app.auth = new Auth(this.app);
 
         this.nav = new SideNav({
             app: this.app
         });
         this.nav.onStart();
+
+        this.app.auth.authenticate().then(
+            this._setupRoutes.bind(this),
+            this._setupRoutes.bind(this));
+    },
+
+    _setupRoutes: function() {
+        _.each(this.views, function(Klass, descriptor) {
+            var nameRoute = descriptor.split(' '),
+                access = nameRoute[0],
+                name = nameRoute[1],
+                route = nameRoute[2] || '';
+            this.route(route, name, _.partial(this._create, Klass, route, access).bind(this));
+        }, this);
+        Backbone.history.start();
     },
 
     home: function() {
