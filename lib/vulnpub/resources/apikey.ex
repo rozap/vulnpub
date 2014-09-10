@@ -19,9 +19,39 @@ defmodule Resources.ApiKey.Validator do
 end
 
 
+defmodule Resources.ApiKey.Authenticator do
+  use Resources.Authenticator, [only: [:show]]
+end
+
+defmodule Resources.ApiKey.Authorizor do
+  import Ecto.Query
+
+  def handle({:show, conn, params, module, bundle}) do
+    try do
+      user_id = bundle[:user].id
+      key = params[:id]
+      [monitor] = (from a in Models.ApiKey, where: a.user_id == ^user_id and a.key == ^key, select: a) |> Repo.all
+      {:show, conn, params, module, bundle}
+    rescue
+      _ -> throw {:unauthorized, %{error: "You are not authorized to do that"}}
+    end
+
+  end
+
+  use Resources.ModelAuthorizor, [only: [:show]]
+end
+
+
 defmodule Resources.ApiKey do
   import Phoenix.Controller
   import Ecto.Query
+
+
+  def id_field, do: :key
+  def get_id(params), do: params[:id]
+
+  def model, do: Models.ApiKey
+
 
   def handle({:create, conn, params, module, bundle}) do
     %{:username => username, :password => password} = params
@@ -31,16 +61,6 @@ defmodule Resources.ApiKey do
     {conn, created, key}
   end
 
-  def handle({:destroy, conn, params, module, bundle}) do
-    key = params[:id]
-    [row] = (from a in model, where: a.key == ^key, select: a) |> Repo.all 
-    Repo.delete(row)
-    {conn, accepted, to_serializable(row)}
-  end
-
-  def model do
-    Models.ApiKey
-  end
 
 
 
@@ -48,7 +68,9 @@ defmodule Resources.ApiKey do
   use Resources.Resource, [
     exclude: [],
     middleware: [
-      Resources.ApiKey.Validator
+      Resources.ApiKey.Validator, 
+      Resources.ApiKey.Authenticator,
+      Resources.ApiKey.Authorizor
     ]
   ]
 end

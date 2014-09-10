@@ -1,9 +1,8 @@
 defmodule Resources.Resource do
   import Phoenix.Controller
 
-  defp opts, do: [:exclude, :id_attr, :middleware, :triggers]
+  defp opts, do: [:exclude, :middleware, :triggers]
   def default_for(:exclude), do: []
-  def default_for(:id_attr), do: "id"
 
   def default_for(:middleware), do: []
   def default_for(:triggers), do: []
@@ -34,9 +33,8 @@ defmodule Resources.Resource do
       import Ecto.Query
 
 
-      def get_id(params) do
-        String.to_integer(params[:id])
-      end
+      def id_field, do: :id
+      def get_id(params), do: String.to_integer(params[id_field])
 
       def page_size, do: 40
 
@@ -71,7 +69,8 @@ defmodule Resources.Resource do
 
       def tap(q, :where, {:show, _, params, _, _}) do
         id = get_id(params)
-        q |> where([i], i.id == ^id)
+        :io.format("GET ID ~p ~p ~p ~n", [id_field, id, params])
+        q |> where([i], field(i, ^id_field) == ^id)
       end
 
       def tap(q, :where, _), do: q
@@ -151,7 +150,7 @@ defmodule Resources.Resource do
           |> tap(:where, {:show, conn, params, module, bundle})
           |> tap(:select, {:show, conn, params, module, bundle})
           |> Repo.all 
-          |> List.first 
+          |> List.first
           |> to_serializable
         {conn, ok, result}
       end
@@ -165,9 +164,15 @@ defmodule Resources.Resource do
 
       def handle({:destroy, conn, params, module, bundle}) do
         id = get_id(params)
-        [row] = (from u in model, where: u.id == ^id, select: u) |> Repo.all
-        Repo.delete(row)
-        {conn, accepted, to_serializable(row)}
+        result = model
+          |> tap(:where, {:show, conn, params, module, bundle})
+          |> tap(:select, {:show, conn, params, module, bundle})
+          |> Repo.all
+          |> List.first
+
+
+        Repo.delete(result)
+        {conn, accepted, to_serializable(result)}
       end
 
       def to_serializable(thing) do

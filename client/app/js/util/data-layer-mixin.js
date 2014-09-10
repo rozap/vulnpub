@@ -48,7 +48,7 @@ module.exports = {
 	sync: function() {
 		var args = Array.prototype.slice.call(arguments);
 		opts = arguments[2] || {};
-		opts.headers = Auth.headers();
+		opts.headers = this.app.auth.headers();
 		args[2] = opts;
 		return Backbone.sync.apply(this, args);
 	}

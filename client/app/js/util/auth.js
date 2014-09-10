@@ -1,6 +1,17 @@
 var name = 'vulnpub-apikey';
 
-module.exports = {
+
+var Auth = function() {
+
+}
+
+
+Auth.prototype = {
+
+	authenticate: function() {
+
+	},
+
 	headers: function() {
 		try {
 			var key = JSON.parse(localStorage[name]);
@@ -19,5 +30,12 @@ module.exports = {
 
 	getUsername: function() {
 		return JSON.parse(localStorage[name]).username;
+	},
+
+	isLoggedIn: function() {
+
 	}
 };
+
+
+module.exports = Auth;

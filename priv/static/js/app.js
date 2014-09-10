@@ -272,30 +272,34 @@ var Backbone = require('backbone'),
 module.exports = Backbone.Router.extend({
 
     views: {
-        'landing': Landing,
-        'home home': Home,
-        'vuln-list vulns': VulnList,
-        'vuln vulns/:vuln_id': Vuln,
-        'monitor monitors/:monitor_id': Monitor,
-        'login login': Login,
-        'logout logout': Logout,
-        'register register': Register,
-        'report report': Report
+        'public landing': Landing,
+        'private home home': Home,
+        'public vuln-list vulns': VulnList,
+        'public vuln vulns/:vuln_id': Vuln,
+        'private monitor monitors/:monitor_id': Monitor,
+        'public login login': Login,
+        'public logout logout': Logout,
+        'public register register': Register,
+        'private report report': Report
     },
 
     initialize: function() {
         this.app = {
             router: this,
             dispatcher: _.clone(Backbone.Events),
-            auth: Auth
+            auth: new Auth()
         };
 
-        _.each(this.views, function(Klass, descriptor) {
-            var nameRoute = descriptor.split(' '),
-                name = nameRoute[0],
-                route = nameRoute[1] || '';
-            this.route(route, name, _.partial(this._create, Klass, route).bind(this));
-        }, this);
+        this.app.auth.authenticate().then(function() {
+
+            _.each(this.views, function(Klass, descriptor) {
+                var nameRoute = descriptor.split(' '),
+                    access = nameRoute[0],
+                    name = nameRoute[1],
+                    route = nameRoute[2] || '';
+                this.route(route, name, _.partial(this._create, Klass, route, access).bind(this));
+            }, this);
+        }.bind(this));
 
         this.nav = new SideNav({
             app: this.app
@@ -303,18 +307,31 @@ module.exports = Backbone.Router.extend({
         this.nav.onStart();
     },
 
+    home: function() {
+        return this.navigate('#', {
+            trigger: true,
+            replace: true
+        });
+    },
+
     _create: function() {
         var args = Array.prototype.slice.call(arguments);
         var View = args[0],
             route = args[1],
+            access = args[2],
             params = /:\w+/gi.exec(route),
             routeParams = params && params.map(function(n) {
                 return n.slice(1)
             });
 
+        if (access === 'private' && !this.app.auth.isLoggedIn()) {
+            this.home();
+            return;
+        }
+
         var opts = _.extend({
             app: this.app
-        }, _.object(routeParams, _.compact(args.slice(2))));
+        }, _.object(routeParams, _.compact(args.slice(3))));
 
         console.log("create view with", opts)
         if (this.view) this.view.end();
@@ -329,7 +346,18 @@ module.exports = Backbone.Router.extend({
 },{"./util/auth":14,"./views/create-monitor":18,"./views/home":19,"./views/landing":20,"./views/login":21,"./views/logout":22,"./views/monitor":23,"./views/register":25,"./views/report":26,"./views/side-nav":27,"./views/vuln":29,"./views/vuln-list":28,"backbone":45,"underscore":53}],14:[function(require,module,exports){
 var name = 'vulnpub-apikey';
 
-module.exports = {
+
+var Auth = function() {
+
+}
+
+
+Auth.prototype = {
+
+	authenticate: function() {
+
+	},
+
 	headers: function() {
 		try {
 			var key = JSON.parse(localStorage[name]);
@@ -348,8 +376,15 @@ module.exports = {
 
 	getUsername: function() {
 		return JSON.parse(localStorage[name]).username;
+	},
+
+	isLoggedIn: function() {
+
 	}
 };
+
+
+module.exports = Auth;
 },{}],15:[function(require,module,exports){
 var Backbone = require('backbone'),
 	Auth = require('./auth');
@@ -401,7 +436,7 @@ module.exports = {
 	sync: function() {
 		var args = Array.prototype.slice.call(arguments);
 		opts = arguments[2] || {};
-		opts.headers = Auth.headers();
+		opts.headers = this.app.auth.headers();
 		args[2] = opts;
 		return Backbone.sync.apply(this, args);
 	}

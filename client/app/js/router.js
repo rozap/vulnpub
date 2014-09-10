@@ -18,30 +18,34 @@ var Backbone = require('backbone'),
 module.exports = Backbone.Router.extend({
 
     views: {
-        'landing': Landing,
-        'home home': Home,
-        'vuln-list vulns': VulnList,
-        'vuln vulns/:vuln_id': Vuln,
-        'monitor monitors/:monitor_id': Monitor,
-        'login login': Login,
-        'logout logout': Logout,
-        'register register': Register,
-        'report report': Report
+        'public landing': Landing,
+        'private home home': Home,
+        'public vuln-list vulns': VulnList,
+        'public vuln vulns/:vuln_id': Vuln,
+        'private monitor monitors/:monitor_id': Monitor,
+        'public login login': Login,
+        'public logout logout': Logout,
+        'public register register': Register,
+        'private report report': Report
     },
 
     initialize: function() {
         this.app = {
             router: this,
             dispatcher: _.clone(Backbone.Events),
-            auth: Auth
+            auth: new Auth()
         };
 
-        _.each(this.views, function(Klass, descriptor) {
-            var nameRoute = descriptor.split(' '),
-                name = nameRoute[0],
-                route = nameRoute[1] || '';
-            this.route(route, name, _.partial(this._create, Klass, route).bind(this));
-        }, this);
+        this.app.auth.authenticate().then(function() {
+
+            _.each(this.views, function(Klass, descriptor) {
+                var nameRoute = descriptor.split(' '),
+                    access = nameRoute[0],
+                    name = nameRoute[1],
+                    route = nameRoute[2] || '';
+                this.route(route, name, _.partial(this._create, Klass, route, access).bind(this));
+            }, this);
+        }.bind(this));
 
         this.nav = new SideNav({
             app: this.app
@@ -49,18 +53,31 @@ module.exports = Backbone.Router.extend({
         this.nav.onStart();
     },
 
+    home: function() {
+        return this.navigate('#', {
+            trigger: true,
+            replace: true
+        });
+    },
+
     _create: function() {
         var args = Array.prototype.slice.call(arguments);
         var View = args[0],
             route = args[1],
+            access = args[2],
             params = /:\w+/gi.exec(route),
             routeParams = params && params.map(function(n) {
                 return n.slice(1)
             });
 
+        if (access === 'private' && !this.app.auth.isLoggedIn()) {
+            this.home();
+            return;
+        }
+
         var opts = _.extend({
             app: this.app
-        }, _.object(routeParams, _.compact(args.slice(2))));
+        }, _.object(routeParams, _.compact(args.slice(3))));
 
         console.log("create view with", opts)
         if (this.view) this.view.end();
