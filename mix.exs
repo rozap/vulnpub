@@ -24,12 +24,10 @@ defmodule Vulnpub.Mixfile do
   defp deps do
     [
       {:phoenix, "0.3.0"},
-      {:cowboy, "~> 0.10.0", github: "extend/cowboy", optional: true},
       {:postgrex, ">= 0.0.0"},
-      {:ecto, "0.2.2"},
-      {:plug, "0.5.1"},
+      {:ecto, "0.2.4"},
       {:httpotion, github: "myfreeweb/httpotion"},
-      {:jazz, "0.1.2"},
+      {:jazz, github: "meh/jazz"},
       {:bcrypt, "0.5.0", github: "smarkets/erlang-bcrypt", compile: "make"}
     ]
   end
