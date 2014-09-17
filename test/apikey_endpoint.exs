@@ -11,6 +11,7 @@ defmodule Test.ApiKeyTest do
 
   test "can create an apikey" do
     {status, req_body, resp_body} = DBHelpers.create_apikey
+    IO.inspect resp_body
     assert status == 201
     assert Dict.get(resp_body, "key") != nil
   end

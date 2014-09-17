@@ -1,6 +1,7 @@
 
 defmodule Resources.ApiKey.Validator do
   import Ecto.Query, only: [from: 2]
+  use Finch.Middleware.ModelValidator, [only: [:create]]
 
   def validate({:create, conn, params, module, bundle}) do
     try do
@@ -15,7 +16,8 @@ defmodule Resources.ApiKey.Validator do
     end
     {:create, conn, params, module, bundle}
   end
-  use Resources.ModelValidator, [only: [:create]]
+  def ignore_fields(:create), do: [:key, :user_id, :id, :created, :modified]
+
 end
 
 
@@ -25,6 +27,7 @@ end
 
 defmodule Resources.ApiKey.Authorizor do
   import Ecto.Query
+  use Resources.ModelAuthorizor, [only: [:show]]
 
   def handle({:show, conn, params, module, bundle}) do
     try do
@@ -35,10 +38,10 @@ defmodule Resources.ApiKey.Authorizor do
     rescue
       _ -> throw {:unauthorized, %{error: "You are not authorized to do that"}}
     end
-
   end
 
-  use Resources.ModelAuthorizor, [only: [:show]]
+  
+
 end
 
 
@@ -46,10 +49,18 @@ defmodule Resources.ApiKey do
   import Phoenix.Controller
   import Ecto.Query
 
+  use Finch.Resource, [
+    before: [
+        Resources.ApiKey.Validator, 
+        Resources.ApiKey.Authenticator,
+        Resources.ApiKey.Authorizor
+    ]
+  ]
+
 
   def id_field, do: :key
   def get_id(params), do: params[:id]
-
+  def repo, do: Repo
   def model, do: Models.ApiKey
 
 
@@ -61,16 +72,10 @@ defmodule Resources.ApiKey do
     {conn, created, key}
   end
 
+  def handle(req), do: super(req)
 
 
 
-  import Resources.Resource
-  use Resources.Resource, [
-    exclude: [],
-    middleware: [
-      Resources.ApiKey.Validator, 
-      Resources.ApiKey.Authenticator,
-      Resources.ApiKey.Authorizor
-    ]
-  ]
+
+  
 end

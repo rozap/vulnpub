@@ -11,12 +11,20 @@ end
 
 
 defmodule Resources.Alert do
-  require Resources.Resource
   import Ecto.Query
   alias Models.Monitor
   alias Models.Alert
   alias Models.Vuln
 
+  use Finch.Resource, [
+    middleware: [
+      before: [
+        Resources.Alert.Authenticator
+      ]
+    ],
+  ]
+
+  def repo, do: Repo
   def model, do: Alert
   def page_size, do: 5
 
@@ -41,9 +49,4 @@ defmodule Resources.Alert do
 
   
 
-	use Resources.Resource, [
-    exclude: [], 
-    middleware: [Resources.Alert.Authenticator],
-    triggers: []
-  ]
 end

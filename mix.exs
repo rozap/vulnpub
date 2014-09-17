@@ -30,8 +30,9 @@ defmodule Vulnpub.Mixfile do
       {:ecto, "0.2.4"},
       {:httpotion, github: "myfreeweb/httpotion"},
       {:jazz, github: "meh/jazz"},
-      { :decimal, "~> 0.2.4" },
-      {:bcrypt, "0.5.0", github: "smarkets/erlang-bcrypt", compile: "make"}
+      {:decimal, "~> 0.2.4" },
+      {:bcrypt, "0.5.0", github: "smarkets/erlang-bcrypt", compile: "make"},
+      {:finch, "0.0.2", github: "rozap/finch"}
     ]
   end
 end

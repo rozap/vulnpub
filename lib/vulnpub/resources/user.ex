@@ -1,6 +1,7 @@
 
 defmodule Resources.User.Validator do
   import Ecto.Query, only: [from: 2]
+  use Finch.Middleware.ModelValidator, [only: [:create, :update]]
 
   def validate_field(:create, :username, username) do
     query = from u in Models.User, where: u.username == ^username, select: u
@@ -8,10 +9,12 @@ defmodule Resources.User.Validator do
     if length(result) > 0 do
       throw {:bad_request, %{:errors => %{:username => "The username \"#{username}\" is already taken"}}}
     end
-    :ok
+    {:username, username}
   end
 
-  use Resources.ModelValidator, [only: [:create, :update]]
+
+  def validate_field(verb, name, val), do: super(verb, name, val)
+
 end
 
 
@@ -19,28 +22,28 @@ defmodule Resources.User.Authenticator do
   use Resources.Authenticator, [except: [:create]]
 end
 
-defmodule Resources.User.Trigger do
-  def handle({:create, conn, status, user}) do
+defmodule Resources.User.After do
+  def handle({:create, conn, status, user, module}) do
     GenServer.cast(:emailer, {:activate, user})
-    {:create, conn, status, user}
+    {:create, conn, status, user, module}
   end
   def handle(res), do: res
 end
 
 
 defmodule Resources.User do
-  require Resources.Resource
-
-  def model, do: Models.User
-
-  use Resources.Resource, [
+  use Finch.Resource, [
     exclude: [:password], 
-    middleware: [
+    before: [
       Resources.User.Authenticator,
       Resources.User.Validator
-    ], 
-    triggers: [
-      Resources.User.Trigger
+    ],
+    after: [
+      Resources.User.After
     ]
   ]
+
+  def repo, do: Repo
+  def model, do: Models.User
+
 end

@@ -6,7 +6,7 @@ defmodule DBHelpers do
   end
 
   def create_apikey(user \\ 0) do
-    DBHelpers.create_user(user)
+    res = DBHelpers.create_user(user)
     simulate_json_file(Vulnpub.Router, :post, "api/v1/apikey", "test/json/new_apikey_#{user}.json")
   end
 end

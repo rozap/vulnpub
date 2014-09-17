@@ -1,10 +1,9 @@
 
 
 defmodule Resources.Package do
-  require Resources.Resource
+  use Finch.Resource, []
 
-  def model do
-    Models.Package
-  end
-	use Resources.Resource, []
+  def repo, do: Repo
+  def model, do: Models.Package
+
 end

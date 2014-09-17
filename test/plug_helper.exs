@@ -13,6 +13,7 @@ defmodule PlugHelper do
 
       def simulate_json_file(router, http_method, path, filename, headers \\ []) do
         body = File.read! filename
+        IO.inspect body
         headers = [{"content-type", "application/json"}] ++ headers
         conn = conn(http_method, path, body, [headers: headers])
 

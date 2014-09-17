@@ -1,11 +1,12 @@
 
 defmodule Resources.Vuln.Validator do
   import Ecto.Query, only: [from: 2]
+  use Finch.Middleware.ModelValidator, [only: [:create, :update]]
 
   def ignore_fields(:create), do: [:id] ++ ignore_fields(nil)
   def ignore_fields(_), do: [:created, :modified, :external_link]
 
-  def validate_together(:create, params, _) do
+  def validate_together(:create, params, bundle) do
     %{:effects_package => ep, :effects_version => ev, :name => name} = params
     query = from v in Models.Vuln, 
               where: v.effects_version == ^ev 
@@ -16,10 +17,9 @@ defmodule Resources.Vuln.Validator do
     if length(result) > 0 do
       throw {:bad_request, %{:name => "The vulnerability already exists"}}
     end
-    :ok
+    {params, bundle}
   end
 
-  use Resources.ModelValidator, [only: [:create, :update]]
 end
 
 
@@ -27,7 +27,7 @@ defmodule Resources.Vuln.Authenticator do
   use Resources.Authenticator, [except: [:index, :show]]
 end
 
-defmodule Resources.Vuln.Trigger do
+defmodule Resources.Vuln.After do
   def handle({:create, conn, status, vuln}) do
     GenServer.cast(:vuln_consumer, {:create, vuln})
     {:create, conn, status, vuln}
@@ -38,21 +38,19 @@ end
 
 
 defmodule Resources.Vuln do
-  require Resources.Resource
+  use Finch.Resource, [
+    before: [
+      Resources.Vuln.Authenticator,
+      Resources.Vuln.Validator
+    ],
+    after: [
+      Resources.Vuln.After
+    ]  
+  ]
 
-  def model do
-    Models.Vuln
-  end
+  def repo, do: Repo
+  def model, do: Models.Vuln
 
   def page_size, do: 20
 
-	use Resources.Resource, [
-    middleware: [
-      Resources.Vuln.Authenticator,
-      Resources.Vuln.Validator
-    ], 
-    triggers: [
-      Resources.Vuln.Trigger
-    ]
-  ]
 end
