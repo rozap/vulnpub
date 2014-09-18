@@ -3,7 +3,7 @@
   "cowlib": {:package, "1.0.0"},
   "decimal": {:package, "0.2.5"},
   "ecto": {:package, "0.2.4"},
-  "finch": {:git, "git://github.com/rozap/finch.git", "3099ffe584905cc40997e8ba2ec2d473c6892f73", []},
+  "finch": {:git, "git://github.com/rozap/finch.git", "b89a6f2ce0f6a52de9aaa1f77f40925304dc0c73", []},
   "httpotion": {:git, "git://github.com/myfreeweb/httpotion.git", "1a7d8ac3d5f7c2da5d48496acf3adfc9f73fcc69", []},
   "ibrowse": {:git, "git://github.com/cmullaparthi/ibrowse.git", "7871e2ebe8811efb64e1917e2de455fa87e8dfe3", [tag: "v4.1.0"]},
   "jazz": {:git, "git://github.com/meh/jazz.git", "49f335492aca5516495199dd81dd18b845ebaa69", []},

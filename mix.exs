@@ -5,6 +5,7 @@ defmodule Vulnpub.Mixfile do
     [ app: :vulnpub,
       version: "0.0.1",
       elixir: "~> 1.0.0",
+      elixirc_paths: ["lib", "web"],
       deps: deps ]
   end
 
@@ -12,7 +13,7 @@ defmodule Vulnpub.Mixfile do
   def application do
     [
       mod: { Vulnpub, [] },
-      applications: [:phoenix, :postgrex, :ecto, :plug]
+      applications: [:phoenix, :cowboy, :logger, :postgrex, :ecto, :plug]
     ]
   end
 
@@ -24,7 +25,7 @@ defmodule Vulnpub.Mixfile do
   defp deps do
     [
       {:phoenix, "0.4.1"},
-      {:cowboy, "~> 1.0.0", optional: true},
+      {:cowboy, "~> 1.0.0"},
       {:plug, "0.7.0"},
       {:postgrex, "0.6.0"},
       {:ecto, "0.2.4"},

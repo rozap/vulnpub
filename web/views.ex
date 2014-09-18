@@ -2,11 +2,12 @@ defmodule Vulnpub.Views do
 
   defmacro __using__(_options) do
     quote do
-      use Phoenix.View, templates_root: unquote(Path.join([__DIR__, "templates"]))
+      use Phoenix.View
       import unquote(__MODULE__)
 
       # This block is expanded within all views for aliases, imports, etc
-      alias Vulnpub.Views
+      import Vulnpub.I18n
+      import Vulnpub.Router.Helpers
     end
   end
 
