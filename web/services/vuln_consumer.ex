@@ -38,6 +38,7 @@ defmodule Service.VulnConsumer do
     monitor = Repo.get(Monitor, monitor_id)
     user = Repo.get(User, monitor.user_id)
     GenServer.cast(:emailer, {:alert, alert, vuln, package, monitor, user})
+    GenServer.cast(:logger, {:debug, [message: "created alert", user: user.username, package: package.name]})
   end
 
   defp create_alert(package, vuln) do

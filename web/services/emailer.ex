@@ -7,7 +7,7 @@ defmodule Service.Emailer do
   @api "https://mandrillapp.com/api/1.0/"
   @message_send "messages/send.json"
   @js_headers %{"Content-Type" => "application/json"}
-  @email_templates "lib/vulnpub/templates/emails/"
+  @email_templates "web/templates/emails/"
 
   def start_link(state, opts) do
     GenServer.start_link(__MODULE__, state, opts)

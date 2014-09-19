@@ -28,11 +28,13 @@ defmodule Resources.Vuln.Authenticator do
 end
 
 defmodule Resources.Vuln.After do
-  def handle({:create, conn, status, vuln}) do
+  def handle({:create, conn, status, vuln, module}) do
     GenServer.cast(:vuln_consumer, {:create, vuln})
-    {:create, conn, status, vuln}
+    {:create, conn, status, vuln, module}
   end
-  def handle(res), do: res
+  def handle(res) do
+    res
+  end
 end
 
 
