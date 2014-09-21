@@ -12,7 +12,7 @@ module.exports = View.extend({
 
     events: {
         'click .save': 'save',
-        'click .cancel': 'end'
+        'click .cancel': 'end',
     },
 
 
@@ -32,8 +32,11 @@ module.exports = View.extend({
     },
 
     save: function() {
-        this.monitor.set(this.$el.find('form').serializeObject()).save().then(this.onCreate.bind(this));
-    }
+        this.monitor
+            .set(this.$el.find('form').serializeObject())
+            .save()
+            .then(this.onCreate.bind(this));
+    },
 
 
 

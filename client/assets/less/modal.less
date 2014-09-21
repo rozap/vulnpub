@@ -1,0 +1,34 @@
+@modal-width: 640px;
+
+.modal {
+	background: fadeout(@gray-dark, 20%);
+	position: absolute;
+	top:0px;
+	bottom:0px;
+	left:0px;
+	right:0px;
+	z-index: 200;
+
+	.modal-inner {
+		position: absolute;
+		top: @modal-width/4;
+		left: ~'calc(50% -' @modal-width/2 ~')';
+		background: @white;
+		width:@modal-width;
+		padding:@margin-width;
+		z-index: 201;
+
+		.modal-header {
+			h1, h2, h3, h4, h5, h6 {
+				margin-top: @margin-width/2;
+			}
+		}
+
+
+		.modal-footer {
+				border-top: 1px solid @gray-light;
+				margin-top: @margin-width;
+				.text-muted();
+		}
+	}
+}
