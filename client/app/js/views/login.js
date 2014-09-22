@@ -22,8 +22,8 @@ module.exports = View.extend({
     },
 
     redirect: function() {
-        this.apikey.persist();
-        this.app.router.navigate('#home', {
+        this.app.dispatcher.trigger('auth.authenticated', this.apikey);
+        this.app.router.navigate('#', {
             trigger: true
         });
     },

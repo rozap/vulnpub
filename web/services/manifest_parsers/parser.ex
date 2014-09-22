@@ -10,11 +10,19 @@ defmodule Manifest.Parser.Parser do
 
 
   def create_package_monitors(monitor, packages) do
-    package_monitors = Enum.map(packages, fn package -> PackageMonitor.allocate(%{:package_id => package.id, :monitor_id => monitor.id}) end)
-    case Repo.transaction(fn -> Enum.map(package_monitors, fn pm -> Repo.insert(pm) end) end) do
-      {:ok, package_monitors} -> :ok
-      _ -> IO.puts("Failed to create package monitors")
-    end
+    IO.inspect monitor
+    package_monitors = Enum.map(packages, fn package -> 
+      IO.inspect package
+      PackageMonitor.allocate(%{
+        :package_id => package.id, 
+        :monitor_id => monitor.id
+      })
+      end)
+    {:ok, _} = Repo.transaction(fn -> 
+      Enum.map(package_monitors, 
+        fn pm -> Repo.insert(pm) 
+      end)
+    end)
   end
 
 
@@ -27,10 +35,11 @@ defmodule Manifest.Parser.Parser do
     existing = Enum.map(existing, fn {_, _, p} -> p end)
 
 
-    case Repo.transaction(fn -> Enum.map(new_packages, fn m -> Repo.insert(m) end) end) do
-      {:ok, packages} -> create_package_monitors(monitor, packages ++ existing)
-      _ -> IO.puts("failed to create packages")
-    end
+    {:ok, packages} = Repo.transaction(fn -> 
+      Enum.map(new_packages, 
+        fn m -> Repo.insert(m) end) 
+    end)
+    create_package_monitors(monitor, packages ++ existing)
   end
 
   
@@ -48,10 +57,6 @@ defmodule Manifest.Parser.Parser do
     else 
       {:error, response}
     end
-  end
-
-  def put_error(monitor, reason) do
-    IO.puts(reason)
   end
 
 end

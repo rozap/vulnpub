@@ -18,8 +18,9 @@ var Backbone = require('backbone'),
 module.exports = Backbone.Router.extend({
 
     views: {
-        'public landing': Landing,
-        'private home home': Home,
+        //access name route
+        'private home': Home,
+        'public landing landing': Landing,
         'public vuln-list vulns': VulnList,
         'public vuln vulns/:vuln_id': Vuln,
         'private monitor monitors/:monitor_id': Monitor,
@@ -41,9 +42,8 @@ module.exports = Backbone.Router.extend({
         });
         this.nav.onStart();
 
-        this.app.auth.authenticate().then(
-            this._setupRoutes.bind(this),
-            this._setupRoutes.bind(this));
+        this.app.auth.authenticate()
+            .always(this._setupRoutes.bind(this));
     },
 
     _setupRoutes: function() {
@@ -57,8 +57,8 @@ module.exports = Backbone.Router.extend({
         Backbone.history.start();
     },
 
-    home: function() {
-        return this.navigate('#', {
+    landing: function() {
+        return this.navigate('#landing', {
             trigger: true,
             replace: true
         });
@@ -71,11 +71,11 @@ module.exports = Backbone.Router.extend({
             access = args[2],
             params = /:\w+/gi.exec(route),
             routeParams = params && params.map(function(n) {
-                return n.slice(1)
+                return n.slice(1);
             });
 
         if (access === 'private' && !this.app.auth.isLoggedIn()) {
-            this.home();
+            this.landing();
             return;
         }
 
@@ -83,7 +83,7 @@ module.exports = Backbone.Router.extend({
             app: this.app
         }, _.object(routeParams, _.compact(args.slice(3))));
 
-        console.log("create view with", opts)
+        console.log("create view with", opts);
         if (this.view) this.view.end();
         this.view = new View(opts);
         this.app.dispatcher.trigger('module', this.view);

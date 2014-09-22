@@ -13,10 +13,13 @@ defmodule Service.Logger do
 
   def handle_cast({level, items},  state) do
     #TODO: actually log to syslog
+
+    Enum.map(1..80, fn _ -> :io.format("-", []) end)
+    :io.format("~n")
     :io.format("LOG: ~p~n", [level])
     Enum.map(items, fn {key, val} -> :io.format("| ~p : ~p~n", [key, val]) end)
     Enum.map(1..80, fn _ -> :io.format("-", []) end)
-    :io.format("..done..~n~n")
+    :io.format("~n")
     {:noreply, state}
   end
 

@@ -42,8 +42,8 @@ defmodule Service.MonitorConsumer do
   end
 
   def handle_cast({:create, monitor}, state) do
-    HTTPotion.start
     try do
+      HTTPotion.start
       GenServer.cast(:logger, {:info, [message: "Getting url: ", url: monitor.manifest]})
       response = HTTPotion.get monitor.manifest
       if HTTPotion.Response.success? response do
@@ -53,10 +53,8 @@ defmodule Service.MonitorConsumer do
         GenServer.cast(:logger, {:warn, [message: "manifest not accessible", location: monitor.manifest]})
       end
     rescue
-      e -> GenServer.cast(:logger, {:error, [error: e]})
+      e -> GenServer.cast(:logger, {:error, [e: e]})
     end
-
-
     {:noreply, state}
   end
 end

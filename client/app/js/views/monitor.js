@@ -13,6 +13,8 @@ module.exports = View.extend({
 
     initialize: function(opts) {
         View.prototype.initialize.call(this, opts);
+        this.app.dispatcher.trigger('nav.show');
+
         this.monitor = new Monitor({
             id: this.monitor_id
         }, this.opts());

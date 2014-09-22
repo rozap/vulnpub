@@ -206,13 +206,6 @@ module.exports = Model.extend({
 	idAttribute: 'key',
 	api: function() {
 		return 'apikey' + (this.isNew() ? '' : '/' + this.get('key'));
-	},
-
-	persist: function() {
-		localStorage['vulnpub-apikey'] = JSON.stringify({
-			username: this.get('username'),
-			key: this.get('key')
-		});
 	}
 });
 },{"./abstract":7}],10:[function(require,module,exports){
@@ -272,8 +265,9 @@ var Backbone = require('backbone'),
 module.exports = Backbone.Router.extend({
 
     views: {
-        'public landing': Landing,
-        'private home home': Home,
+        //access name route
+        'private home': Home,
+        'public landing landing': Landing,
         'public vuln-list vulns': VulnList,
         'public vuln vulns/:vuln_id': Vuln,
         'private monitor monitors/:monitor_id': Monitor,
@@ -295,9 +289,8 @@ module.exports = Backbone.Router.extend({
         });
         this.nav.onStart();
 
-        this.app.auth.authenticate().then(
-            this._setupRoutes.bind(this),
-            this._setupRoutes.bind(this));
+        this.app.auth.authenticate()
+            .always(this._setupRoutes.bind(this));
     },
 
     _setupRoutes: function() {
@@ -311,8 +304,8 @@ module.exports = Backbone.Router.extend({
         Backbone.history.start();
     },
 
-    home: function() {
-        return this.navigate('#', {
+    landing: function() {
+        return this.navigate('#landing', {
             trigger: true,
             replace: true
         });
@@ -325,11 +318,11 @@ module.exports = Backbone.Router.extend({
             access = args[2],
             params = /:\w+/gi.exec(route),
             routeParams = params && params.map(function(n) {
-                return n.slice(1)
+                return n.slice(1);
             });
 
         if (access === 'private' && !this.app.auth.isLoggedIn()) {
-            this.home();
+            this.landing();
             return;
         }
 
@@ -337,7 +330,7 @@ module.exports = Backbone.Router.extend({
             app: this.app
         }, _.object(routeParams, _.compact(args.slice(3))));
 
-        console.log("create view with", opts)
+        console.log("create view with", opts);
         if (this.view) this.view.end();
         this.view = new View(opts);
         this.app.dispatcher.trigger('module', this.view);
@@ -352,7 +345,8 @@ var name = 'vulnpub-apikey';
 
 var Auth = function(app) {
 	this.app = app;
-}
+	this.app.dispatcher.on('auth.authenticated', this._onAuthenticated.bind(this));
+};
 
 
 Auth.prototype = {
@@ -364,6 +358,15 @@ Auth.prototype = {
 			app: this.app
 		});
 		return key.fetch().then(this._onLoggedIn.bind(this), this._onLoginFail.bind(this));
+	},
+
+	_onAuthenticated: function(apikey) {
+		localStorage[name] = JSON.stringify({
+			username: apikey.get('username'),
+			key: apikey.get('key')
+		});
+		this._onLoggedIn();
+		console.log("On authed")
 	},
 
 	_onLoginFail: function() {
@@ -379,9 +382,9 @@ Auth.prototype = {
 			var key = JSON.parse(localStorage[name]);
 			return {
 				'authentication': key.username + ':' + key.key
-			}
+			};
 		} catch (e) {
-			console.warn('cannot parse localstorage ;_;')
+			console.warn('cannot parse localstorage ;_;', localStorage[name]);
 		}
 	},
 
@@ -437,6 +440,7 @@ module.exports = {
 		this._isRequesting = false;
 		this._hasErrored = true;
 		try {
+			console.log("error", resp.responseText)
 			this._lastError = JSON.parse(resp.responseText);
 		} catch (e) {
 			this._lastError = true;
@@ -667,7 +671,7 @@ module.exports = View.extend({
         'click .alert-item-inner': 'gotoVuln',
     },
 
-    _greetings: ['hello', 'greetings', 'sup', 'what\'s happening'],
+    _greetings: ['hello', 'greetings', 'sup', 'what\'s happening', 'how goes it'],
 
 
     initialize: function(opts) {
@@ -733,19 +737,20 @@ module.exports = View.extend({
 });
 },{"../../templates/home/home.html":34,"../collections/alerts":3,"../collections/monitors":4,"./abstract":17,"./create-monitor":18,"./pager":24,"underscore":53}],20:[function(require,module,exports){
 var View = require('./abstract'),
-    _ = require('underscore'),
-    LandingTemplate = require('../../templates/home/landing.html');
+	_ = require('underscore'),
+	LandingTemplate = require('../../templates/home/landing.html');
 
 module.exports = View.extend({
 
-    el: '#raw',
-    template: _.template(LandingTemplate),
+	el: '#raw',
+	template: _.template(LandingTemplate),
 
-    initialize: function(opts) {
-        View.prototype.initialize.call(this, opts);
-        this.app.dispatcher.trigger('nav.hide');
-        this.render();
-    }
+	initialize: function(opts) {
+		console.log("LANDING")
+		View.prototype.initialize.call(this, opts);
+		this.app.dispatcher.trigger('nav.hide');
+		this.render();
+	}
 
 
 
@@ -775,8 +780,8 @@ module.exports = View.extend({
     },
 
     redirect: function() {
-        this.apikey.persist();
-        this.app.router.navigate('#home', {
+        this.app.dispatcher.trigger('auth.authenticated', this.apikey);
+        this.app.router.navigate('#', {
             trigger: true
         });
     },
@@ -853,6 +858,8 @@ module.exports = View.extend({
 
     initialize: function(opts) {
         View.prototype.initialize.call(this, opts);
+        this.app.dispatcher.trigger('nav.show');
+
         this.monitor = new Monitor({
             id: this.monitor_id
         }, this.opts());
@@ -1246,7 +1253,7 @@ module.exports = "<div class=\"modal\">\n\n    <div class=\"modal-inner\">\n    
 module.exports = "<h3><%- greet() %></h3>\n\n<h5 class=\"section\">\n\tAlerts\n</h5>\n<% if(alerts.length === 0) { %>\n\t<h6>You have no outstanding vulnerability alerts. Hooray!</h6>\n<% } else { %>\n\t<div class=\"pure-g alert-list\">\n\t\t<% alerts.each(function(al) { %>\n\t\t<div class=\"pure-u-1-1 alert-item\">\n\t\t\t<div class=\"alert-item-inner\"\n\t\t\t\tdata-vuln=\"<%- al.get('vuln').id %>\">\n\t\t\t\t<h4><%- al.get('vuln').name %></h4>\n\t\t\t\t<h5 class=\"text-muted\">Effecting package \n\t\t\t\t\t<span class=\"not-muted\"><%- al.get('package').name %></span> in monitor <%- al.get('monitor').name %>\n\t\t\t\t</h5>\n\t\t\t\t<a href=\"javascript:void(0)\" \n\t\t\t\t\tdata-alert=\"<%- al.get('id') %>\"\n\t\t\t\t\tclass=\"pure-button button-warning button-xsmall dismiss-alert\">\n\t\t\t\t\tDismiss\n\t\t\t\t</a>\n\t\t\t</div>\n\t\t</div>\n\t\t<% }) %>\n\t</div>\n<% } %>\n<div id=\"alert-pager\"></div>\n\n\n<div id=\"create-monitor\"></div>\n\n\n<h5 class=\"section\">\n\tMonitors \n\t<a href=\"javascript:void(0)\" \n\t\tclass=\"new-monitor pure-button button-primary button-small\">\n\t\t\tNew Monitor\n\t</a>\n</h5>\n\n<% if(monitors.isLoading()) { %>\n\t<%= inject('loader') %>\n<% } else if(!monitors.length) { %>\n\t<div class=\"pure-g monitor-list\">\n\t\t<div class=\"pure-u-1-1\">\n\t\t\t<h6>You aren't monitoring any repositories yet<h6>\n\t\t</div>\n\t</div>\n<% } else { %>\n\t<div class=\"pure-g monitor-list\">\n\t\t<% monitors.each(function(mon, i) { %>\n\t\t\t<div class=\"pure-u-1-2 monitor-card-wrap\">\n\t\t\t\t<div class=\"card <%- i % 2 == 0? 'left' : 'right' %>\">\n\n\t\t\t\t\t<h4>\n\t\t\t\t\t\t<a href=\"#monitors/<%- mon.get('id') %>\">\n\t\t\t\t\t\t\t<%- mon.get('name') %>\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</h4>\n\n\t\t\t\t\t<a class=\"pure-button button-secondary button-xsmall\" \n\t\t\t\t\t\thref=\"<%- mon.get('manifest') %>\"\n\t\t\t\t\t\ttarget=\"_blank\">\n\t\t\t\t\t\tView Manifest\n\t\t\t\t\t</a>\n\t\t\t\t</div>\n\n\t\t\t</div>\n\t\t<% }); %>\n\t</div>\n<% } %>";
 
 },{}],35:[function(require,module,exports){
-module.exports = "\n<div class=\"landing\">\n\t<h1>welcome to vuln.pub</h1>\n\n\t<p>blah blah blah blah</p>\n\n\t<div class=\"landing-actions\">\n\t\t<a href=\"#register\" class=\"pure-button button-success button-xlarge\">Register</a>\n\t\t<span class=\"text-muted\">or</span>\n\t\t<a href=\"#login\" class=\"pure-button button-primary button-xlarge\">Login</a>\n\t</div>\n</div>";
+module.exports = "\n<div class=\"landing\">\n\t<h1>\n\t\tvuln.pub is a vulnerability monitoring and notification service.\n\t</h1>\n\n\t<p class=\"hero-tagline\">\n\t\tvuln.pub watches for vulnerabilities published on security lists. It notifies you when a dependency in your application has a potential vulnerability.\n\t</p>\n\n\t<div class=\"landing-actions\">\n\t\t<a href=\"#register\" class=\"pure-button button-success button-xlarge\">Register</a>\n\t\t<span class=\"text-muted\">or</span>\n\t\t<a href=\"#login\" class=\"pure-button button-primary button-xlarge\">Login</a>\n\t</div>\n</div>";
 
 },{}],36:[function(require,module,exports){
 module.exports = "<h3><%- monitor.get('name') %></h3>\n\n<% if(monitor.isLoading()) { %>\n\t<%= inject('loader') %>\n<% } else { %>\n\t<h5 class=\"section\">This monitor is monitoring the following packages</h5>\n\t<div class=\"pure-g package-list\">\n\t\t<% _.each(monitor.get('packages'), function(p, idx) { %>\n\t\t\t<div class=\"pure-u-1-3\">\n\t\t\t\t<div class=\"card package-card\n\t\t\t\t\t<%- idx % 3 == 0? 'left' : '' %>\n\t\t\t\t\t<%- (idx + 1) % 3 == 0? 'right' : '' %>\">\n\t\t\t\t\t<h4><%- p.name %></h4>\n\t\t\t\t\t<p class=\"text-muted\"><%- p.version %></p>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t<% }) %>\n\t</div>\n<% } %>";

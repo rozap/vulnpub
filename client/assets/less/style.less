@@ -10,279 +10,241 @@
 @orange: #FCB03C;
 @red: #FC5B3F;
 @green: #6FB07F;
-
 @nav-width: 256px;
 @header-height: @margin-width*8;
 @link-color: @blue;
-
 * {
-	box-sizing: border-box;
+    box-sizing: border-box;
 }
 .header {
-	position: fixed;
-	width:100%;
-	border-top: @margin-width/3 solid @gray-dark;
-	height: @header-height;
-	z-index: 100;
-	background: @white;
-	box-shadow: 1px 1px 6px @gray-dark;
-	h1 {
-		padding: @margin-width*2;
-		margin: 0px;
-		a {
-			padding: @margin-width * 2;
-			margin-top: @margin-width * 2;
-			color: @gray-light;
-			text-shadow: 2px 2px 5px @gray-dark;
-			font-size: 1.6em;
-		}
-		a:hover {
-			text-shadow: 2px 1px 5px lighten(@gray-dark, 10%);
-			color: lighten(@gray-light, 15%);
-		}
-		;
-	}
+    position: fixed;
+    width: 100%;
+    border-top: @margin-width/3 solid @gray-dark;
+    height: @header-height;
+    z-index: 100;
+    background: @white;
+    box-shadow: 1px 1px 6px @gray-dark;
+    h1 {
+        padding: @margin-width*2;
+        margin: 0px;
+        a {
+            padding: @margin-width * 2;
+            margin-top: @margin-width * 2;
+            color: @gray-light;
+            text-shadow: 2px 2px 5px @gray-dark;
+            font-size: 1.6em;
+        }
+        a:hover {
+            text-shadow: 2px 1px 5px lighten(@gray-dark, 10%);
+            color: lighten(@gray-light, 15%);
+        }
+        ;
+    }
 }
 .header::after {
-	content: "";
-	background: url(image.jpg);
-	background-image: url("/static/images/old-school.jpg");
-	background-size: contain;
-	opacity: .5;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
-	position: absolute;
-	z-index: -1;
+    content: "";
+    background: url(image.jpg);
+    background-image: url("/static/images/old-school.jpg");
+    background-size: contain;
+    opacity: .5;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+    z-index: -1;
 }
 a:not(.pure-button) {
-	text-decoration: none;
-	transition: .2s all;
-	color:@link-color;
+    text-decoration: none;
+    transition: .2s all;
+    color: @link-color;
 }
 a:hover:not(.pure-button) {
-	color:lighten(@link-color, 20%);
+    color: lighten(@link-color, 20%);
 }
-
 ul {
-	list-style: none;
-	padding: 0px;
-	li {
-		a {
-			display: block;
-		}
-	}
+    list-style: none;
+    padding: 0px;
+    li {
+        a{display: block;
+        }
+    }
+}
+#side-nav {
+    display: none;
 }
 .side-nav {
-	top:@header-height;
-	position: fixed;
-	width: @nav-width;
-	height: ~"calc(100% - " @header-height ~")";
-	background: @gray-dark;
-	ul {
-		li {
-			a{
-				padding: @margin-width;
-				color: @gray;
-			}
-		}
-		li.divider {
-			padding: 0px;
-			border-bottom: 1px solid lighten(@gray-dark, 7%);
-			border-top: 1px solid darken(@gray-dark, 7%);
-		}
-		li:hover {
-			background: lighten(@gray-dark, 10%);
-		}
-	}
+    top: @header-height;
+    position: fixed;
+    width: @nav-width;
+    height: ~"calc(100% - " @header-height ~")";
+    background: @gray-dark;
+    ul {
+        li {
+            a{padding: @margin-width;
+                color: @gray;
+            }
+        }
+        li.divider {
+            padding: 0px;
+            border-bottom: 1px solid lighten(@gray-dark, 7%);
+            border-top: 1px solid darken(@gray-dark, 7%);
+        }
+        li:hover {
+            background: lighten(@gray-dark, 10%);
+        }
+    }
 }
 #main {
-	width: ~"calc(100% - " @nav-width ~")";
-	margin-top: @header-height;
-	display: inline-block;
-	margin-left: @nav-width;
-	padding: @margin-width;
+    width: ~"calc(100% - " @nav-width ~")";
+    margin-top: @header-height;
+    display: inline-block;
+    margin-left: @nav-width;
+    padding: @margin-width;
 }
-
 #raw {
-	width: 100%;
-	margin-top: @header-height;
-	display: inline-block;
-	padding: @margin-width;
+    width: 100%;
+    margin-top: @header-height;
+    display: inline-block;
+    padding: @margin-width;
 }
-
-
-
 .pager {
-	text-align: center;
-
-	ul { 
-		margin:0px auto;
-
-		li {
-			display: inline-block;
-			padding:@margin-width/4 @margin-width/2; 
-		
-			a.active {
-				color:@orange;
-			}
-		}
-		li.prev {
-			padding-right: @margin-width*2;
-		}
-		li.next {
-			padding-left: @margin-width*2;
-		}
-
-
-	}	
-
-	.page-counter {
-		float:left;
-		font-size: 85%;
-		line-height: 2em;
-		color:lighten(@gray-dark, 30%);
-	}
+    text-align: center;
+    ul {
+        margin: 0px auto;
+        li {
+            display: inline-block;
+            padding: @margin-width/4 @margin-width/2;
+            a.active {
+                color: @orange;
+            }
+        }
+        li.prev {
+            padding-right: @margin-width*2;
+        }
+        li.next {
+            padding-left: @margin-width*2;
+        }
+    }
+    .page-counter {
+        float: left;
+        font-size: 85%;
+        line-height: 2em;
+        color: lighten(@gray-dark, 30%);
+    }
 }
-
 .text-muted {
-	color:lighten(@gray-dark, 40%);
+    color: lighten(@gray-dark, 40%);
 }
-
 .not-muted {
-	color: @black;
+    color: @black;
 }
-
-
-
 .form-centered {
-	max-width: 420px;
-	margin:0px auto;
-	text-align: center;
-	padding:@margin-width* 4;
-
-	input, button {
-		width:100%;
-	}
-
-	button {
-		margin:@margin-width/2 0px;
-	}
+    max-width: 420px;
+    margin: 0px auto;
+    text-align: center;
+    padding: @margin-width* 4;
+    input, button {
+        width: 100%;
+    }
+    button {
+        margin: @margin-width/2 0px;
+    }
 }
-
-
 .alert {
-	width: 100%;
-	padding:4px 12px;
-	margin:@margin-width/2 0px;
-	color:@white;
-	text-align: left;
+    width: 100%;
+    padding: 4px 12px;
+    margin: @margin-width/2 0px;
+    color: @white;
+    text-align: left;
 }
-
-
 .alert.alert-error {
-	background-color: fadeout(@red, 50%);
-	border-left: 4px solid @red;
+    background-color: fadeout(@red, 50%);
+    border-left: 4px solid @red;
 }
-
-
 .alert.alert-success {
-	background-color: fadeout(@green, 50%);
-	border-left: 4px solid @green;
+    background-color: fadeout(@green, 50%);
+    border-left: 4px solid @green;
 }
-
 .button-xsmall {
     font-size: 70%;
 }
-
 .button-small {
     font-size: 85%;
 }
-
 .button-large {
     font-size: 110%;
 }
-
 .button-xlarge {
     font-size: 125%;
 }
-
 .section {
-	border-bottom: 1px solid @gray-light;
-	margin-bottom:@margin-width/4;
-	.text-muted();
+    border-bottom: 1px solid @gray-light;
+    margin-bottom: @margin-width/4;
+    .text-muted();
 }
-
-
 .button-secondary {
     color: white;
     border-radius: 4px;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
-
 .button-primary {
-	background: @blue;
-	color:@white;
+    background: @blue;
+    color: @white;
 }
-
 .button-success {
     background: @green; /* this is a green */
-    color:@white;
+    color: @white;
 }
-
 .button-error {
     background: @red; /* this is a maroon */
 }
-
 .button-warning {
     background: @orange; /* this is an orange */
-    color:@white;
+    color: @white;
 }
-
-
 .button-secondary {
     background: @light-blue; /* this is a light blue */
 }
-
 .pure-form {
-	
-	label {
-		font-weight: 100;
-		.text-muted();
-		margin-top:1em;
-	}
-
+    label {
+        font-weight: 100;
+        .text-muted();
+        margin-top: 1em;
+    }
 }
-
 .card {
-	padding:@margin-width;
-	margin: @margin-width/2;
-	box-shadow:0 0 @margin-width/2 rgba(0, 0, 0, 0.15);
-	h4 {
-		color:@blue;
-		margin-top:0px;
-	}
+    padding: @margin-width;
+    margin: @margin-width/2;
+    box-shadow: 0 0 @margin-width/2 rgba(0, 0, 0, 0.15);
+    h4 {
+        color: @blue;
+        margin-top: 0px;
+    }
 }
-
 .card.left {
-	margin-left:0px;
+    margin-left: 0px;
 }
 .card.right {
-	margin-right:0px;
+    margin-right: 0px;
 }
-
 .action-row {
-	margin-top:@margin-width;
+    margin-top: @margin-width;
 }
-
 .divider {
-	border-left: 1px solid @gray-light;
-	height: 100%;
+    border-left: 1px solid @gray-light;
+    height: 100%;
 }
-
+.hero-tagline {
+    font-size: 150%;
+    font-weight: 100;
+    line-height: 1.5;
+    margin: 0 0 1em;
+    color: #666;
+}
 @import "vulns.less";
 @import "home.less";
 @import "loaders.less";
 @import "monitor.less";
 @import "modal.less";
+@import "landing.less";

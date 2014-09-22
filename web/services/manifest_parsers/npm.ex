@@ -43,7 +43,6 @@ defmodule Manifest.Parser.NPM do
       {:ok, response} -> 
         Jazz.decode!(response.body)
           |> parse_deps(monitor)
-      {:error, _} -> put_error monitor, "Failed to get #{filename}" 
     end
   end
 end

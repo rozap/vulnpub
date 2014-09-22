@@ -46,9 +46,7 @@ defmodule Manifest.Parser.Dpkg do
 
 
   def parse(filename, details, monitor) do
-    case get_package_listing(filename, details, monitor) do
-      {:ok, response} -> parse_deps response.body, monitor
-      {:error, response} -> put_error monitor, "Failed to get #{filename}" 
-    end
+    {:ok, response} = get_package_listing(filename, details, monitor)
+    parse_deps response.body, monitor
   end
 end

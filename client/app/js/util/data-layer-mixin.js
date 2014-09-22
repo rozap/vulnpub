@@ -34,6 +34,7 @@ module.exports = {
 		this._isRequesting = false;
 		this._hasErrored = true;
 		try {
+			console.log("error", resp.responseText)
 			this._lastError = JSON.parse(resp.responseText);
 		} catch (e) {
 			this._lastError = true;

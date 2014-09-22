@@ -3,7 +3,7 @@ defmodule Resources.ApiKey.Validator do
   import Ecto.Query, only: [from: 2]
   use Finch.Middleware.ModelValidator, [only: [:create]]
 
-  def validate({:create, conn, params, module, bundle}) do
+  def validate_together(:create, params, bundle) do
     try do
       %{:username => username, :password => password} = params
       [user] = (from u in Models.User, where: u.username == ^username, select: u) |> Repo.all
@@ -14,8 +14,11 @@ defmodule Resources.ApiKey.Validator do
     rescue
       _ -> throw {:bad_request, %{:errors => %{:username => "The username/password combination is invalid"}}}
     end
-    {:create, conn, params, module, bundle}
+    {params, bundle}
   end
+
+  def validate_together(verb, params, bundle), do: super(verb, params, bundle)
+
   def ignore_fields(:create), do: [:key, :user_id, :id, :created, :modified]
 
 end

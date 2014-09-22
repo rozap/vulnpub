@@ -19,7 +19,7 @@ module.exports = View.extend({
         'click .alert-item-inner': 'gotoVuln',
     },
 
-    _greetings: ['hello', 'greetings', 'sup', 'what\'s happening'],
+    _greetings: ['hello', 'greetings', 'sup', 'what\'s happening', 'how goes it'],
 
 
     initialize: function(opts) {
