@@ -5,7 +5,15 @@ defmodule Manifest.Parser.Parser do
   alias Models.PackageMonitor
 
   def get_package(name, version) do
-    (from p in Package, where: p.name == ^name and p.version == ^version, select: p) |> Repo.all |> List.first
+    {
+      name, 
+      version, 
+      (from p in Package, 
+        where: p.name == ^name and p.version == ^version, 
+        select: p) 
+      |> Repo.all 
+      |> List.first
+    }
   end
 
 
@@ -26,10 +34,14 @@ defmodule Manifest.Parser.Parser do
 
 
   def create_packages keylist, monitor do
-    {to_create, existing} = Enum.map(keylist, fn {name, version} -> {name, version, get_package(name, version)} end)
-      |> Enum.split_while(fn {_, _, existing} -> existing == nil end)
+    packages = Enum.map(keylist, fn {name, version} -> get_package(name, version) end)
+    existing = Enum.filter(packages, fn {_, _, p} -> not (is_nil p) end)
+    to_create = Enum.filter(packages, fn {_, _, p} -> is_nil p end)
 
-    new_packages = Enum.map(to_create, fn {name, version, _} -> Package.allocate(%{:name => name, :version => version}) end)
+    new_packages = Enum.map(to_create, 
+      fn {name, version, _} -> 
+        Package.allocate(%{:name => name, :version => version}) 
+      end)
     existing = Enum.map(existing, fn {_, _, p} -> p end)
 
 
@@ -37,6 +49,8 @@ defmodule Manifest.Parser.Parser do
       Enum.map(new_packages, 
         fn m -> Repo.insert(m) end) 
     end)
+
+
     create_package_monitors(monitor, packages ++ existing)
   end
 
