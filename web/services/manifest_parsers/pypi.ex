@@ -22,7 +22,6 @@ defmodule Manifest.Parser.PyPi do
   end
 
   def parse_deps body, monitor do
-    IO.inspect body
     t = String.split(body, "\n")
           |> Enum.filter(fn line -> String.length(line) > 3 end)
           |> Enum.map(&parse_line &1)

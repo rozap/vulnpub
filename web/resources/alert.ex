@@ -27,7 +27,6 @@ defmodule Resources.Alert do
   def page_size, do: 5
 
   def resource_query({:index, _, _, _, bundle}) do
-    IO.inspect bundle
     %{:user => %{:id => user_id}} = bundle
      result = (from a in Alert,
       left_join: m in a.monitor,

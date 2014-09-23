@@ -10,9 +10,7 @@ defmodule Manifest.Parser.Parser do
 
 
   def create_package_monitors(monitor, packages) do
-    IO.inspect monitor
     package_monitors = Enum.map(packages, fn package -> 
-      IO.inspect package
       PackageMonitor.allocate(%{
         :package_id => package.id, 
         :monitor_id => monitor.id

@@ -41,7 +41,6 @@ defmodule Test.VulnTest do
     {_, _, apikey_resp} = DBHelpers.create_apikey()
     key = Dict.get(apikey_resp, "key")
     {status, req_body, resp_body}  = simulate_json_file(Vulnpub.Router, :post, "api/v1/vulns", "test/json/invalid_new_vuln.json", [{"authentication", "foo:#{key}"}])
-    IO.inspect resp_body
     assert status == 400
   end
 
