@@ -10,7 +10,7 @@
 @orange: #FCB03C;
 @red: #FC5B3F;
 @green: #6FB07F;
-@nav-width: 256px;
+@nav-width: 64px;
 @header-height: @margin-width*8;
 @link-color: @blue;
 * {
@@ -81,8 +81,18 @@ ul {
     background: @gray-dark;
     ul {
         li {
-            a{padding: @margin-width;
+            text-align: center;
+            a{
+                padding: @margin-width;
                 color: @gray;
+
+                i {
+                    font-size: 200%;
+                }
+
+                &:hover {
+                    color:@white;
+                };
             }
         }
         li.divider {
@@ -180,7 +190,7 @@ ul {
 }
 .section {
     border-bottom: 1px solid @gray-light;
-    margin-bottom: @margin-width/4;
+    margin-bottom: @margin-width;
     .text-muted();
 }
 .button-secondary {
@@ -248,3 +258,4 @@ ul {
 @import "monitor.less";
 @import "modal.less";
 @import "landing.less";
+@import "icons.less";
