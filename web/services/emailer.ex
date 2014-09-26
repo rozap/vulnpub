@@ -21,7 +21,9 @@ defmodule Service.Emailer do
 
   defp interpolate(str, dict) do
     Enum.reduce(dict, str, fn({key, value}, acc) -> 
-      String.replace(acc, "#\{" <> Atom.to_string(key) <> "\}", value) end)
+      :io.format("REPLACING ~p WITH ~p~n", [key, value])
+      String.replace(acc, "#\{" <> Atom.to_string(key) <> "\}", value) 
+    end)
   end
 
 

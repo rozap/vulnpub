@@ -11,10 +11,17 @@ Auth.prototype = {
     authenticate: function() {
         console.log("authenticating...");
         var ApiKey = require('../models/apikey');
-        var key = new ApiKey(JSON.parse(localStorage[name]), {
-            app: this.app
-        });
-        return key.fetch().then(this._onLoggedIn.bind(this), this._onLoginFail.bind(this));
+        try {
+
+            var key = new ApiKey(JSON.parse(localStorage[name]), {
+                app: this.app
+            });
+            return key.fetch().then(this._onLoggedIn.bind(this), this._onLoginFail.bind(this));
+        } catch (e) {
+            //pass
+        }
+        return (new $.Deferred()).reject();
+
     },
 
     _onAuthenticated: function(apikey) {

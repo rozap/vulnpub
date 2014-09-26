@@ -3,11 +3,11 @@ var Collection = require('./abstract');
 
 module.exports = Collection.extend({
 
-    _currentOrder: 'created',
+	_currentOrder: '-created',
 
-    api: function() {
-        return 'vulns';
-    }
+	api: function() {
+		return 'vulns';
+	}
 
 
 });

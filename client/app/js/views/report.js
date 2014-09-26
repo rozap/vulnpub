@@ -145,6 +145,7 @@ module.exports = View.extend({
         this.vuln.set('effects_package', pack.get('name'));
         this.endView('search');
         this.render();
+        this.$el.find('input[name="effects_version]').focus();
     },
 
     save: function() {

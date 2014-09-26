@@ -1,7 +1,7 @@
 {
     "key": "#{key}",
     "message": {
-        "html": "<h3>Important!</h3> Hi #{username}, there has been a vulnerability (#{vuln_name}) reported in the package #{package_name}. Your monitor #{monitor_name} reports that you have this package installed. Please read about the vulnerability <a href=\"#{vuln_link}\">here</a> and take the necessary steps to make sure you're protected.",
+        "html": "<h3>Important!</h3> Hi #{username}, there has been a vulnerability (#{vuln_name}) reported in the package #{package_name}. Your monitor #{monitor_name} reports that you have this package installed. Please read about the vulnerability <a href=\"#{vuln_link}\">here</a> and take the necessary steps to make sure you don't get pwned.",
         "text": "Vulnerability effecting #{package_name}",
         "subject": "Vulnerability effecting #{package_name}",
         "from_email": "notifications@vuln.pub",

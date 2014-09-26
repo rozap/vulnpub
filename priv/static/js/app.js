@@ -159,11 +159,11 @@ var Collection = require('./abstract');
 
 module.exports = Collection.extend({
 
-    _currentOrder: 'created',
+	_currentOrder: '-created',
 
-    api: function() {
-        return 'vulns';
-    }
+	api: function() {
+		return 'vulns';
+	}
 
 
 });
@@ -354,10 +354,17 @@ Auth.prototype = {
     authenticate: function() {
         console.log("authenticating...");
         var ApiKey = require('../models/apikey');
-        var key = new ApiKey(JSON.parse(localStorage[name]), {
-            app: this.app
-        });
-        return key.fetch().then(this._onLoggedIn.bind(this), this._onLoginFail.bind(this));
+        try {
+
+            var key = new ApiKey(JSON.parse(localStorage[name]), {
+                app: this.app
+            });
+            return key.fetch().then(this._onLoggedIn.bind(this), this._onLoginFail.bind(this));
+        } catch (e) {
+            //pass
+        }
+        return (new $.Deferred()).reject();
+
     },
 
     _onAuthenticated: function(apikey) {
@@ -1107,6 +1114,7 @@ module.exports = View.extend({
         this.vuln.set('effects_package', pack.get('name'));
         this.endView('search');
         this.render();
+        this.$el.find('input[name="effects_version]').focus();
     },
 
     save: function() {

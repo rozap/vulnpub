@@ -15,7 +15,7 @@ defmodule Resources.Vuln.Validator do
               select: v
     result = Repo.all(query)
     if length(result) > 0 do
-      throw {:bad_request, %{:name => "The vulnerability already exists"}}
+      throw {:bad_request, %{:errors => %{:name => "That vulnerability already exists"}}}
     end
     {params, bundle}
   end
