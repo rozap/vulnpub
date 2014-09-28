@@ -18,7 +18,7 @@ var paths = {
         },
         about: {
             src: './about/js/app.js',
-            dest: 'dist/js',
+            dest: '../priv/static/js/',
             watch: ['./about/**/*.js', './about/*.js']
         },
 
@@ -34,13 +34,12 @@ var paths = {
     }
 };
 
-var bundles = ['about'];
+var bundles = ['about', 'app'];
 
 
 var create = function(src, name, dst) {
-    console.log(src, dst + '/maps')
     var bundleStream = browserify(src);
-    // bundleStream.transform(stringify(['.html']))
+    bundleStream.transform(stringify(['.html']))
     bundleStream.bundle()
         .pipe(source(name))
         .pipe(buffer())
@@ -48,7 +47,7 @@ var create = function(src, name, dst) {
             loadMaps: true
         }))
         .pipe(uglify())
-        .pipe(sourcemaps.write(dst + '/maps'))
+        .pipe(sourcemaps.write('maps'))
         .pipe(gulp.dest(dst));
 }
 
