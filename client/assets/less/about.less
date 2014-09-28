@@ -1,0 +1,33 @@
+.about {
+	.pure-g:first-of-type {
+		margin-top: @margin-width;
+	}
+	.pure-g {
+		margin-top: @margin-width*3;
+	}
+	p {
+		padding-right: @margin-width/2;
+		font-size: 120%;
+	}
+}
+
+span.code {
+	display: inline-block;
+	color:@gray-darkish;
+	border:1px solid @gray-light;
+	font-family: monospace;
+	padding:2px 4px;
+	border-radius: 3px;
+}
+
+
+pre.manifest-example {
+	background: @gray-dark;
+	border-radius: 3px;
+	color:@white;
+	padding:@margin-width;
+
+	.json-markup-key {
+		color: @orange;
+	}
+}

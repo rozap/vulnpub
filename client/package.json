@@ -17,7 +17,8 @@
         "moment": "latest",
         "vinyl-source-stream": "latest",
         "stringify": "latest",
-        "markdown": "latest"
+        "markdown": "latest",
+        "json-markup": "latest"
     },
     "repository": "",
     "author": "",

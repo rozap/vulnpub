@@ -8,13 +8,13 @@
 
     <title>vuln.pub</title>
     <link rel="stylesheet" href="/static/style/style.css">
-    <script type="text/javascript" src="/static/js/app.js"></script>
+    
   </head>
 
   <body>
     <div class="header">
       <h1 class="title">
-        <a href="#">
+        <a href="/#">
           vuln.pub
         </a>
       </h1>

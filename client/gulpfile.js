@@ -5,16 +5,21 @@ var gulp = require('gulp'),
     minifyCSS = require('gulp-minify-css'),
     browserify = require('browserify'),
     source = require('vinyl-source-stream'),
-    stringify = require('stringify'),
-    node;
+    stringify = require('stringify');
 
 var paths = {
     js: {
-        client: {
+        app: {
             src: './app/js/app.js',
             dest: '../priv/static/js/',
             watch: ['./app/**/*.js', './app/*.js', './app/**/*.html']
         },
+        about: {
+            src: './about/js/app.js',
+            dest: '../priv/static/js/',
+            watch: ['./about/**/*.js', './about/*.js']
+        },
+
         server: {
             watch: ['./**/*.js', '!./assets/**/*.js']
         }
@@ -27,22 +32,25 @@ var paths = {
     }
 };
 
-
-process.on('exit', function() {
-    if (node) node.kill()
-})
+var bundles = ['app', 'about'];
 
 
-
-gulp.task('browserify', function() {
-    console.log("browserifying....")
-    var bundleStream = browserify(paths.js.client.src);
+var create = function(src, name, dst) {
+    var bundleStream = browserify(src);
     bundleStream.transform(stringify(['.html']))
     bundleStream.bundle()
-        .pipe(source('app.js'))
+        .pipe(source(name))
     // .pipe(uglify())
-    .pipe(gulp.dest(paths.js.client.dest));
-});
+    .pipe(gulp.dest(dst));
+}
+
+
+bundles.forEach(function(name) {
+    gulp.task(name, function() {
+        console.log("building", name);
+        create(paths.js[name].src, name + '.js', paths.js[name].dest);
+    });
+})
 
 gulp.task('less', function() {
     console.log("Rebuilding less files...");
@@ -56,10 +64,13 @@ gulp.task('less', function() {
 
 
 gulp.task('watch', function() {
-    gulp.watch(paths.js.client.watch, ['browserify']);
+    bundles.forEach(function(name) {
+        gulp.watch(paths.js[name].watch, [name]);
+    })
+
     gulp.watch(paths.less.watch, ['less']);
 });
 
 
 
-gulp.task('default', ['watch', 'browserify'])
+gulp.task('default', bundles.concat(['watch']))
