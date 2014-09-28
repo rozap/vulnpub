@@ -22,6 +22,14 @@ defmodule Resources.User.Authenticator do
   use Resources.Authenticator, [except: [:create]]
 end
 
+defmodule Resources.User.Authorizor do
+  use Resources.UserAuthorizor, [only: [:update, :delete, :show]]
+  
+  def model, do: Models.User
+  def user_id_attribute, do: :id
+end
+
+
 defmodule Resources.User.After do
   def handle({:create, conn, status, user, module}) do
     GenServer.cast(:emailer, {:activate, user})
@@ -36,6 +44,7 @@ defmodule Resources.User do
     exclude: [:password], 
     before: [
       Resources.User.Authenticator,
+      Resources.User.Authorizor,
       Resources.User.Validator
     ],
     after: [

@@ -1,7 +1,7 @@
 
 defmodule Resources.Monitor.Validator do
   use Finch.Middleware.ModelValidator, [only: [:create, :update]]
-  def ignore_fields(_), do: [:id, :created, :modified, :user_id]
+  def ignore_fields(_), do: [:id, :created, :modified, :user_id, :last_polled]
 end
 
 
@@ -11,25 +11,10 @@ end
 
 
 defmodule Resources.Monitor.Authorizor do
-  import Ecto.Query, only: [from: 2]
-
-  def check({verb, conn, params, module, bundle}) do
-    try do
-      user_id = bundle[:user].id
-      id = String.to_integer params[:id]
-      [monitor] = (from m in Models.Monitor, where: m.user_id == ^user_id and m.id == ^id, select: m) |> Repo.all
-      {verb, conn, params, module, bundle}
-    rescue
-      _ -> throw {:unauthorized, %{error: "You are not authorized to do that"}}
-    end
-  end
-
-  def handle({:update, conn, params, module, bundle}), do: check({:update, conn, params, module, bundle})
-  def handle({:delete, conn, params, module, bundle}), do: check({:delete, conn, params, module, bundle})
-  def handle({:show, conn, params, module, bundle}), do: check({:show, conn, params, module, bundle})
-
-
-  use Resources.ModelAuthorizor
+  use Resources.UserAuthorizor, [only: [:update, :delete, :show]]
+  
+  def model, do: Models.Monitor
+  def user_id_attribute, do: :user_id
 end
 
 defmodule Resources.Monitor.After do

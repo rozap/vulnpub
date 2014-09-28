@@ -48,6 +48,7 @@ module.exports = Backbone.View.extend({
 
         return _.extend({
             _: _,
+            app: this.app,
             showError: this._errors.bind(this),
         }, viewMixins, included, ctx);
     },
@@ -109,10 +110,10 @@ module.exports = Backbone.View.extend({
         return !!this.getView(name);
     },
 
-    _removeView:function(name) {
+    _removeView: function(name) {
         console.log("REMOVE VIEW", name);
         delete this._views[name];
-    },  
+    },
 
     end: function() {
         _.each(this._views, function(v, name) {

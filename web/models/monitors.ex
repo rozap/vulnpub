@@ -7,7 +7,7 @@ defmodule Models.Monitor do
     belongs_to :user, Models.User
     field :created, :datetime
     field :modified, :datetime
-
+    field :last_polled, :datetime
   end
 
 

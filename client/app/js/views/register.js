@@ -22,9 +22,7 @@ module.exports = View.extend({
     },
 
     register: function() {
-        this.user.set(this.$el.find('form').serializeObject());
-        console.log(this.user.toJSON());
-        this.user.save();
+        this.user.set(this.$el.find('form').serializeObject()).save();
     },
 
     onKeyup: function(e) {

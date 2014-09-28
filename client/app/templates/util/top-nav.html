@@ -1,0 +1,30 @@
+<h1 class="title">
+  <a href="/#">
+    vuln.pub
+  </a>
+</h1>
+
+<% if(app.auth.hasAttempted()) { %>
+  <div class="profile-management">
+    <ul>
+      <% if(app.auth.isLoggedIn()) { %>
+        <li>
+          <a href="#settings">Settings</a>
+        </li>
+        <li>
+          <a href="#logout">Logout</a>
+        </li>
+
+      <% } else { %>
+        <li>
+          <a href="#login">Login</a>
+        </li>
+        <li>
+          <a href="#register">Register</a>
+        </li>
+
+      <% } %>
+
+    </ul>
+  </div>
+<% } %>

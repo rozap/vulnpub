@@ -7,15 +7,22 @@ var Backbone = require('backbone'),
     Logout = require('./views/logout'),
     Register = require('./views/register'),
     SideNav = require('./views/side-nav'),
+    TopNav = require('./views/top-nav'),
     Home = require('./views/home'),
     Landing = require('./views/landing'),
     Report = require('./views/report'),
     Auth = require('./util/auth'),
+    Settings = require('./views/settings'),
     CreateMonitor = require('./views/create-monitor');
 
 
 
 module.exports = Backbone.Router.extend({
+
+    navs: {
+        'sideNav': SideNav,
+        'topNav': TopNav
+    },
 
     views: {
         //access name route
@@ -27,7 +34,8 @@ module.exports = Backbone.Router.extend({
         'public login login': Login,
         'public logout logout': Logout,
         'public register register': Register,
-        'private report report': Report
+        'private report report': Report,
+        'private settings settings': Settings
     },
 
     initialize: function() {
@@ -37,10 +45,12 @@ module.exports = Backbone.Router.extend({
         };
         this.app.auth = new Auth(this.app);
 
-        this.nav = new SideNav({
-            app: this.app
-        });
-        this.nav.onStart();
+        _.each(this.navs, function(Klass, name) {
+            this[name] = new Klass({
+                app: this.app
+            });
+            this[name].onStart();
+        }.bind(this));
 
         this.app.auth.authenticate()
             .always(this._setupRoutes.bind(this));

@@ -19,44 +19,7 @@
 * {
     box-sizing: border-box;
 }
-.header {
-    position: fixed;
-    width: 100%;
-    border-top: @margin-width/3 solid @gray-dark;
-    height: @header-height;
-    z-index: 100;
-    background: @white;
-    box-shadow: 1px 1px 6px @gray-dark;
-    h1 {
-        padding: @margin-width*2;
-        margin: 0px;
-        a {
-            padding: @margin-width * 2;
-            margin-top: @margin-width * 2;
-            color: @gray-light;
-            text-shadow: 2px 2px 5px @gray-dark;
-            font-size: 1.6em;
-        }
-        a:hover {
-            text-shadow: 2px 1px 5px lighten(@gray-dark, 10%);
-            color: lighten(@gray-light, 15%);
-        }
-        ;
-    }
-}
-.header::after {
-    content: "";
-    background: url(image.jpg);
-    background-image: url("/static/images/old-school.jpg");
-    background-size: contain;
-    opacity: .5;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    position: absolute;
-    z-index: -1;
-}
+
 a:not(.pure-button) {
     text-decoration: none;
     transition: .2s all;
@@ -73,41 +36,7 @@ ul {
         }
     }
 }
-#side-nav {
-    display: none;
-}
-.side-nav {
-    top: @header-height;
-    position: fixed;
-    width: @nav-width;
-    height: ~"calc(100% - " @header-height ~")";
-    background: @gray-dark;
-    ul {
-        li {
-            text-align: center;
-            a{
-                padding: @margin-width;
-                color: @gray;
 
-                i {
-                    font-size: 200%;
-                }
-
-                &:hover {
-                    color:@white;
-                };
-            }
-        }
-        li.divider {
-            padding: 0px;
-            border-bottom: 1px solid lighten(@gray-dark, 7%);
-            border-top: 1px solid darken(@gray-dark, 7%);
-        }
-        li:hover {
-            background: lighten(@gray-dark, 10%);
-        }
-    }
-}
 #main {
     width: ~"calc(100% - " @nav-width ~")";
     margin-top: @header-height;
@@ -255,6 +184,9 @@ ul {
     margin: 0 0 1em;
     color: #666;
 }
+.save-row {
+    margin-top: @margin-width;
+}
 @import "vulns.less";
 @import "home.less";
 @import "loaders.less";
@@ -263,3 +195,4 @@ ul {
 @import "landing.less";
 @import "icons.less";
 @import "about.less";
+@import "navs.less";

@@ -9,10 +9,12 @@ defmodule Vulnpub do
     children = [
       worker(Repo, []), 
       worker(Service.MonitorConsumer, [{}, []]),
+      # worker(Service.MonitorPoller, []),
       worker(Service.VulnConsumer, [{}, []]),
       worker(Service.Config, [[config: "/home/chris/secrets/vp-conf.json"], []]),
       worker(Service.Emailer, [[], []]),
       worker(Service.Logger, [[], []])
+
     ]
 
     :application.start(:crypto)

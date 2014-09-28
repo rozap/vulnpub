@@ -41,19 +41,17 @@ defmodule Test.UserTest do
   end
 
 
-  test "can get a list of users when logged in" do
+  test "cannot get a list of users when logged in" do
     {_, _, apikey_resp} = DBHelpers.create_apikey()
     %{"key" => key} = apikey_resp
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/users", nil, [{"authentication", "foo:#{key}"}])
-    %{"data" => data} = resp_body
-    assert length(data) == 1
-    assert status == 200
+    assert status == 404
   end
 
   test "cannot get a list of users when not logged in" do
     DBHelpers.create_user()
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/users")
-    assert status == 403
+    assert status == 404
   end
 
   test "cannot have two users with the same name" do

@@ -1,5 +1,7 @@
 defmodule Service.MonitorConsumer do
   use GenServer
+  require Util
+  alias Models.Monitor
 
   def start_link(state, opts) do
     GenServer.start_link(__MODULE__, state, opts)
@@ -23,7 +25,9 @@ defmodule Service.MonitorConsumer do
 
   defp parse(:managed, node, monitor) do
     Map.to_list(node)
-      |> Enum.map(fn {filename, details} -> fetch_managed(filename, details, monitor) end)
+      |> Enum.map(fn {filename, details} -> 
+        fetch_managed(filename, details, monitor) 
+      end)
   end
 
   defp parse(:unmanaged, node, monitor) do
@@ -31,7 +35,9 @@ defmodule Service.MonitorConsumer do
   end
 
   defp parse(nodename, _, _) do
-    GenServer.cast(:logger, {:warn, [message: "Unknown manifest node named: ", name: nodename]})
+    GenServer.cast(:logger, {
+      :warn, [message: "Unknown manifest node named: ", name: nodename]
+    })
   end
 
 
@@ -50,11 +56,21 @@ defmodule Service.MonitorConsumer do
         Jazz.decode!(response.body)
           |> parse_manifest(monitor)
       else
-        GenServer.cast(:logger, {:warn, [message: "manifest not accessible", location: monitor.manifest]})
+        GenServer.cast(:logger, 
+          {
+            :warn, 
+            [message: "manifest not accessible", location: monitor.manifest]
+          }
+        )
       end
     rescue
       e -> GenServer.cast(:logger, {:error, [e: e]})
     end
+
+    monitor = Repo.get Monitor, monitor[:id]
+    monitor = %{monitor | last_polled: Util.now}
+    Repo.update(monitor)
+
     {:noreply, state}
   end
 end

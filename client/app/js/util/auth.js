@@ -1,3 +1,5 @@
+var _ = require('underscore');
+
 var name = 'vulnpub-apikey';
 
 var Auth = function(app) {
@@ -9,10 +11,8 @@ var Auth = function(app) {
 Auth.prototype = {
 
     authenticate: function() {
-        console.log("authenticating...");
         var ApiKey = require('../models/apikey');
         try {
-
             var key = new ApiKey(JSON.parse(localStorage[name]), {
                 app: this.app
             });
@@ -27,22 +27,29 @@ Auth.prototype = {
     _onAuthenticated: function(apikey) {
         localStorage[name] = JSON.stringify({
             username: apikey.get('username'),
-            key: apikey.get('key')
+            key: apikey.get('key'),
+            id: apikey.get('user_id')
         });
         this._onLoggedIn();
-        console.log("On authed")
     },
 
     _onLoginFail: function() {
         this._isLoggedIn = false;
+        this.app.dispatcher.trigger('auth.change', this._isLoggedIn);
     },
 
     _onLoggedIn: function() {
         this._isLoggedIn = true;
+        this.app.dispatcher.trigger('auth.change', this._isLoggedIn);
     },
 
     _onLoggedOut: function() {
         this._isLoggedIn = false;
+        this.app.dispatcher.trigger('auth.change', this._isLoggedIn);
+    },
+
+    hasAttempted: function() {
+        return !_.isUndefined(this._isLoggedIn);
     },
 
     headers: function() {
@@ -62,7 +69,11 @@ Auth.prototype = {
     },
 
     getUsername: function() {
-        return JSON.parse(localStorage[name]).username;
+        return this.getUser().username;
+    },
+
+    getUser: function() {
+        return JSON.parse(localStorage[name]);
     },
 
     isLoggedIn: function() {

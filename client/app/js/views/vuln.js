@@ -14,6 +14,7 @@ module.exports = View.extend({
 
     initialize: function(opts) {
         View.prototype.initialize.call(this, opts);
+        this.app.dispatcher.trigger('nav.show');
         if (!this.vuln) {
             this.vuln = new Vuln({
                 id: this.vuln_id

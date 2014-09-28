@@ -12,13 +12,7 @@
   </head>
 
   <body>
-    <div class="header">
-      <h1 class="title">
-        <a href="/#">
-          vuln.pub
-        </a>
-      </h1>
-    </div>
+    <div class="header"></div>
 
     <div class="inner">
       <%= @inner %>

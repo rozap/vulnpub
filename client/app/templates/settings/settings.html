@@ -1,0 +1,63 @@
+
+<h3 class="section">
+    Account Settings
+</h3>
+
+
+<% if(user.isLoading()) { %>
+<%= inject('loader') %>
+<% } else { %>
+<div class="pure-g">
+    <div class="pure-u-1-3">
+        <form class="pure-form pure-form-stacked">
+            <fieldset>
+                <%= showError('email', user) %>
+                <div class="pure-control-group">
+                    <label for="email">Email</label>
+                    <input id="email" 
+                        class="pure-u-1"
+                        name="email" 
+                        type="email" 
+                        value="<%- user.get('email') %>"
+                        placeholder="Email">
+                </div>
+
+
+                <%= showError('password', user) %>
+                <div class="pure-control-group">
+                    <label for="password">Password</label>
+                    <input id="password" 
+                        class="pure-u-1"
+                        name="password" 
+                        type="password" 
+                        value="<%- user.get('password') %>"
+                        placeholder="Password">
+                </div>
+                <div class="pure-control-group">
+                    <label for="confirm_password">Confirm</label>
+                    <input id="confirm_password" 
+                        class="pure-u-1"
+                        name="confirm_password" 
+                        type="password" 
+                        value="<%- user.get('password') %>"
+                        placeholder="Confirm Password">
+                </div>
+
+
+                <div class="pure-control-group save-row">
+
+                    <button type="button" 
+                    class="pure-button pure-button-primary save">
+                        Save
+                    </button>
+                </div>
+
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+<% } %>
+
+
+

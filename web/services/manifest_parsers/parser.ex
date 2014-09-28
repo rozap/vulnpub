@@ -25,6 +25,11 @@ defmodule Manifest.Parser.Parser do
       })
       end)
     {:ok, _} = Repo.transaction(fn -> 
+
+      (from pm in PackageMonitor, 
+        where: pm.monitor_id == ^monitor.id
+      ) |> Repo.delete_all
+
       Enum.map(package_monitors, 
         fn pm -> Repo.insert(pm) 
       end)

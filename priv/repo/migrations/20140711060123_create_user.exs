@@ -37,7 +37,8 @@ defmodule Repo.Migrations.CreateUser do
           name text,
           user_id integer references users(id),
           created timestamp DEFAULT NOW(), 
-          modified timestamp DEFAULT NOW()
+          modified timestamp DEFAULT NOW(),
+          last_polled timestamp DEFAULT NOW()
         )",
     "CREATE TABLE IF NOT EXISTS
         packages(

@@ -32,7 +32,13 @@ defmodule PlugHelper do
             conn(http_method, path, json_body, [headers: headers])
         end
         conn = router.call(conn, [])
-        resp_body = Jazz.decode!(conn.resp_body)
+        IO.inspect conn.resp_body
+        
+        resp_body = case Jazz.decode(conn.resp_body) do
+          {:ok, body} -> body
+          _ -> conn.resp_body
+        end
+
         {conn.status, req_body, resp_body}
       end
     end

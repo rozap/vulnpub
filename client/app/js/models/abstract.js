@@ -15,7 +15,7 @@ module.exports = Backbone.Model.extend({
     },
 
     url: function() {
-        return '/api/v1/' + this.api() + (this.get('id') ? '/' + this.get('id') : '');
+        return '/api/v1/' + this.api() + (this.get(this.idAttribute) ? '/' + this.get(this.idAttribute) : '');
     },
 
 
