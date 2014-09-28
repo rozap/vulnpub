@@ -5,7 +5,9 @@ var gulp = require('gulp'),
     minifyCSS = require('gulp-minify-css'),
     browserify = require('browserify'),
     source = require('vinyl-source-stream'),
-    stringify = require('stringify');
+    sourcemaps = require('gulp-sourcemaps'),
+    stringify = require('stringify'),
+    buffer = require('vinyl-buffer');
 
 var paths = {
     js: {
@@ -16,7 +18,7 @@ var paths = {
         },
         about: {
             src: './about/js/app.js',
-            dest: '../priv/static/js/',
+            dest: 'dist/js',
             watch: ['./about/**/*.js', './about/*.js']
         },
 
@@ -32,16 +34,22 @@ var paths = {
     }
 };
 
-var bundles = ['app', 'about'];
+var bundles = ['about'];
 
 
 var create = function(src, name, dst) {
+    console.log(src, dst + '/maps')
     var bundleStream = browserify(src);
-    bundleStream.transform(stringify(['.html']))
+    // bundleStream.transform(stringify(['.html']))
     bundleStream.bundle()
         .pipe(source(name))
-    // .pipe(uglify())
-    .pipe(gulp.dest(dst));
+        .pipe(buffer())
+        .pipe(sourcemaps.init({
+            loadMaps: true
+        }))
+        .pipe(uglify())
+        .pipe(sourcemaps.write(dst + '/maps'))
+        .pipe(gulp.dest(dst));
 }
 
 

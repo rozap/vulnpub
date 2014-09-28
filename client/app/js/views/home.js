@@ -75,7 +75,6 @@ module.exports = View.extend({
         al.set({
             'acknowledged': true
         })
-        console.log(al.toJSON());
         al.save().then(this.alerts.fetch.bind(this.alerts));
         e.preventDefault();
     }

@@ -9,16 +9,21 @@
         "backbone": "latest",
         "underscore": "latest",
         "jquery": "latest",
-        "gulp": "latest",
-        "gulp-less": "latest",
-        "gulp-uglify": "latest",
-        "gulp-minify-css": "latest",
-        "gulp-browserify": "latest",
         "moment": "latest",
         "vinyl-source-stream": "latest",
         "stringify": "latest",
         "markdown": "latest",
         "json-markup": "latest"
+    },
+
+    "devDependencies": {
+        "gulp": "latest",
+        "gulp-less": "latest",
+        "gulp-uglify": "latest",
+        "gulp-minify-css": "latest",
+        "gulp-sourcemaps": "^1.1.1",
+        "gulp-browserify": "latest",
+        "vinyl-buffer": "latest"
     },
     "repository": "",
     "author": "",

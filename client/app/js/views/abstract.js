@@ -56,7 +56,6 @@ module.exports = Backbone.View.extend({
     _errors: function(name, model, nameMap) {
         var errors = model.getErrors();
         if (errors) {
-            console.log("ERRORS", errors)
             return this._errorTemplate({
                 name: name,
                 nameMap: nameMap,
@@ -97,6 +96,7 @@ module.exports = Backbone.View.extend({
     spawn: function(name, view) {
         if (this._views[name]) this._views[name].end();
         this._views[name] = view;
+        this.listenTo(view, 'end', _.partial(this._removeView, name).bind(this));
         view.onStart(this);
         return view;
     },
@@ -108,6 +108,11 @@ module.exports = Backbone.View.extend({
     hasView: function(name) {
         return !!this.getView(name);
     },
+
+    _removeView:function(name) {
+        console.log("REMOVE VIEW", name);
+        delete this._views[name];
+    },  
 
     end: function() {
         _.each(this._views, function(v, name) {
