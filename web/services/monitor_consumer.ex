@@ -41,10 +41,19 @@ defmodule Service.MonitorConsumer do
   end
 
 
+  defp update_monitor_timestamp(monitor) do
+    monitor = Repo.get Monitor, monitor[:id]
+    monitor = %{monitor | last_polled: Util.now}
+    Repo.update(monitor)
+
+  end
+
+
   defp parse_manifest(jsobj, monitor) do
     Map.to_list(jsobj)
       |> Enum.map(fn {kind, details} -> {String.to_atom(kind), details} end)
       |> Enum.map(fn {kind, node} -> parse(kind, node, monitor) end)
+    monitor
   end
 
   def handle_cast({:create, monitor}, state) do
@@ -55,6 +64,7 @@ defmodule Service.MonitorConsumer do
       if HTTPotion.Response.success? response do
         Jazz.decode!(response.body)
           |> parse_manifest(monitor)
+          |> update_monitor_timestamp
       else
         GenServer.cast(:logger, 
           {
@@ -66,10 +76,6 @@ defmodule Service.MonitorConsumer do
     rescue
       e -> GenServer.cast(:logger, {:error, [e: e]})
     end
-
-    monitor = Repo.get Monitor, monitor[:id]
-    monitor = %{monitor | last_polled: Util.now}
-    Repo.update(monitor)
 
     {:noreply, state}
   end
