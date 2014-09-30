@@ -124,6 +124,7 @@ ul {
     border-bottom: 1px solid @gray-light;
     margin-bottom: @margin-width;
     .text-muted();
+    position: relative;
 }
 .button-secondary {
     color: white;
@@ -186,6 +187,17 @@ ul {
 }
 .save-row {
     margin-top: @margin-width;
+}
+
+.section .filter-view {
+    position: absolute;
+    right:0px;
+    top:-12px;
+    input.filter {
+        font-size: 16px !important;
+
+    }
+
 }
 @import "vulns.less";
 @import "home.less";

@@ -75,10 +75,12 @@ defmodule Service.VulnConsumer do
     {:noreply, state}
   end
 
-
+  ##
+  # Select 
+  #
   # def handle_cast({:new_monitor, monitor}, state) do
 
-  #   (from v in Vuln)
+    # (from v in Vuln,)
 
   #   packages = (from pm in PackageMonitor,
   #     join: p in Package, on: pm.package_id == p.id,

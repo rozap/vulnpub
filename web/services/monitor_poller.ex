@@ -18,6 +18,8 @@ defmodule Service.MonitorPoller do
     fetch
     :timer.sleep(freq)
     GenServer.cast(:logger, {:debug, [msg: "Updated monitors"]})
+
+    
     loop
   end
 

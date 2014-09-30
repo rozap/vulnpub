@@ -60,6 +60,10 @@ module.exports = Backbone.Collection.extend({
         return this._filter.name + ':' + this._filter.value;
     },
 
+    getFilters: function() {
+        return this._filter;
+    },
+
     setFilter: function(name, value) {
         var ogName = this._filter.name;
         var ogVal = this._filter.value;

@@ -24,6 +24,12 @@ module.exports = View.extend({
     },
 
     onStart: function() {
+        this.app.dispatcher.trigger('views.omnisearch', this, {
+            type: 'collection',
+            collection: this.vulns,
+            name: 'vulnerabilities',
+            searchOn: 'name'
+        })
         this.render();
     },
 

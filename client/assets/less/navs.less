@@ -22,6 +22,12 @@
         }
         ;
     }
+
+    &:hover {
+        #omni-search {   
+            opacity: 1;
+        }
+    };
 }
 
 .header::after {
@@ -107,4 +113,27 @@
             }
         }
     }
+}
+#omni-search {
+    background: @gray-light;
+    position: absolute;
+    right:0px;
+    top:40px;
+    opacity: .8;
+    border-bottom-left-radius: 3px;
+    border-top-left-radius: 3px;
+    transition: .2s all;
+
+    input {
+        border:none;
+        border-radius: 0px;
+        border-bottom-left-radius: 3px;
+        border-top-left-radius: 3px;
+        padding:@margin-width*.6;
+    }
+    &:active {
+        opacity: 1;
+    };
+
+
 }
