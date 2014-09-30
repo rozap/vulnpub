@@ -1,8 +1,6 @@
 
 
 defmodule Manifest.Parser.Dpkg do
-  # require Manifest.Parser.Parser
-  # use Manifest.Parser.Parser
   alias Models.Package
   alias Models.PackageMonitor
   import Manifest.Parser.Parser
@@ -36,17 +34,17 @@ defmodule Manifest.Parser.Dpkg do
   end
 
   def parse_deps body, monitor do
-    t = String.split(body, "\n")
-          |> Enum.drop(5)
-          |> Enum.map(&parse_line &1)
-          |> Enum.filter(fn val -> val != :error end)
-          |> Enum.map(&parse_version &1)
-          |> create_packages(monitor) 
+    String.split(body, "\n")
+      |> Enum.drop(5)
+      |> Enum.map(&parse_line &1)
+      |> Enum.filter(fn val -> val != :error end)
+      |> Enum.map(&parse_version &1)
+      |> create_packages(monitor) 
   end
 
 
   def parse(filename, details, monitor) do
-    {:ok, response} = get_package_listing(filename, details, monitor)
-    parse_deps response.body, monitor
+    get_package_listing(filename, details, monitor)
+      |> parse_deps(monitor)
   end
 end

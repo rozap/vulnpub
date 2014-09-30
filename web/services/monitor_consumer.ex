@@ -2,6 +2,8 @@ defmodule Service.MonitorConsumer do
   use GenServer
   require Util
   alias Models.Monitor
+  alias Models.PackageMonitor
+  import Ecto.Query, only: [from: 2]
 
   def start_link(state, opts) do
     GenServer.start_link(__MODULE__, state, opts)
@@ -42,17 +44,29 @@ defmodule Service.MonitorConsumer do
 
 
   defp update_monitor_timestamp(monitor) do
-    monitor = Repo.get Monitor, monitor[:id]
+    monitor = Repo.get Monitor, monitor.id
     monitor = %{monitor | last_polled: Util.now}
     Repo.update(monitor)
-
+    GenServer.cast(:logger, {:debug, [msg: "Updated monitor", monitor: monitor.id]})
   end
 
 
   defp parse_manifest(jsobj, monitor) do
-    Map.to_list(jsobj)
+    package_monitors = Map.to_list(jsobj)
       |> Enum.map(fn {kind, details} -> {String.to_atom(kind), details} end)
       |> Enum.map(fn {kind, node} -> parse(kind, node, monitor) end)
+      |> List.flatten
+
+    {:ok, _} = Repo.transaction(fn -> 
+      
+      (from pm in PackageMonitor, where: pm.monitor_id == ^monitor.id) 
+        |> Repo.delete_all
+
+      Enum.map(package_monitors, fn pm -> Repo.insert(pm) end)
+    
+    end)
+
+
     monitor
   end
 

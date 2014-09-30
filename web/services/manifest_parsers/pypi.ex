@@ -22,17 +22,16 @@ defmodule Manifest.Parser.PyPi do
   end
 
   def parse_deps body, monitor do
-    t = String.split(body, "\n")
-          |> Enum.filter(fn line -> String.length(line) > 3 end)
-          |> Enum.map(&parse_line &1)
-          |> Enum.map(&parse_version &1)
-          |> create_packages(monitor) 
+    String.split(body, "\n")
+      |> Enum.filter(fn line -> String.length(line) > 3 end)
+      |> Enum.map(&parse_line &1)
+      |> Enum.map(&parse_version &1)
+      |> create_packages(monitor) 
   end
 
 
   def parse(filename, details, monitor) do
-    case get_package_listing(filename, details, monitor) do
-      {:ok, response} -> parse_deps response.body, monitor
-    end
+    get_package_listing(filename, details, monitor)
+      |> parse_deps(monitor)
   end
 end

@@ -39,10 +39,8 @@ defmodule Manifest.Parser.NPM do
   end
 
   def parse(filename, details, monitor) do
-    case get_package_listing(filename, details, monitor) do
-      {:ok, response} -> 
-        Jazz.decode!(response.body)
-          |> parse_deps(monitor)
-    end
+    get_package_listing(filename, details, monitor)
+      |> Jazz.decode!    
+      |> parse_deps(monitor)
   end
 end

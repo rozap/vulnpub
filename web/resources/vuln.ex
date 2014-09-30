@@ -29,7 +29,7 @@ end
 
 defmodule Resources.Vuln.After do
   def handle({:create, conn, status, vuln, module}) do
-    GenServer.cast(:vuln_consumer, {:create, vuln})
+    GenServer.cast(:vuln_consumer, {:new_vuln, vuln})
     {:create, conn, status, vuln, module}
   end
   def handle(res) do

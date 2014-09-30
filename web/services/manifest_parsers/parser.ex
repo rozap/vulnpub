@@ -18,22 +18,12 @@ defmodule Manifest.Parser.Parser do
 
 
   def create_package_monitors(monitor, packages) do
-    package_monitors = Enum.map(packages, fn package -> 
+    Enum.map(packages, fn package -> 
       PackageMonitor.allocate(%{
         :package_id => package.id, 
         :monitor_id => monitor.id
       })
       end)
-    {:ok, _} = Repo.transaction(fn -> 
-
-      (from pm in PackageMonitor, 
-        where: pm.monitor_id == ^monitor.id
-      ) |> Repo.delete_all
-
-      Enum.map(package_monitors, 
-        fn pm -> Repo.insert(pm) 
-      end)
-    end)
   end
 
 
@@ -70,9 +60,9 @@ defmodule Manifest.Parser.Parser do
     HTTPotion.start
     response = HTTPotion.get location
     if HTTPotion.Response.success? response do
-      {:ok, response}
+      response.body
     else 
-      {:error, response}
+      throw :manifest_not_accessible
     end
   end
 
