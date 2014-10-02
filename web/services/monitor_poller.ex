@@ -5,22 +5,17 @@ defmodule Service.MonitorPoller do
 
 
   def start_link do
-    IO.puts "STARTED LINK"
-    Task.async(fn -> loop end)
+    freq = GenServer.call(:config, {:get, :monitor_poll_freq})
+    Task.async(fn -> loop(freq) end)
     {:ok, self}
   end
 
-  defp freq, do: GenServer.call(:config, {:get, :monitor_poll_freq})
 
-
-
-  defp loop do
+  defp loop(freq) do
     fetch
     :timer.sleep(freq)
     GenServer.cast(:logger, {:debug, [msg: "Updated monitors"]})
-
-    
-    loop
+    loop(freq)
   end
 
   defp fetch do

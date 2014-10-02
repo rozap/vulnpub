@@ -2,6 +2,8 @@ defmodule Vulnpub.Router do
   use Phoenix.Router
 
   plug Plug.Static, at: "/static", from: :vulnpub
+  plug Plug.Stats
+  
   get "/", Vulnpub.PageController, :index, as: :page
   get "/about/manifest", Vulnpub.PageController, :about_manifest, as: :page
 

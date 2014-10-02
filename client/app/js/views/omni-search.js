@@ -17,10 +17,12 @@ module.exports = View.extend({
 
 
     onStart: function() {
-        this.listenTo(this.app.dispatcher, 'views.omnisearch', this.show);
+        this.listenTo(this.app.dispatcher, 'views.omni.search', this.search);
+        this.listenTo(this.app.dispatcher, 'views.omni.filter', this.filter);
+
     },
 
-    show: function(owner, options) {
+    search: function(owner, options) {
         this.listenToOnce(owner, 'end', this.hide);
         _.extend(this, options);
         this.render();

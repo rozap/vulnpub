@@ -42,8 +42,10 @@ defmodule Service.Emailer do
   end
 
 
+  defp key, do: ""
 
   defp key, do: GenServer.call(:config, {:get, :email_apikey})
+
 
   defp handle(:prod, {:activate, user}, state) do
     template = File.read! @email_templates <> "activation.json"

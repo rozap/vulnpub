@@ -24,8 +24,7 @@ module.exports = View.extend({
     },
 
     onStart: function() {
-        this.app.dispatcher.trigger('views.omnisearch', this, {
-            type: 'collection',
+        this.app.dispatcher.trigger('views.omni.search', this, {
             collection: this.vulns,
             name: 'vulnerabilities',
             searchOn: 'name'
