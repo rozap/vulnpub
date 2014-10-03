@@ -1,0 +1,42 @@
+defmodule Service.StatsCollector do
+  use Supervisor
+
+  def start_link(opts \\ []) do
+    Supervisor.start_link(__MODULE__, :ok, opts)
+  end
+
+
+  def kids do
+    [
+      Service.Stats.Collector,
+      # Service.Stats.Mem
+    ]
+  end
+
+
+
+  def broadcast_flush do
+    freq = GenServer.call(:config, {:get, :stats_flush_freq})
+    :timer.sleep(freq)
+    GenServer.cast(:stats_collector, :flush)
+    GenServer.cast(:logger, {:debug, [msg: "Flushing influx data"]})    
+    broadcast_flush
+  end
+
+  ###
+  #
+  # Collector
+  #   * Requests
+  #   * Mem
+  #   * CPU
+  # 
+
+  def init(_) do
+    children = Enum.map(kids, fn k -> worker(k, [[]]) end)
+    Task.async(fn -> broadcast_flush end)
+    supervise(children, strategy: :one_for_one)
+  end
+
+
+
+end

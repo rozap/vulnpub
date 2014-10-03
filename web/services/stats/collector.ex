@@ -1,4 +1,7 @@
-defmodule Service.Stats do
+defmodule Service.Stats.Collector do
+
+
+
   use GenServer
   use Jazz
 
@@ -6,28 +9,16 @@ defmodule Service.Stats do
     GenServer.start_link(__MODULE__, opts)
   end
 
+
   def init(state) do
-    Process.register(self, :stats)
-
-
+    Process.register(self, :stats_collector)
     config = GenServer.call(:config, {:get, :influx_config})
       |> Dict.to_list
       |> Enum.map(fn {key, val} -> {String.to_atom(key), val} end)
       |> Enum.into(%{})
     state = {config, %{}}
 
-    freq = GenServer.call(:config, {:get, :stats_flush_freq})
-    Task.async(fn -> flush(freq) end)
-
     {:ok, state}
-  end
-
-
-  defp flush(freq) do
-    :timer.sleep(freq)
-    GenServer.cast(:stats, :flush)
-    GenServer.cast(:logger, {:debug, [msg: "Flushing influx data"]})    
-    flush(freq)
   end
 
 
@@ -37,7 +28,7 @@ defmodule Service.Stats do
   end
 
   def handle_cast({series, value},  state) do
-      {config, data} = state
+    {config, data} = state
     point = [ms, value]
     points = [point | Dict.get(data, series, [])]
     data = Dict.put(data, series, points)
@@ -45,18 +36,6 @@ defmodule Service.Stats do
   end
 
 
-# [
-#   {
-#     "name": "log_lines",
-#     "columns": ["time", "sequence_number", "line"],
-#     "points": [
-#       [1400425947368, 1, "this line is first"],
-#       [1400425947368, 2, "and this is second"]
-#     ]
-#   }
-# ]
-# 
-# 
   defp post_data(series_name, points, config) do
     js = Jazz.encode!([
       %{
@@ -70,14 +49,10 @@ defmodule Service.Stats do
 
     url = "#{config.host}:#{config.port}/db/#{config.db}/series?u=#{config.username}&p=#{config.password}"
     headers = %{"Content-Type" => "application/json"}
-    IO.inspect url
-    IO.inspect js
     response = HTTPotion.post(url, js, headers)
-    IO.inspect response
     if not HTTPotion.Response.success? response do 
       GenServer.cast(:logger, {:error, [msg: "Failed to post to influx"]})
     end
-
   end
 
 
@@ -91,7 +66,7 @@ defmodule Service.Stats do
       |> Dict.to_list
       |> Enum.map(&(send_series(&1, config)))
 
+
     {:noreply, {config, %{}}}
   end
-
 end

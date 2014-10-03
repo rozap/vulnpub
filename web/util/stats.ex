@@ -7,7 +7,8 @@ defmodule Plug.Stats do
 
   def call(conn, _opts) do
     url = Enum.join(conn.path_info, "/")
-    GenServer.cast(:stats, {conn.method, url})
+    GenServer.cast(:stats_collector, {conn.method, url})
     conn
   end
 end
+

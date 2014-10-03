@@ -14,8 +14,7 @@ defmodule Vulnpub do
       worker(Service.Emailer, [[], []]),
       worker(Service.Logger, [[], []]),
       worker(Service.MonitorPoller, []),
-      worker(Service.Stats, [[]]),
-
+      worker(Service.StatsCollector, [[]]),
     ]
 
     :application.start(:crypto)
