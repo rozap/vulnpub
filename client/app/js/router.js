@@ -12,6 +12,7 @@ var Backbone = require('backbone'),
     Landing = require('./views/landing'),
     Report = require('./views/report'),
     Auth = require('./util/auth'),
+    Logger = require('./util/logger'),
     Settings = require('./views/settings'),
     CreateMonitor = require('./views/create-monitor');
 
@@ -43,6 +44,7 @@ module.exports = Backbone.Router.extend({
             router: this,
             dispatcher: _.clone(Backbone.Events),
         };
+        this.app.logger = new Logger(this.app);
         this.app.auth = new Auth(this.app);
 
         _.each(this.navs, function(Klass, name) {

@@ -38,7 +38,6 @@ defmodule Service.Stats.Collector do
   defp post_data(_, [], _), do: :ok
 
   defp post_data(table, points, config) do
-    IO.inspect List.first(points)
     columns = List.first(points)
       |> Keyword.keys
       |> Enum.map(&Atom.to_string(&1))
@@ -52,8 +51,6 @@ defmodule Service.Stats.Collector do
         points: points
       }
     ])
-
-    IO.puts js
 
     HTTPotion.start
 

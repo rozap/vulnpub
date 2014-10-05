@@ -15,6 +15,7 @@ defmodule Vulnpub.Router do
       resources "/vulns", Resources.Vuln, only: [:create, :show, :index]
       resources "/packages", Resources.Package, only: [:show, :index]
       resources "/alerts", Resources.Alert, only: [:index, :update]
+      resources "/logs", Resources.Log, only: [:create]
 
     end
   end
