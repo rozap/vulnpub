@@ -27,23 +27,33 @@ defmodule Service.Stats.Collector do
     (mega * 1000000 + sec) * 1000 + trunc(micro / 1000)
   end
 
-  def handle_cast({series, value},  state) do
+  def handle_cast({:insert, table, row},  state) do
     {config, data} = state
-    point = [ms, value]
-    points = [point | Dict.get(data, series, [])]
-    data = Dict.put(data, series, points)
+    point = [{:time, ms} | row]
+    points = [point | Dict.get(data, table, [])]
+    data = Dict.put(data, table, points)
     {:noreply, {config, data}}
   end
 
+  defp post_data(_, [], _), do: :ok
 
-  defp post_data(series_name, points, config) do
+  defp post_data(table, points, config) do
+    IO.inspect List.first(points)
+    columns = List.first(points)
+      |> Keyword.keys
+      |> Enum.map(&Atom.to_string(&1))
+
+    points = Enum.map(points, &(Keyword.values(&1)))
+
     js = Jazz.encode!([
       %{
-        name: series_name,
-        columns: ["time", "value"],
+        name: table,
+        columns: columns,
         points: points
       }
     ])
+
+    IO.puts js
 
     HTTPotion.start
 
@@ -56,8 +66,8 @@ defmodule Service.Stats.Collector do
   end
 
 
-  defp send_series({series_name, points}, config) do
-    Task.async(fn -> post_data(series_name, points, config) end)
+  defp send_series({table, points}, config) do
+    Task.async(fn -> post_data(table, points, config) end)
   end
 
   def handle_cast(:flush, state) do

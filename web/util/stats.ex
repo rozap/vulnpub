@@ -6,9 +6,21 @@ defmodule Plug.Stats do
   end
 
   def call(conn, _opts) do
-    url = Enum.join(conn.path_info, "/")
-    GenServer.cast(:stats_collector, {conn.method, url})
+    before_time = :os.timestamp()
+    
+    Plug.Conn.register_before_send(conn, fn conn -> 
+
+      url = Enum.join(conn.path_info, "/")
+      after_time = :os.timestamp()
+      diff = :timer.now_diff(after_time, before_time) / 1000
+      IO.inspect url
+      GenServer.cast(:stats_collector, {:insert, "latency", [value: diff, url: url]})
+      GenServer.cast(:stats_collector, {:insert, conn.method, [value: 1, url: url]})
+
     conn
+    end)
+
+
   end
 end
 

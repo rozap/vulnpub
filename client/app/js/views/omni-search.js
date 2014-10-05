@@ -35,6 +35,7 @@ module.exports = View.extend({
     onFilter: function(e) {
         var val = $(e.currentTarget).val();
         if (this.collection.setFilter(this.searchOn, val)) {
+            this.collection.setPage(0);
             this.collection.fetch();
         }
     },
