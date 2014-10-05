@@ -39,7 +39,7 @@ var bundles = ['about', 'app'];
 
 var create = function(src, name, dst) {
     var bundleStream = browserify(src);
-    bundleStream.transform(stringify(['.html']))
+    bundleStream.transform(stringify(['.html']));
     bundleStream.bundle()
         .pipe(source(name))
         .pipe(buffer())
@@ -49,7 +49,7 @@ var create = function(src, name, dst) {
         .pipe(uglify())
         .pipe(sourcemaps.write('maps'))
         .pipe(gulp.dest(dst));
-}
+};
 
 
 bundles.forEach(function(name) {
@@ -57,7 +57,7 @@ bundles.forEach(function(name) {
         console.log("building", name);
         create(paths.js[name].src, name + '.js', paths.js[name].dest);
     });
-})
+});
 
 gulp.task('less', function() {
     console.log("Rebuilding less files...");
@@ -73,11 +73,11 @@ gulp.task('less', function() {
 gulp.task('watch', function() {
     bundles.forEach(function(name) {
         gulp.watch(paths.js[name].watch, [name]);
-    })
+    });
 
     gulp.watch(paths.less.watch, ['less']);
 });
 
 
-
-gulp.task('default', bundles.concat(['watch']))
+gulp.task('default', bundles.concat(['watch']));
+gulp.task('deploy', bundles.concat(['less']));
