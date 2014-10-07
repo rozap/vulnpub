@@ -10,7 +10,6 @@ defmodule Vulnpub do
       worker(Repo, []), 
       worker(Service.MonitorConsumer, [{}, []]),
       worker(Service.VulnConsumer, [{}, []]),
-      worker(Service.Config, [[config: "/home/chris/secrets/vp-conf.json"], []]),
       worker(Service.Emailer, [[], []]),
       worker(Service.Logger, [[], []]),
       worker(Service.MonitorPoller, []),

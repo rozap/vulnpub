@@ -1,7 +1,7 @@
 defmodule Service.Stats.Collector do
 
-
-
+  require Phoenix.Config
+  alias Phoenix.Config
   use GenServer
   use Jazz
 
@@ -12,9 +12,7 @@ defmodule Service.Stats.Collector do
 
   def init(state) do
     Process.register(self, :stats_collector)
-    config = GenServer.call(:config, {:get, :influx_config})
-      |> Dict.to_list
-      |> Enum.map(fn {key, val} -> {String.to_atom(key), val} end)
+    config = Config.get([:influx])
       |> Enum.into(%{})
     state = {config, %{}}
 
@@ -54,7 +52,7 @@ defmodule Service.Stats.Collector do
 
     HTTPotion.start
 
-    url = "#{config.host}:#{config.port}/db/#{config.db}/series?u=#{config.username}&p=#{config.password}"
+    url = "#{config.host}:#{config.port}/db/#{config.dbname}/series?u=#{config.username}&p=#{config.password}"
     headers = %{"Content-Type" => "application/json"}
     response = HTTPotion.post(url, js, headers)
     if not HTTPotion.Response.success? response do 

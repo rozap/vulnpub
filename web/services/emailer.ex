@@ -2,6 +2,8 @@ defmodule Service.Emailer do
   use GenServer
   use Jazz
   use HTTPotion.Base
+  require Phoenix.Config
+  alias Phoenix.Config
 
 
   @api "https://mandrillapp.com/api/1.0/"
@@ -44,7 +46,7 @@ defmodule Service.Emailer do
 
   defp key, do: ""
 
-  defp key, do: GenServer.call(:config, {:get, :email_apikey})
+  defp key, do: Config.get!([:vulnpub])[:email_apikey]
 
 
   defp handle(:prod, {:activate, user}, state) do

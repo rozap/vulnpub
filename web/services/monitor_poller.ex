@@ -2,10 +2,13 @@ defmodule Service.MonitorPoller do
 
   import Ecto.Query
   alias Models.Monitor
+  require Phoenix.Config
+  alias Phoenix.Config
 
 
   def start_link do
-    freq = GenServer.call(:config, {:get, :monitor_poll_freq})
+    freq = Config.get!([:vulnpub])[:monitor_poll_freq]
+    IO.puts "POLLING FOR #{freq}"
     Task.async(fn -> loop(freq) end)
     {:ok, self}
   end

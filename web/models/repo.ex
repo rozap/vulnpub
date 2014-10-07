@@ -1,8 +1,15 @@
 defmodule Repo do
   use Ecto.Repo, adapter: Ecto.Adapters.Postgres
+  require Phoenix.Config
+  alias Phoenix.Config
 
   def conf do
-    parse_url "ecto://vulnpub:lolwut@localhost/vulnpub"
+    dbname = Config.get!([:database])[:dbname]
+    host = Config.get!([:database])[:host]
+    username = Config.get!([:database])[:username]
+    password = Config.get!([:database])[:password]
+    IO.puts "ecto://#{username}:#{password}@#{host}/#{dbname}"
+    parse_url "ecto://#{username}:#{password}@#{host}/#{dbname}"
   end
 
   def priv do
@@ -11,7 +18,6 @@ defmodule Repo do
 
   def log({:query, sql}, fun) do
     {time, result} = :timer.tc(fun)
-    # :io.format("SQL ~n~p~n", [sql])
     result
   end
 
