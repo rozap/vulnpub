@@ -63,7 +63,7 @@ defmodule Logger.Backends.Syslog do
 
   defp log_event(level, msg, ts, md, %{colors: colors} = state) do
     data = format_event(level, msg, ts, md, state)
-    file = File.open("/var/log/syslog", [:append])
+    {:ok, file} = File.open("/var/log/vp.log", [:append])
     IO.write(file, data)
     File.close(file)
   end
