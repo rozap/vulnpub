@@ -17,7 +17,6 @@ defmodule Repo do
 
   def log({:query, sql}, fun) do
     {time, result} = :timer.tc(fun)
-    IO.inspect sql
     result
   end
 
