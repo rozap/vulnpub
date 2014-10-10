@@ -8,7 +8,6 @@ defmodule Repo do
     host = Config.get!([:database])[:host]
     username = Config.get!([:database])[:username]
     password = Config.get!([:database])[:password]
-    IO.puts "ecto://#{username}:#{password}@#{host}/#{dbname}"
     parse_url "ecto://#{username}:#{password}@#{host}/#{dbname}"
   end
 
@@ -18,6 +17,7 @@ defmodule Repo do
 
   def log({:query, sql}, fun) do
     {time, result} = :timer.tc(fun)
+    IO.inspect sql
     result
   end
 

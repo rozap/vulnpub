@@ -30,6 +30,10 @@ defmodule Repo.Migrations.CreateUser do
           created timestamp DEFAULT NOW(), 
           modified timestamp DEFAULT NOW()
         )",
+
+    "CREATE INDEX vulns_order_by ON vulns (created DESC)",
+    "CREATE INDEX vulns_name ON vulns (name)",
+
     "CREATE TABLE IF NOT EXISTS
         monitors(
           id serial primary key,
@@ -48,12 +52,17 @@ defmodule Repo.Migrations.CreateUser do
           created timestamp DEFAULT NOW(), 
           modified timestamp DEFAULT NOW()
         )",
+    "CREATE INDEX packages_name ON packages (name)",
+
     "CREATE TABLE IF NOT EXISTS
         package_monitors(
           id serial primary key,
           monitor_id integer references monitors(id), 
           package_id integer references packages(id)
         )",
+
+
+
     "CREATE TABLE IF NOT EXISTS
         vuln_effects(
           id serial primary key,
