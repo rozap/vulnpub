@@ -1,21 +1,25 @@
-@import "pure.less";
-@gray-dark: #444444;
+@margin-width: 16px;
+
 @white: #ffffff;
-@black: #000000;
 @gray-light: #eeeeee;
 @gray: darken(@gray-light, 8%);
-@gray-darkish: darken(@gray-light, 40%);
+@gray-darkish: lighten(@gray-dark, 20%);
+@gray-dark: #0d0f10;
+@black: #000000;
 
-@margin-width: 16px;
-@blue: #1A4F63;
-@light-blue: #068587;
-@orange: #FCB03C;
-@red: #FC5B3F;
-@green: #6FB07F;
+@blue: #4e3ab5;
+@light-blue: #73337b;
+@orange: #fe5050;
+@red: #fe5050;
+@green: #45c093;
+
+
 @nav-width: 64px;
 @header-height: @margin-width*8;
 
-@link-color: @blue;
+@import "pure.less";
+@link-color: @gray-dark;
+
 * {
     box-sizing: border-box;
 }
@@ -26,7 +30,7 @@ a:not(.pure-button) {
     color: @link-color;
 }
 a:hover:not(.pure-button) {
-    color: lighten(@link-color, 20%);
+    color: lighten(@link-color, 40%);
 }
 ul {
     list-style: none;
@@ -161,7 +165,7 @@ ul {
     margin: @margin-width/2;
     box-shadow: 0 0 @margin-width/2 rgba(0, 0, 0, 0.15);
     h4 {
-        color: @blue;
+        color: darken(@blue, 20%);
         margin-top: 0px;
     }
 }

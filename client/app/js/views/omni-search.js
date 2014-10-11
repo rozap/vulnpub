@@ -19,16 +19,21 @@ module.exports = View.extend({
     onStart: function() {
         this.listenTo(this.app.dispatcher, 'views.omni.search', this.search);
         this.listenTo(this.app.dispatcher, 'views.omni.filter', this.filter);
+    },
 
+    shouldRender: function() {
+        return !!this._showing;
     },
 
     search: function(owner, options) {
+        this._showing = true;
         this.listenToOnce(owner, 'end', this.hide);
         _.extend(this, options);
         this.render();
     },
 
     hide: function() {
+        this._showing = false;
         this.$el.html('');
     },
 

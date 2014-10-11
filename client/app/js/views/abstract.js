@@ -18,6 +18,7 @@ module.exports = Backbone.View.extend({
 
 
     render: function(ctx) {
+        if (!this.shouldRender(ctx)) return;
         ctx = this.context(ctx);
         this.pre(ctx);
         this._render(ctx);
@@ -26,6 +27,10 @@ module.exports = Backbone.View.extend({
             view.render();
         }.bind(this));
         this.post(ctx);
+    },
+
+    shouldRender: function() {
+        return true;
     },
 
     _render: function(ctx) {
