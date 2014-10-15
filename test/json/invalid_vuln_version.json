@@ -5,7 +5,7 @@
 		"vulnerable": true,
 		"package": {
 			"name": "some-package-name",
-			"version": "~> 4.20.0"
+			"version": "4.20"
 		}
 	}],
 	"external_link": "http://some-blog/post"

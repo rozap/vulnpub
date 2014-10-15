@@ -4,7 +4,8 @@ var View = require('./abstract'),
     Vuln = require('../models/vuln'),
     VulnView = require('./vuln'),
     ReportTemplate = require('../../templates/vuln/report.html'),
-    SearchViewTemplate = require('../../templates/vuln/search-packages.html');
+    SearchViewTemplate = require('../../templates/vuln/search-packages.html'),
+    EffectsViewTemplate = require('../../templates/vuln/effect.html');
 
 
 
@@ -92,6 +93,19 @@ var SearchView = View.extend({
 });
 
 
+var EffectsView = View.extend({
+    el: '#add-vuln-effect',
+    template: _.template(EffectsViewTemplate),
+    events: {
+        'keydown #effects_package': 'keydown',
+        'keyup #effects_package': 'keyup',
+    },
+
+    include: ['vuln'],
+
+});
+
+
 module.exports = View.extend({
 
     el: '#main',
@@ -102,8 +116,8 @@ module.exports = View.extend({
     events: {
         'keyup input': 'update',
         'keyup textarea': 'update',
-        'keydown #effects_package': 'keydown',
-        'keyup #effects_package': 'keyup',
+        'click .add-effected': 'addEffected',
+        'click .add-patched': 'addPatched',
         'click .save': 'save'
     },
 
@@ -121,6 +135,24 @@ module.exports = View.extend({
             el: '#report-preview'
         })));
         this.addSearch();
+    },
+
+
+    _createEffectsView: function(vulnerable) {
+        if (this.hasView('effects')) this.endView('effects');
+        this.spawn('effects', new EffectsView(this.opts({
+            vulnerable: vulnerable,
+            vuln: this.vuln
+        })));
+        this.render();
+    },
+
+    addEffected: function() {
+        this._createEffectsView(true);
+    },
+
+    addPatched: function() {
+        this._createEffectsView(false);
     },
 
     addSearch: function() {

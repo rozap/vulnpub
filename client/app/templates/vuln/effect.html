@@ -1,0 +1,29 @@
+<div class="pure-control-group pure-u-1-2">
+    <label for="effects_package">
+        Effected Package
+    </label>
+    <%= showError('effects_package', vuln, 'Effected Package') %>
+    <input id="effects_package" 
+        class="pure-input-1"
+        name="effects_package" 
+        type="text" 
+        value="<%- vuln.get('effects_package') %>"
+        placeholder="Package Name"/>
+</div>
+
+
+<div class="pure-control-group pure-u-1-2">
+    <label for="effects_version">
+        Effected Version
+    </label>
+    <%= showError('effects_version', vuln, 'Effected Version') %>
+    <input id="effects_version" 
+        class="pure-input-1"
+        name="effects_version" 
+        type="text" 
+        value="<%- vuln.get('effects_version') %>"
+        placeholder="Version"/>
+
+    <h6>Use <a target="blank" href="http://semver.org/">
+        semver to qualify versions</a></h6>
+</div>

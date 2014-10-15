@@ -24,8 +24,6 @@ defmodule Repo.Migrations.CreateUser do
           id serial primary key,
           name varchar(255), 
           description text,
-          effects_version varchar(255),
-          effects_package varchar(255),
           external_link text DEFAULT '',
           created timestamp DEFAULT NOW(), 
           modified timestamp DEFAULT NOW()
@@ -68,6 +66,7 @@ defmodule Repo.Migrations.CreateUser do
           id serial primary key,
           vuln_id integer references vulns(id),
           package_id integer references packages(id), 
+          vulnerable boolean DEFAULT true,
           created timestamp DEFAULT NOW(), 
           modified timestamp DEFAULT NOW()
         )",

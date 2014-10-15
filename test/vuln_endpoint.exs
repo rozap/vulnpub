@@ -10,25 +10,45 @@ defmodule Test.VulnTest do
   end
 
 
-  defp create do
+  defp create(file \\ "test/json/new_vuln.json") do
     {_, _, apikey_resp} = DBHelpers.create_apikey()
     key = Dict.get(apikey_resp, "key")
-    simulate_json_file(Vulnpub.Router, :post, "api/v1/vulns", "test/json/new_vuln.json", [{"authentication", "foo:#{key}"}])
+    simulate_json_file(Vulnpub.Router, :post, "api/v1/vulns", file, [{"authentication", "foo:#{key}"}])
   end
 
   #remove load from file here...
-  # test "can create a vuln" do
-  #   {status, req_body, resp_body} = create
-  #   :io.format("~p~n", [resp_body])
-  #   assert Dict.get(req_body, "description") == Dict.get(resp_body, "description")
-  #   assert Dict.get(req_body, "name") == Dict.get(resp_body, "name")
-  #   assert Dict.get(req_body, "external_link") == Dict.get(resp_body, "external_link")
-  #   assert Dict.get(req_body, "effects_version") == Dict.get(resp_body, "effects_version")
+  test "can create a vuln" do
+    {status, req_body, resp_body} = create
+    IO.inspect resp_body
+    %{
+      "description" => "foo",
+      "name" => "baz",
+      "external_link" => "http://some-blog/post",
+      "effects" => [
+        %{
+            "vulnerable" => true,
+            "package" => %{
+              "version" => "4.20.0",
+              "name" => "some-package-name"
+            }
+          }
+      ]
+    } = resp_body
+    assert status == 201
+  end
 
-  #   id = Dict.get(resp_body, "id")
-  #   assert status == 201
-  #   assert id != nil
-  # end
+
+  #remove load from file here...
+  test "invalid version in package" do
+    {status, req_body, resp_body} = create("test/json/invalid_vuln_version.json")
+    %{"errors" => 
+      [
+        %{"version" => "4.20 is an invalid version"}
+      ]
+      } = resp_body
+    assert status == 400
+  end
+
 
   test "can't create with a bogus apikey" do
     {_, _, apikey_resp} = DBHelpers.create_apikey()

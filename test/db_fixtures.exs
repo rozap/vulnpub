@@ -11,6 +11,7 @@ defmodule Fixture do
     IO.puts("Loading fixture") 
 
     delete Models.Alert
+    delete Models.VulnEffect
     delete Models.PackageMonitor
     delete Models.Package
     delete Models.ApiKey   

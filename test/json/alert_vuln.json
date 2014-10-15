@@ -1,7 +1,12 @@
 {
 	"description": "foo",
 	"name": "baz",
-	"effects_package": "some-package-name",
-	"effects_version": "4.20",
+	"effects": [{
+		"vulnerable": true,
+		"package": {
+			"name": "some-package-name",
+			"version": "4.20.0"
+		}
+	}],
 	"external_link": "http://some-blog/post"
 }

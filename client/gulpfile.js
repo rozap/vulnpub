@@ -42,13 +42,13 @@ var create = function(src, name, dst) {
     bundleStream.transform(stringify(['.html']));
     bundleStream.bundle()
         .pipe(source(name))
-        .pipe(buffer())
-        .pipe(sourcemaps.init({
-            loadMaps: true
-        }))
-        .pipe(uglify())
-        .pipe(sourcemaps.write('maps'))
-        .pipe(gulp.dest(dst));
+    // .pipe(buffer())
+    // .pipe(sourcemaps.init({
+    //     loadMaps: true
+    // }))
+    // .pipe(uglify())
+    // .pipe(sourcemaps.write('maps'))
+    .pipe(gulp.dest(dst));
 };
 
 

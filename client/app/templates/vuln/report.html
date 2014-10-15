@@ -16,35 +16,26 @@
                     	value="<%- vuln.get('name') %>"
                     	placeholder="Name"/>
                 </div>
-                <div class="pure-control-group">
-                    <label for="effects_package">
-                        Effected Package
-                    </label>
-                	<%= showError('effects_package', vuln, 'Effected Package') %>
-                    <input id="effects_package" 
-                        class="pure-input-1"
-                    	name="effects_package" 
-                    	type="text" 
-                    	value="<%- vuln.get('effects_package') %>"
-                    	placeholder="Package Name"/>
+
+
+
+                <div id="add-vuln-effect" class="pure-g"></div>
+                <% if(!hasView('effects')) { %>
+                <div class="pure-g add-package">
+                    <div class="pure-u-1-2">
+                        <button type="button" 
+                            class="pure-button button-warning add-effected button-small">
+                            Add Effected Package
+                        </button>
+                    </div>
+                    <div class="pure-u-1-2">
+                        <button type="button" 
+                            class="pure-button button-success add-patched button-small">
+                            Add Patched Package
+                        </button>
+                    </div>
                 </div>
-
-                <div id="search-view"></div>
-
-
-                <div class="pure-control-group">
-                    <label for="effects_version">
-                        Effected Version
-                    </label>
-                	<%= showError('effects_version', vuln, 'Effected Version') %>
-                    <input id="effects_version" 
-                        class="pure-input-1"
-                    	name="effects_version" 
-                    	type="text" 
-                    	value="<%- vuln.get('effects_version') %>"
-                    	placeholder="Version"/>
-                </div>
-
+                <% } %>
 
                 <div class="pure-control-group">
                     <label for="name">

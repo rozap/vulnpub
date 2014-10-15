@@ -53,6 +53,7 @@ module.exports = Backbone.View.extend({
 
         return _.extend({
             _: _,
+            hasView: this.hasView.bind(this),
             app: this.app,
             showError: this._errors.bind(this),
         }, viewMixins, included, ctx);
