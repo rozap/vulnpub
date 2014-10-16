@@ -65,8 +65,9 @@ defmodule Repo.Migrations.CreateUser do
         vuln_effects(
           id serial primary key,
           vuln_id integer references vulns(id),
-          package_id integer references packages(id), 
           vulnerable boolean DEFAULT true,
+          name varchar(255), 
+          version varchar(255), 
           created timestamp DEFAULT NOW(), 
           modified timestamp DEFAULT NOW()
         )",

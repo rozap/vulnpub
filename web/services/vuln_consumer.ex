@@ -8,6 +8,8 @@ defmodule Service.VulnConsumer do
   alias Models.Alert
   alias Models.User
   alias Models.Vuln
+  alias Models.VulnEffect
+
 
   def start_link(state, opts) do
     GenServer.start_link(__MODULE__, state, opts)
@@ -18,17 +20,24 @@ defmodule Service.VulnConsumer do
     {:ok, initial_state}
   end
 
-  # def to_version_list(full_version_name) do
-  #   version = Regex.run(~r/(\.?\d\.?)*/, full_version_name)
-  #     |> List.first
-  #     |> String.split(".")
-  #     |> Enum.filter(&(&1 != ""))
-  #     |> Enum.map(&(String.to_integer &1))
-  # end
+  def is_vulnerable?(package, effects) do
+    {:ok, package_version} = Version.parse(package.version)
 
-  def is_effected_package?(package, vuln) do
-    package.version <= vuln.effects_version
+    exempt = Enum.any?(effects, fn effect -> 
+      {:ok, effected_requirement} = Version.parse_requirement(effect.version)
+      !effect.vulnerable and Version.match?(package_version, effected_requirement)
+    end)
+
+    if not exempt do
+      Enum.any?(effects, fn effect -> 
+        {:ok, effected_requirement} = Version.parse_requirement(effect.version)
+        Version.match?(package_version, effected_requirement)
+      end)
+    else
+      false
+    end
   end
+
 
 
   defp create_monitor_alert(monitor_id, package_id, vuln) do
@@ -68,10 +77,14 @@ defmodule Service.VulnConsumer do
 
 
   def handle_cast({:new_vuln, vuln}, state) do
-    effected = (from p in Package, where: ilike(p.name, ^vuln.effects_package), select: p)
-       |> Repo.all
-       |> Enum.filter(fn package -> is_effected_package?(package, vuln) end)
-       |> Enum.map(&(create_alert &1, vuln))
+    vuln.effects
+      |> Enum.map(fn effect -> 
+           (from p in Package, where: ilike(p.name, ^effect.name), select: p) 
+           |> Repo.all 
+        end)
+      |> List.flatten
+      |> Enum.filter(fn package -> is_vulnerable?(package, vuln.effects) end)
+      |> Enum.map(&(create_alert(&1, vuln)))
     {:noreply, state}
   end
 

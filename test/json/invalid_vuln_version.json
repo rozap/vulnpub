@@ -3,10 +3,8 @@
 	"name": "baz",
 	"effects": [{
 		"vulnerable": true,
-		"package": {
-			"name": "some-package-name",
-			"version": "4.20"
-		}
+		"name": "some-package-name",
+		"version": "4.20"
 	}],
 	"external_link": "http://some-blog/post"
 }

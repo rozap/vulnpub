@@ -9,7 +9,7 @@ defmodule Resources.Vuln.Validator do
 
   def validate_versions(effects) do
     versions = Enum.map(effects, fn effect -> 
-        %{"package" => %{"version" => version}} = effect
+        %{"version" => version} = effect
         case Version.parse_requirement(version) do
           :error ->
             %{version: "#{version} is an invalid version"}
@@ -30,10 +30,8 @@ defmodule Resources.Vuln.Validator do
 
 
   def validate_together(:create, params, bundle) do
-
     case validate_versions(params[:effects]) do
       {:error, errors} -> 
-        IO.inspect {:bad_request, %{:errors => errors}}
         throw {:bad_request, %{:errors => errors}}
       _ -> :ok
     end
@@ -91,9 +89,8 @@ defmodule Resources.Vuln do
     {conn, ok, result} = super(req)
     id = get_id(params)
     effects = (from ve in VulnEffect, 
-        left_join: p in ve.package,
         where: ve.vuln_id == ^id,
-        select: assoc(ve, package: p))
+        select: ve)
         |> Repo.all
         |> Finch.Serializer.to_serializable(VulnEffect, [exclude: []])
     result = Dict.put(result, :effects, effects)
@@ -106,30 +103,17 @@ defmodule Resources.Vuln do
     {_, _, result} = super({:create, conn, params, module, bundle})
     %{id: id} = result
     effects = Enum.map(effects, fn effect ->
-
-      %{"package" => %{"name" => package_name, "version" => version}} = effect
-      package = (from p in Package, 
-        where: ilike(p.name, ^package_name) and p.version == ^version, 
-        select: p)
-        |> Repo.all
-        |> List.first
-
-      package = case package do
-        nil -> 
-          package_params = %{name: package_name, version: version}
-          Package.allocate(package_params) |> Repo.insert
-        _ -> 
-          package
-      end
-
-      effect = effect
-        |> Dict.delete("package")
-        |> Dict.put(:vuln_id, id) 
-        |> Dict.put(:package_id, package.id)
-      VulnEffect.allocate(effect) |> repo.insert
+      effect
+        |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
+        |> Enum.into(%{})
+        |> Dict.put(:vuln_id, id)
+        |> VulnEffect.allocate 
+        |> repo.insert
     end)
     {conn, _, result} = handle({:show, conn, %{id: "#{id}"}, module, bundle})
     {conn, created, result}
   end
+
+  def handle(req), do: super(req)
 
 end

@@ -27,10 +27,8 @@ defmodule Test.VulnTest do
       "effects" => [
         %{
             "vulnerable" => true,
-            "package" => %{
-              "version" => "4.20.0",
-              "name" => "some-package-name"
-            }
+            "version" => "~> 4.20.0",
+            "name" => "some-package-name"
           }
       ]
     } = resp_body

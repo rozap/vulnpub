@@ -3,8 +3,9 @@ defmodule Models.VulnEffect do
 
   schema "vuln_effects" do
     belongs_to :vuln, Models.Vuln
-    belongs_to :package, Models.Package
     field :vulnerable, :boolean
+    field :version
+    field :name
     field :created, :datetime
     field :modified, :datetime
   end

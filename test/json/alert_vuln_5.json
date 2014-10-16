@@ -4,7 +4,7 @@
 	"effects": [{
 		"vulnerable": true,
 		"name": "some-package-name",
-		"version": "<= 4.20.0"
+		"version": "<= 5.0.93"
 	}],
 	"external_link": "http://some-blog/post"
 }
