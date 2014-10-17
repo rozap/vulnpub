@@ -17,6 +17,25 @@
 	.vuln-section {
 		.section();
 	}
+
+	.effects {
+
+		li {
+			margin: @margin-width/2 0px;
+			padding: @margin-width/2;
+		}
+		li.vulnerable {
+			border-left: 4px solid @red;
+		}
+		li.patched {
+			border-left: 4px solid @green;
+		}
+
+		.kind {
+			min-width: @margin-width*5;
+			display: inline-block;
+		}
+	}
 }
 
 .report-grid {

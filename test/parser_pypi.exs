@@ -22,7 +22,7 @@ defmodule Test.ParserPyPiTest do
     assert Dict.get(req_body, "manifest") == Dict.get(resp_body, "manifest")
     assert Dict.get(req_body, "name") == Dict.get(resp_body, "name")
     id = Dict.get(resp_body, "id")
-    :timer.sleep(800)  #packages are loaded async so wait here
+    :timer.sleep(1000)  #packages are loaded async so wait here
 
     #now get the monitor that was just created back and verify that express is in there with the formatted version
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/monitors/#{id}", nil, [{"authentication", "foo:#{key}"}])

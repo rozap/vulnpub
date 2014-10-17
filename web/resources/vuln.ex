@@ -8,6 +8,7 @@ defmodule Resources.Vuln.Validator do
 
 
   def validate_versions(effects) do
+    IO.inspect effects
     versions = Enum.map(effects, fn effect -> 
         %{"version" => version} = effect
         case Version.parse_requirement(version) do
@@ -30,15 +31,19 @@ defmodule Resources.Vuln.Validator do
 
 
   def validate_together(:create, params, bundle) do
+    IO.inspect params
     case validate_versions(params[:effects]) do
       {:error, errors} -> 
         throw {:bad_request, %{:errors => errors}}
       _ -> :ok
     end
 
-    %{:name => name} = params
+    %{name: name, description: description, external_link: link} = params
     query = from v in Models.Vuln, 
-              where: v.name == ^name, 
+              where: 
+                v.name == ^name and 
+                v.description == ^description and
+                v.external_link == ^ link, 
               select: v
     result = Repo.all(query)
     if length(result) > 0 do
