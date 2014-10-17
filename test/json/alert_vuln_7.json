@@ -2,9 +2,13 @@
 	"description": "foo",
 	"name": "baz",
 	"effects": [{
-		"vulnerable": true,
+		"vulnerable": false,
 		"name": "some-package-name",
-		"version": "~> 4.20.3"
+		"version": "<= 4.20.0"
+	}, {
+		"vulnerable": false,
+		"name": "some-package-name",
+		"version": ">= 2.20.0"
 	}],
 	"external_link": "http://some-blog/post"
 }

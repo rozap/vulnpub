@@ -1,0 +1,7 @@
+{
+	"unmanaged": [{
+		"name": "some-package-name",
+		"version": "4.20.2",
+		"homepage": "github.com/something/some-package-name"
+	}]
+}

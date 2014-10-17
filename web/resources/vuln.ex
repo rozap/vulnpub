@@ -8,7 +8,6 @@ defmodule Resources.Vuln.Validator do
 
 
   def validate_versions(effects) do
-    IO.inspect effects
     versions = Enum.map(effects, fn effect -> 
         %{"version" => version} = effect
         case Version.parse_requirement(version) do
@@ -31,7 +30,6 @@ defmodule Resources.Vuln.Validator do
 
 
   def validate_together(:create, params, bundle) do
-    IO.inspect params
     case validate_versions(params[:effects]) do
       {:error, errors} -> 
         throw {:bad_request, %{:errors => errors}}

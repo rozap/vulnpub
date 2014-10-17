@@ -43,6 +43,8 @@ defmodule Service.Emailer do
     end
   end
 
+
+  defp key, do: ""
   defp key, do: Config.get!([:vulnpub])[:email_apikey]
 
 

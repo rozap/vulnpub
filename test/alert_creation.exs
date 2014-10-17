@@ -15,7 +15,8 @@ defmodule Test.VulnTest do
     Dict.get(apikey_resp, "key")
   end
 
-  defp create_vuln(key, alert_file \\ "test/json/alert_vuln.json") do
+  defp create_vuln(key, num \\ 0) do
+    alert_file = "test/json/alert_vuln_#{num}.json"
     simulate_json_file(Vulnpub.Router, :post, "api/v1/vulns", alert_file, 
       [{"authentication", "foo:#{key}"}])
   end
@@ -31,7 +32,7 @@ defmodule Test.VulnTest do
     key = create_user
     {_, _, mon_response} = create_monitor key
     {_, _, vuln_response} = create_vuln key
-    :timer.sleep(200)  #packages are checked async, so wait a lil bit
+    :timer.sleep(20)  #packages are checked async, so wait a lil bit
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get,
        "api/v1/alerts", nil, [{"authentication", "foo:#{key}"}])
     assert resp_body["meta"]["count"] == 1
@@ -41,35 +42,21 @@ defmodule Test.VulnTest do
   end
 
 
-  test "when you create a new vuln with an exempt package an alert doesn't
-   get created if the exempt package matches" do
+  test "version with wrong minor version doesn't make an alert with a tilde spec for the vuln effect" do
     key = create_user
-    {_, _, mon_response} = create_monitor key
-    {_, _, vuln_response} = create_vuln key, "test/json/alert_vuln_1.json"
-    :timer.sleep(200)  #packages are checked async, so wait a lil bit
+    {_, _, mon_response} = create_monitor key, 3
+    {_, _, vuln_response} = create_vuln key, 2
+    :timer.sleep(20)  #packages are checked async, so wait a lil bit
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get,
        "api/v1/alerts", nil, [{"authentication", "foo:#{key}"}])
     assert resp_body["meta"]["count"] == 0
   end
 
-
-  test "version with wrong minor version doesn't make an alert with a tilde spec 
-    for the vuln effect" do
+  test "version with a diff patch version does make an alert with a tilde spec for the vuln effect" do
     key = create_user
     {_, _, mon_response} = create_monitor key
-    {_, _, vuln_response} = create_vuln key, "test/json/alert_vuln_2.json"
-    :timer.sleep(200)  #packages are checked async, so wait a lil bit
-    {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get,
-       "api/v1/alerts", nil, [{"authentication", "foo:#{key}"}])
-    assert resp_body["meta"]["count"] == 0
-  end
-
-  test "version with a diff patch version does make an alert with a tilde spec
-    for the vuln effect" do
-    key = create_user
-    {_, _, mon_response} = create_monitor key
-    {_, _, vuln_response} = create_vuln key, "test/json/alert_vuln_3.json"
-    :timer.sleep(200)  #packages are checked async, so wait a lil bit
+    {_, _, vuln_response} = create_vuln key, 3
+    :timer.sleep(20)  #packages are checked async, so wait a lil bit
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get,
        "api/v1/alerts", nil, [{"authentication", "foo:#{key}"}])
     assert resp_body["meta"]["count"] == 1
@@ -79,8 +66,8 @@ defmodule Test.VulnTest do
   test "version with lt qualifier works" do
     key = create_user
     {_, _, mon_response} = create_monitor key
-    {_, _, vuln_response} = create_vuln key, "test/json/alert_vuln_4.json"
-    :timer.sleep(200)  #packages are checked async, so wait a lil bit
+    {_, _, vuln_response} = create_vuln key, 4
+    :timer.sleep(20)  #packages are checked async, so wait a lil bit
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get,
        "api/v1/alerts", nil, [{"authentication", "foo:#{key}"}])
     assert resp_body["meta"]["count"] == 1
@@ -90,23 +77,54 @@ defmodule Test.VulnTest do
   test "version with gt qualifier works" do
     key = create_user
     {_, _, mon_response} = create_monitor key
-    {_, _, vuln_response} = create_vuln key, "test/json/alert_vuln_4.json"
-    :timer.sleep(200)  #packages are checked async, so wait a lil bit
+    {_, _, vuln_response} = create_vuln key, 4
+    :timer.sleep(20)  #packages are checked async, so wait a lil bit
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get,
        "api/v1/alerts", nil, [{"authentication", "foo:#{key}"}])
     assert resp_body["meta"]["count"] == 1
   end
 
-  test "when you create a new vuln and have a monitor with a package of a 
-  higher version number, no alert gets created" do
+  test "when you create a new vuln and have a monitor with a package of a higher version number, no alert gets created" do
     key = create_user
     {_, _, mon_response} = create_monitor key, 1
     {_, _, vuln_response} = create_vuln key
-    :timer.sleep(200)  #packages are checked async, so wait a lil bit
+    :timer.sleep(20)  #packages are checked async, so wait a lil bit
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get,
        "api/v1/alerts", nil, [{"authentication", "foo:#{key}"}])
     assert resp_body["meta"]["count"] == 0
   end
 
+  test "falling outside of safe versions in a vuln causes an alert" do
+    key = create_user
+    {_, _, mon_response} = create_monitor key, 2
+    {_, _, vuln_response} = create_vuln key, 6
+    :timer.sleep(20)  #packages are checked async, so wait a lil bit
+    {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get,
+       "api/v1/alerts", nil, [{"authentication", "foo:#{key}"}])
+    assert resp_body["meta"]["count"] == 1
+  end
+
+  test "falling inside of safe versions in a vuln does not cause an alert" do
+    key = create_user
+    {_, _, mon_response} = create_monitor key, 2
+    {_, _, vuln_response} = create_vuln key, 7
+    :timer.sleep(20)  #packages are checked async, so wait a lil bit
+    {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get,
+       "api/v1/alerts", nil, [{"authentication", "foo:#{key}"}])
+    assert resp_body["meta"]["count"] == 0
+  end
+
+  test "falling inside of safe versions but matching a vulnerable version
+   causes an alert" do
+    key = create_user
+    {_, _, mon_response} = create_monitor key, 2
+    {_, _, vuln_response} = create_vuln key, 8
+    :timer.sleep(20)  #packages are checked async, so wait a lil bit
+    {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get,
+       "api/v1/alerts", nil, [{"authentication", "foo:#{key}"}])
+    assert resp_body["meta"]["count"] == 1
+  end
+
+  
 
 end
