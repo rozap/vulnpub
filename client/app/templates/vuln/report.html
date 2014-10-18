@@ -8,15 +8,34 @@
                     <label for="name">
                         Name
                     </label>
-                	<%= showError('name', vuln) %>
+                    <%= showError('name', vuln) %>
                     <input id="name" 
                         class="pure-input-1"
-                    	name="name" 
-                    	type="text" 
-                    	value="<%- vuln.get('name') %>"
-                    	placeholder="Name"/>
+                        name="name" 
+                        type="text" 
+                        value="<%- vuln.get('name') %>"
+                        placeholder="Short title about the vulnerability"/>
                 </div>
 
+                <ul class="effects">
+                    <% _.each(vuln.get('effects'), function(effect) { %>
+                        <li class="<%- effect.vulnerable? 'vulnerable' : 'patched' %>">
+                            <span class="text-muted kind">
+                                <%- effect.vulnerable? 'Vulnerable' : 'Patched' %>
+                            </span>
+                            <%- effect.name %> <%- effect.version %>
+
+                            <a href="javascript:void(0);"
+                                class="remove-effect pull-right"
+                                data-name="<%- effect.name %>"
+                                data-version="<%- effect.version %>"
+                                data-vulnerable="<%- effect.vulnerable %>">
+                                <i class="ion ion-close-circled"></i>
+                            </a>
+
+                        </li>
+                    <% }) %>
+                </ul>
 
 
                 <div id="add-vuln-effect" class="pure-g"></div>
@@ -41,27 +60,27 @@
                     <label for="name">
                         Description
                     </label>
-                	<%= showError('description', vuln) %>
+                    <%= showError('description', vuln) %>
                     <textarea id="description" 
                         class="pure-input-1"
-                    	name="description" 
-                    	type="text" 
-                    	placeholder="A detailed description of why it is a vulnerability, how it works, and how to mitigate it."><%- vuln.get('description') %></textarea>
+                        name="description" 
+                        type="text" 
+                        placeholder="A detailed description of why it is a vulnerability, how it works, and how to mitigate it."><%- vuln.get('description') %></textarea>
                 </div>
                 <h6>Use <a target="blank" href="http://daringfireball.net/projects/markdown/syntax">markdown</a> for formatting</h6>
 
 
                 <div class="pure-control-group">
                     <label for="external_link">
-                    	External Link
+                        External Link
                     </label>
-                	<%= showError('external_link', vuln) %>
+                    <%= showError('external_link', vuln) %>
                     <input id="external_link" 
                         class="pure-input-1"
-                    	name="external_link" 
-                    	type="text" 
-                    	value="<%- vuln.get('external_link') %>"
-                    	placeholder="Eg: CVE page, ExploitDB, Pastebin, etc"/>
+                        name="external_link" 
+                        type="text" 
+                        value="<%- vuln.get('external_link') %>"
+                        placeholder="Eg: CVE page, ExploitDB, Pastebin, etc"/>
                 </div>
 
                 <% if(vuln.get('id')) { %>
@@ -86,6 +105,6 @@
         </form>
     </div>
     <div class="pure-u-11-24 preview-wrap">
-    	<div id="report-preview"></div>
+        <div id="report-preview"></div>
     </div>
 </div>

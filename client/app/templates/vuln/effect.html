@@ -1,29 +1,37 @@
-<div class="pure-control-group pure-u-1-2">
-    <label for="effects_package">
+
+
+<div class="pure-control-group pure-u-2-5">
+    <label for="name">
         Effected Package
     </label>
-    <%= showError('effects_package', vuln, 'Effected Package') %>
-    <input id="effects_package" 
+    <%= showError('name', effect) %>
+    <input id="name" 
         class="pure-input-1"
-        name="effects_package" 
         type="text" 
-        value="<%- vuln.get('effects_package') %>"
-        placeholder="Package Name"/>
+        value="<%- effect.get('name') %>"
+        placeholder="ex: openssl"/>
+    <div id="search-view"></div>
+
 </div>
 
 
-<div class="pure-control-group pure-u-1-2">
-    <label for="effects_version">
+<div class="pure-control-group pure-u-2-5">
+    <label for="version">
         Effected Version
     </label>
-    <%= showError('effects_version', vuln, 'Effected Version') %>
-    <input id="effects_version" 
+    <%= showError('version', effect) %>
+    <input id="version" 
         class="pure-input-1"
-        name="effects_version" 
         type="text" 
-        value="<%- vuln.get('effects_version') %>"
-        placeholder="Version"/>
+        value="<%- effect.get('version') %>"
+        placeholder="ex: ~> 4.2.0"/>
 
     <h6>Use <a target="blank" href="http://semver.org/">
         semver to qualify versions</a></h6>
+</div>
+
+<div class="pure-congrol-group pure-u-1-5 add-effect-wrap">
+    <a class="pure-button button-secondary add-effect" href="javascript:void(0);">
+        <i class="icon ion-plus-circled"></i>
+    </a>
 </div>

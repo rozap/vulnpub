@@ -28,7 +28,7 @@ window.$ = $;
 $(document).ready(function() {
 	var router = new Router();
 })
-},{"./router":14,"backbone":54,"jquery":59}],2:[function(require,module,exports){
+},{"./router":15,"backbone":55,"jquery":60}],2:[function(require,module,exports){
 var Backbone = require('backbone'),
     _ = require('underscore'),
     DataMixin = require('../util/data-layer-mixin');
@@ -117,7 +117,7 @@ module.exports = Backbone.Collection.extend({
 
 
 });
-},{"../util/data-layer-mixin":16,"backbone":54,"underscore":62}],3:[function(require,module,exports){
+},{"../util/data-layer-mixin":17,"backbone":55,"underscore":63}],3:[function(require,module,exports){
 var Collection = require('./abstract'),
 	Alert = require('../models/alert');
 
@@ -194,7 +194,7 @@ module.exports = Backbone.Model.extend({
 
 
 });
-},{"../util/data-layer-mixin":16,"backbone":54,"underscore":62}],8:[function(require,module,exports){
+},{"../util/data-layer-mixin":17,"backbone":55,"underscore":63}],8:[function(require,module,exports){
 var Model = require('./abstract');
 
 
@@ -213,6 +213,38 @@ module.exports = Model.extend({
 	}
 });
 },{"./abstract":7}],10:[function(require,module,exports){
+var _ = require('underscore'),
+    Model = require('./abstract');
+
+
+module.exports = Model.extend({
+
+    validateVersion: function() {
+        return !!/^(~>|>|<|>=|<=|==) ?(\d+\.\d+\.\d+)$/.exec(this.get('version'))
+    },
+
+
+    validate: function() {
+        var errors = {};
+        if (!this.validateVersion()) {
+            var v = this.get('version') || '';
+            _.extend(errors, {
+                version: '"' + v + '" is not a valid version'
+            });
+
+        }
+
+        if (!this.get('name')) {
+            _.extend(errors, {
+                name: 'You need to include a name'
+            });
+        }
+        if (_.keys(errors).length) return errors;
+    }
+
+
+});
+},{"./abstract":7,"underscore":63}],11:[function(require,module,exports){
 var Model = require('./abstract');
 
 module.exports = Model.extend({
@@ -220,7 +252,7 @@ module.exports = Model.extend({
         return 'logs';
     }
 });
-},{"./abstract":7}],11:[function(require,module,exports){
+},{"./abstract":7}],12:[function(require,module,exports){
 var Model = require('./abstract');
 
 
@@ -229,7 +261,7 @@ module.exports = Model.extend({
 		return 'monitors';
 	}
 });
-},{"./abstract":7}],12:[function(require,module,exports){
+},{"./abstract":7}],13:[function(require,module,exports){
 var Model = require('./abstract');
 
 module.exports = Model.extend({
@@ -247,7 +279,7 @@ module.exports = Model.extend({
     }
 
 });
-},{"./abstract":7}],13:[function(require,module,exports){
+},{"./abstract":7}],14:[function(require,module,exports){
 var Model = require('./abstract');
 
 
@@ -256,7 +288,7 @@ module.exports = Model.extend({
         return 'vulns';
     }
 });
-},{"./abstract":7}],14:[function(require,module,exports){
+},{"./abstract":7}],15:[function(require,module,exports){
 var Backbone = require('backbone'),
     _ = require('underscore'),
     VulnList = require('./views/vuln-list'),
@@ -354,7 +386,6 @@ module.exports = Backbone.Router.extend({
             app: this.app
         }, _.object(routeParams, _.compact(args.slice(3))));
 
-        console.log("create view with", opts);
         if (this.view) this.view.end();
         this.view = new View(opts);
         this.app.dispatcher.trigger('module', this.view);
@@ -364,7 +395,7 @@ module.exports = Backbone.Router.extend({
 
 
 });
-},{"./util/auth":15,"./util/logger":17,"./views/create-monitor":20,"./views/home":21,"./views/landing":22,"./views/login":23,"./views/logout":24,"./views/monitor":25,"./views/register":28,"./views/report":29,"./views/settings":30,"./views/side-nav":31,"./views/top-nav":32,"./views/vuln":34,"./views/vuln-list":33,"backbone":54,"underscore":62}],15:[function(require,module,exports){
+},{"./util/auth":16,"./util/logger":18,"./views/create-monitor":21,"./views/home":22,"./views/landing":23,"./views/login":24,"./views/logout":25,"./views/monitor":26,"./views/register":29,"./views/report":30,"./views/settings":31,"./views/side-nav":32,"./views/top-nav":33,"./views/vuln":35,"./views/vuln-list":34,"backbone":55,"underscore":63}],16:[function(require,module,exports){
 var _ = require('underscore');
 
 var name = 'vulnpub-apikey';
@@ -450,7 +481,7 @@ Auth.prototype = {
 
 
 module.exports = Auth;
-},{"../models/apikey":9,"underscore":62}],16:[function(require,module,exports){
+},{"../models/apikey":9,"underscore":63}],17:[function(require,module,exports){
 var Backbone = require('backbone'),
     Auth = require('./auth');
 
@@ -520,7 +551,7 @@ module.exports = {
         return Backbone.sync.apply(this, args);
     }
 };
-},{"./auth":15,"backbone":54}],17:[function(require,module,exports){
+},{"./auth":16,"backbone":55}],18:[function(require,module,exports){
 var _ = require('underscore'),
     Model = require('../models/log');
 
@@ -582,7 +613,7 @@ Logger.prototype = {
 };
 
 module.exports = Logger;
-},{"../models/log":10,"underscore":62}],18:[function(require,module,exports){
+},{"../models/log":11,"underscore":63}],19:[function(require,module,exports){
 var _ = require('underscore');
 
 var templates = {
@@ -594,7 +625,7 @@ module.exports = {
 		return _.template(templates[name])(ctx);
 	}
 };
-},{"../../templates/util/loader.html":44,"underscore":62}],19:[function(require,module,exports){
+},{"../../templates/util/loader.html":45,"underscore":63}],20:[function(require,module,exports){
 var Backbone = require('backbone'),
     _ = require('underscore'),
     $ = require('jquery'),
@@ -652,7 +683,7 @@ module.exports = Backbone.View.extend({
             _: _,
             hasView: this.hasView.bind(this),
             app: this.app,
-            showError: this._errors.bind(this),
+            showError: this._errors.bind(this)
         }, viewMixins, included, ctx);
     },
 
@@ -667,6 +698,8 @@ module.exports = Backbone.View.extend({
             });
         }
     },
+
+
 
     pre: function(ctx) {
 
@@ -700,7 +733,8 @@ module.exports = Backbone.View.extend({
     spawn: function(name, view) {
         if (this._views[name]) this._views[name].end();
         this._views[name] = view;
-        this.listenTo(view, 'end', _.partial(this._removeView, name).bind(this));
+        this.listenToOnce(view, 'end', _.partial(this._removeView, name).bind(this));
+        this.listenToOnce(view, 'end', this.renderIt);
         view.onStart(this);
         return view;
     },
@@ -714,7 +748,6 @@ module.exports = Backbone.View.extend({
     },
 
     _removeView: function(name) {
-        console.log("REMOVE VIEW", name);
         delete this._views[name];
     },
 
@@ -735,7 +768,7 @@ module.exports = Backbone.View.extend({
     }
 
 });
-},{"../../templates/util/error.html":43,"../util/view-mixins":18,"backbone":54,"jquery":59,"underscore":62}],20:[function(require,module,exports){
+},{"../../templates/util/error.html":44,"../util/view-mixins":19,"backbone":55,"jquery":60,"underscore":63}],21:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     Monitor = require('../models/monitor'),
@@ -779,7 +812,7 @@ module.exports = View.extend({
 
 
 });
-},{"../../templates/home/create.html":38,"../models/monitor":11,"./abstract":19,"underscore":62}],21:[function(require,module,exports){
+},{"../../templates/home/create.html":39,"../models/monitor":12,"./abstract":20,"underscore":63}],22:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     Monitors = require('../collections/monitors'),
@@ -864,7 +897,7 @@ module.exports = View.extend({
 
 
 });
-},{"../../templates/home/home.html":39,"../collections/alerts":3,"../collections/monitors":4,"./abstract":19,"./create-monitor":20,"./pager":27,"underscore":62}],22:[function(require,module,exports){
+},{"../../templates/home/home.html":40,"../collections/alerts":3,"../collections/monitors":4,"./abstract":20,"./create-monitor":21,"./pager":28,"underscore":63}],23:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     LandingTemplate = require('../../templates/home/landing.html');
@@ -883,7 +916,7 @@ module.exports = View.extend({
 
 
 });
-},{"../../templates/home/landing.html":40,"./abstract":19,"underscore":62}],23:[function(require,module,exports){
+},{"../../templates/home/landing.html":41,"./abstract":20,"underscore":63}],24:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     ApiKey = require('../models/apikey'),
@@ -927,7 +960,7 @@ module.exports = View.extend({
 
 
 });
-},{"../../templates/auth/login.html":35,"../models/apikey":9,"./abstract":19,"underscore":62}],24:[function(require,module,exports){
+},{"../../templates/auth/login.html":36,"../models/apikey":9,"./abstract":20,"underscore":63}],25:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     LoginTemplate = require('../../templates/auth/logout.html'),
@@ -970,7 +1003,7 @@ module.exports = View.extend({
     }
 
 });
-},{"../../templates/auth/logout.html":36,"../util/auth":15,"./abstract":19,"underscore":62}],25:[function(require,module,exports){
+},{"../../templates/auth/logout.html":37,"../util/auth":16,"./abstract":20,"underscore":63}],26:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     Monitor = require('../models/monitor'),
@@ -1002,7 +1035,7 @@ module.exports = View.extend({
 
 
 });
-},{"../../templates/monitor/monitor.html":41,"../models/monitor":11,"./abstract":19,"./pager":27,"underscore":62}],26:[function(require,module,exports){
+},{"../../templates/monitor/monitor.html":42,"../models/monitor":12,"./abstract":20,"./pager":28,"underscore":63}],27:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     PagerTemplate = require('../../templates/util/omni-search.html');
@@ -1056,7 +1089,7 @@ module.exports = View.extend({
 
 
 });
-},{"../../templates/util/omni-search.html":45,"./abstract":19,"underscore":62}],27:[function(require,module,exports){
+},{"../../templates/util/omni-search.html":46,"./abstract":20,"underscore":63}],28:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     PagerTemplate = require('../../templates/util/pager.html');
@@ -1100,7 +1133,7 @@ module.exports = View.extend({
 
 
 });
-},{"../../templates/util/pager.html":46,"./abstract":19,"underscore":62}],28:[function(require,module,exports){
+},{"../../templates/util/pager.html":47,"./abstract":20,"underscore":63}],29:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     User = require('../models/user'),
@@ -1134,11 +1167,12 @@ module.exports = View.extend({
 
 
 });
-},{"../../templates/auth/register.html":37,"../models/user":12,"./abstract":19,"underscore":62}],29:[function(require,module,exports){
+},{"../../templates/auth/register.html":38,"../models/user":13,"./abstract":20,"underscore":63}],30:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     PackageCollection = require('../collections/packages'),
     Vuln = require('../models/vuln'),
+    Effect = require('../models/effect'),
     VulnView = require('./vuln'),
     ReportTemplate = require('../../templates/vuln/report.html'),
     SearchViewTemplate = require('../../templates/vuln/search-packages.html'),
@@ -1213,14 +1247,20 @@ var SearchView = View.extend({
     },
 
     select: function() {
-        this.trigger('select', this.packageSearch.at(this.currentIndex + this.sliceOffset));
-        this.reset();
+        var pack = this.packageSearch.at(this.currentIndex + this.sliceOffset);
+        if (pack) {
+            this.trigger('select', pack);
+            this.reset();
+        }
     },
 
     onClickPackage: function(e) {
-        var id = parseInt($(e.currentTarget).data('package'));
-        this.trigger('select', this.packageSearch.get(id));
-        this.reset();
+        var id = parseInt($(e.currentTarget).data('package')),
+            pack = this.packageSearch.get(id);
+        if (pack) {
+            this.trigger('select', pack);
+            this.reset();
+        }
     },
 
     onWheel: function(e) {
@@ -1234,11 +1274,69 @@ var EffectsView = View.extend({
     el: '#add-vuln-effect',
     template: _.template(EffectsViewTemplate),
     events: {
-        'keydown #effects_package': 'keydown',
-        'keyup #effects_package': 'keyup',
+        'keydown #name': 'keydown',
+        'keyup #name': 'keyup',
+        'click .add-effect': 'addEffect'
     },
 
-    include: ['vuln'],
+    include: ['vuln', 'effect'],
+
+    onStart: function() {
+        this.reset();
+        this.addSearch();
+
+    },
+
+    reset: function() {
+        //empty one
+        this.effect = new Effect({
+            vulnerable: this.vulnerable
+        }, this.opts());
+        this.listenTo(this.effect, 'change', this.renderIt);
+    },
+
+    serialize: function() {
+        return _.object(['name', 'version'].map(function(key) {
+            return [key, this.$el.find('#' + key).val()];
+        }.bind(this)));
+    },
+
+
+    onSelected: function(pack) {
+        this.effect.set('name', pack.get('name'));
+        this.endView('search');
+        this.$el.find('#version').focus();
+    },
+
+
+    addEffect: function() {
+
+        this.effect = this.effect.set(this.serialize());
+        if (!this.effect.isValid()) {
+            this.render();
+            return;
+        }
+        var effects = this.vuln.get('effects') || [];
+        effects.push(this.effect.toJSON());
+        this.vuln.set('effects', effects);
+        this.vuln.trigger('change');
+        this.end();
+    },
+
+    addSearch: function() {
+        var search = this.spawn('search', new SearchView(this.opts()));
+        this.listenTo(search, 'select', this.onSelected);
+    },
+
+    keydown: function(e) {
+        this.trigger('keydown', e);
+    },
+
+    keyup: function(e) {
+        if (!this.hasView('search')) this.addSearch();
+        this.trigger('keyup', e);
+    },
+
 
 });
 
@@ -1253,6 +1351,7 @@ module.exports = View.extend({
     events: {
         'keyup input': 'update',
         'keyup textarea': 'update',
+        'click .remove-effect': 'removeEffect',
         'click .add-effected': 'addEffected',
         'click .add-patched': 'addPatched',
         'click .save': 'save'
@@ -1271,7 +1370,6 @@ module.exports = View.extend({
             vuln: this.vuln,
             el: '#report-preview'
         })));
-        this.addSearch();
     },
 
 
@@ -1284,6 +1382,13 @@ module.exports = View.extend({
         this.render();
     },
 
+    removeEffect: function(e) {
+        var toRemove = $(e.currentTarget).data();
+        this.vuln.set('effects', _.reject(this.vuln.get('effects'), function(effect) {
+            return _.isEqual(effect, toRemove);
+        }));
+    },
+
     addEffected: function() {
         this._createEffectsView(true);
     },
@@ -1292,29 +1397,8 @@ module.exports = View.extend({
         this._createEffectsView(false);
     },
 
-    addSearch: function() {
-        var search = this.spawn('search', new SearchView(this.opts()));
-        this.listenTo(search, 'select', this.onSelected);
-    },
-
     update: function() {
         return this.vuln.set(this.$el.find('form').serializeObject());
-    },
-
-    keydown: function(e) {
-        this.trigger('keydown', e);
-    },
-
-    keyup: function(e) {
-        if (!this.hasView('search')) this.addSearch();
-        this.trigger('keyup', e);
-    },
-
-    onSelected: function(pack) {
-        this.vuln.set('effects_package', pack.get('name'));
-        this.endView('search');
-        this.render();
-        this.$el.find('input[name="effects_version]').focus();
     },
 
     save: function() {
@@ -1322,7 +1406,7 @@ module.exports = View.extend({
     }
 
 });
-},{"../../templates/vuln/effect.html":49,"../../templates/vuln/report.html":50,"../../templates/vuln/search-packages.html":51,"../collections/packages":5,"../models/vuln":13,"./abstract":19,"./vuln":34,"underscore":62}],30:[function(require,module,exports){
+},{"../../templates/vuln/effect.html":50,"../../templates/vuln/report.html":51,"../../templates/vuln/search-packages.html":52,"../collections/packages":5,"../models/effect":10,"../models/vuln":14,"./abstract":20,"./vuln":35,"underscore":63}],31:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     SettingsTemplate = require('../../templates/settings/settings.html'),
@@ -1358,7 +1442,7 @@ module.exports = View.extend({
     }
 
 });
-},{"../../templates/settings/settings.html":42,"../models/user":12,"./abstract":19,"underscore":62}],31:[function(require,module,exports){
+},{"../../templates/settings/settings.html":43,"../models/user":13,"./abstract":20,"underscore":63}],32:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     SideNavTemplate = require('../../templates/util/side-nav.html');
@@ -1386,7 +1470,7 @@ module.exports = View.extend({
         this.$el.show();
     }
 })
-},{"../../templates/util/side-nav.html":47,"./abstract":19,"underscore":62}],32:[function(require,module,exports){
+},{"../../templates/util/side-nav.html":48,"./abstract":20,"underscore":63}],33:[function(require,module,exports){
 var View = require('./abstract'),
 	_ = require('underscore'),
 	OmniSearch = require('./omni-search'),
@@ -1403,7 +1487,7 @@ module.exports = View.extend({
 	}
 
 })
-},{"../../templates/util/top-nav.html":48,"./abstract":19,"./omni-search":26,"underscore":62}],33:[function(require,module,exports){
+},{"../../templates/util/top-nav.html":49,"./abstract":20,"./omni-search":27,"underscore":63}],34:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     Vulns = require('../collections/vulns'),
@@ -1469,7 +1553,7 @@ module.exports = View.extend({
 
 
 });
-},{"../../templates/vuln/vuln-list.html":52,"../collections/vulns":6,"./abstract":19,"./pager":27,"underscore":62}],34:[function(require,module,exports){
+},{"../../templates/vuln/vuln-list.html":53,"../collections/vulns":6,"./abstract":20,"./pager":28,"underscore":63}],35:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     Vuln = require('../models/vuln'),
@@ -1509,64 +1593,64 @@ module.exports = View.extend({
 
 
 });
-},{"../../templates/vuln/vuln.html":53,"../models/vuln":13,"./abstract":19,"./pager":27,"markdown":60,"underscore":62}],35:[function(require,module,exports){
+},{"../../templates/vuln/vuln.html":54,"../models/vuln":14,"./abstract":20,"./pager":28,"markdown":61,"underscore":63}],36:[function(require,module,exports){
 module.exports = "\n\n<div class=\"pure-g\">\n    <div class=\"pure-u-1-1\">\n        <form class=\"pure-form pure-form-aligned form-centered\">\n            <h3>Login</h3>\n            <fieldset>\n                <div class=\"pure-control-group\">\n                    <%= showError('username', apikey) %>\n                    <input id=\"name\" \n                        name=\"username\" \n                        type=\"text\" \n                        value=\"<%- apikey.get('username') %>\"\n                        placeholder=\"Username\">\n                </div>\n\n                <div class=\"pure-control-group\">\n                    <%= showError('password', apikey) %>\n                    <input id=\"password\" \n                        name=\"password\" \n                        type=\"password\" \n                        value=\"<%- apikey.get('password') %>\"\n                        placeholder=\"Password\">\n                </div>\n\n                <button type=\"button\" class=\"pure-button pure-button-primary login-button\">\n                    Login\n                </button>\n            </fieldset>\n            <a href=\"#register\">or create an account</a>\n        </form>\n\n    </div>\n</div>";
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 module.exports = "\n\n<div class=\"pure-g\">\n    <div class=\"pure-u-1-1\">\n        <form class=\"pure-form pure-form-aligned form-centered\">\n\t\t\t<h2>You have logged out</h2>\n\n\n            <p class=\"text-muted\">choose your own adventure. you can...</p>\n            <p><a href=\"#login\">login again</a></p>\n            <p class=\"text-muted\">or</p>\n            <p><a href=\"#\">go home</a></p>\n            <p class=\"text-muted\">or</p>\n            <p><a href=\"<%- link.url %>\"><%- link.name %></a></p>\n        </form>\n    </div>\n</div>";
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 module.exports = "\n\n<div class=\"pure-g\">\n    <div class=\"pure-u-1-1\">\n        <form class=\"pure-form pure-form-aligned form-centered\">\n\t\t\t<h3>Register</h3>\n            <fieldset>\n                <div class=\"pure-control-group\">\n                \t<%= showError('username', user) %>\n                    <input id=\"name\" \n                    \tname=\"username\" \n                    \ttype=\"text\" \n                    \tvalue=\"<%- user.get('username') %>\"\n                    \tplaceholder=\"Username\">\n                </div>\n\n                <div class=\"pure-control-group\">\n                    <%= showError('email', user) %>\n                    <input id=\"email\" \n                        name=\"email\" \n                        type=\"email\" \n                        value=\"<%- user.get('email') %>\"\n                        placeholder=\"Email\">\n                </div>\n\n\n                <div class=\"pure-control-group\">\n                \t<%= showError('password', user) %>\n                    <input id=\"password\" \n                    \tname=\"password\" \n                    \ttype=\"password\" \n                    \tvalue=\"<%- user.get('password') %>\"\n                    \tplaceholder=\"Password\">\n                </div>\n                <div class=\"pure-control-group\">\n                    <input id=\"confirm_password\" \n                        name=\"confirm_password\" \n                        type=\"password\" \n                        value=\"<%- user.get('password') %>\"\n                        placeholder=\"Confirm Password\">\n                </div>\n\n\n                <% if(user.get('id')) { %>\n                    <div class=\"alert alert-success\">\n                        Your account has been created. You should get a confirmation email, but you can log in immediately. \n                    </div>\n                <% } else if(user.isLoading()) { %>\n                    <div class=\"alert alert-info\">\n                        Loading...\n                    </div>\n                <% } else { %>\n                    <button type=\"button\" class=\"pure-button pure-button-primary register-button\">\n                        Create Account\n                    </button>\n                <% } %>\n\n\n            </fieldset>\n            <a href=\"#login\">or login here</a>\n        </form>\n    </div>\n</div>";
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 module.exports = "<div class=\"modal\">\n\n    <div class=\"modal-inner\">\n        <div class=\"modal-header\">\n            <h5 class=\"section\">Create a new Monitor</h5>\n        </div>\n\n        <div class=\"pure-g\">\n            <div class=\"pure-u-1-1\">\n                <form class=\"pure-form pure-form-stacked create-monitor\">\n                    <fieldset>\n                        <div class=\"pure-control-group\">\n                            <label for=\"name\">\n                                Name\n                            </label>\n                            <%= showError('name', monitor) %>\n                            <input id=\"name\" \n                                class=\"pure-input-1\"\n                                name=\"name\" \n                                type=\"text\" \n                                value=\"<%- monitor.get('name') %>\"\n                                placeholder=\"Name\"/>\n                        </div>\n\n                        <div class=\"pure-control-group\">\n                            <label for=\"manifest\">\n                                Publicly Accessible <a href=\"/about/manifest\" target=\"_blank\">manifest file</a>\n                            </label>\n                            <%= showError('manifest', monitor) %>\n                            <input id=\"manifest\" \n                                class=\"pure-input-1\"\n                                name=\"manifest\" \n                                type=\"text\" \n                                value=\"<%- monitor.get('manifest') %>\"\n                                placeholder=\"Manifest URL\"/>\n                        </div>\n\n                        <div class=\"modal-footer\">\n                            <div class=\"pure-control-group action-row\">\n                                <% if(monitor.get('id')) { %>\n                                    <div class=\"alert alert-success\">\n                                        \"<%- monitor.get('name') %>\" has been created\n                                    </div>\n                                    <button type=\"button\" \n                                        class=\"pure-button cancel\">\n                                        Close\n                                    </button>\n\n                                <% } else { %> \n                                    <button type=\"button\" \n                                        class=\"pure-button button-primary save\">\n                                        Create\n                                    </button>\n                                    <button type=\"button\" class=\"pure-button cancel\">\n                                        Cancel\n                                    </button>\n                                <% } %>\n                            </div>\n                        </div>\n                    </fieldset>\n                </form>\n            </div>\n        </div>\n    </div>\n</div>\n";
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 module.exports = "<h3><%- greet() %></h3>\n\n<h5 class=\"section\">\n\tAlerts\n</h5>\n<% if(alerts.length === 0) { %>\n\t<h6>You have no outstanding vulnerability alerts. Hooray!</h6>\n<% } else { %>\n\t<div class=\"pure-g alert-list\">\n\t\t<% alerts.each(function(al) { %>\n\t\t<div class=\"pure-u-1-1 alert-item\">\n\t\t\t<div class=\"alert-item-inner\"\n\t\t\t\tdata-vuln=\"<%- al.get('vuln').id %>\">\n\t\t\t\t<h4><%- al.get('vuln').name %></h4>\n\t\t\t\t<h5 class=\"text-muted\">Effecting package \n\t\t\t\t\t<span class=\"not-muted\"><%- al.get('package').name %></span> in monitor <%- al.get('monitor').name %>\n\t\t\t\t</h5>\n\t\t\t\t<a href=\"javascript:void(0)\" \n\t\t\t\t\tdata-alert=\"<%- al.get('id') %>\"\n\t\t\t\t\tclass=\"pure-button button-warning button-xsmall dismiss-alert\">\n\t\t\t\t\tDismiss\n\t\t\t\t</a>\n\t\t\t</div>\n\t\t</div>\n\t\t<% }) %>\n\t</div>\n<% } %>\n<div id=\"alert-pager\"></div>\n\n\n<div id=\"create-monitor\"></div>\n\n\n<h5 class=\"section\">\n\tMonitors \n\t<a href=\"javascript:void(0)\" \n\t\tclass=\"new-monitor pure-button button-primary button-small\">\n\t\t\tNew Monitor\n\t</a>\n</h5>\n\n<% if(monitors.isLoading()) { %>\n\t<%= inject('loader') %>\n<% } else if(!monitors.length) { %>\n\t<div class=\"pure-g monitor-list\">\n\t\t<div class=\"pure-u-1-1\">\n\t\t\t<h6>You aren't monitoring any repositories yet<h6>\n\t\t</div>\n\t</div>\n<% } else { %>\n\t<div class=\"pure-g monitor-list\">\n\t\t<% monitors.each(function(mon, i) { %>\n\t\t\t<div class=\"pure-u-1-2 monitor-card-wrap\">\n\t\t\t\t<div class=\"card <%- i % 2 == 0? 'left' : 'right' %>\">\n\n\t\t\t\t\t<h4>\n\t\t\t\t\t\t<a href=\"#monitors/<%- mon.get('id') %>\">\n\t\t\t\t\t\t\t<%- mon.get('name') %>\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</h4>\n\n\t\t\t\t\t<a class=\"pure-button button-secondary button-xsmall\" \n\t\t\t\t\t\thref=\"<%- mon.get('manifest') %>\"\n\t\t\t\t\t\ttarget=\"_blank\">\n\t\t\t\t\t\tView Manifest\n\t\t\t\t\t</a>\n\t\t\t\t</div>\n\n\t\t\t</div>\n\t\t<% }); %>\n\t</div>\n<% } %>";
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 module.exports = "\n<div class=\"landing\">\n\t<h1>\n\t\tvuln.pub is a vulnerability monitoring and notification service.\n\t</h1>\n\n\t<p class=\"hero-tagline\">\n\t\tvuln.pub watches vulnerabilities published on security lists. It notifies you when a dependency in your application has a potential vulnerability.\n\t</p>\n\n\t<div class=\"landing-actions\">\n\t\t<a href=\"#register\" class=\"pure-button button-success button-xlarge\">Register</a>\n\t\t<span class=\"text-muted\">or</span>\n\t\t<a href=\"#login\" class=\"pure-button button-primary button-xlarge\">Login</a>\n\t</div>\n</div>";
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 module.exports = "<h3><%- monitor.get('name') %></h3>\n\n<% if(monitor.isLoading()) { %>\n\t<%= inject('loader') %>\n<% } else { %>\n\n\t<h5 class=\"section\">\n\t\t<% if(monitor.get('packages').length === 0) { %>\n\t\t\tThis monitor isn't monitoring any packages. If you just created it then\n\t\t\tit may take a few minutes for the packages to show up here. \n\t\t<% } else { %>\n\t\t\tThis monitor is monitoring the following packages\n\t\t<% } %>\n\t</h5>\n\n\t<div class=\"pure-g package-list\">\n\n\t\t<% _.each(monitor.get('packages'), function(p, idx) { %>\n\t\t\t<div class=\"pure-u-1-3\">\n\t\t\t\t<div class=\"card package-card\n\t\t\t\t\t<%- idx % 3 == 0? 'left' : '' %>\n\t\t\t\t\t<%- (idx + 1) % 3 == 0? 'right' : '' %>\">\n\t\t\t\t\t<h4><%- p.name %></h4>\n\t\t\t\t\t<p class=\"text-muted\"><%- p.version %></p>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t<% }) %>\n\t</div>\n<% } %>";
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 module.exports = "\n<h3 class=\"section\">\n    Account Settings\n</h3>\n\n\n<% if(user.isLoading()) { %>\n<%= inject('loader') %>\n<% } else { %>\n<div class=\"pure-g\">\n    <div class=\"pure-u-1-3\">\n        <form class=\"pure-form pure-form-stacked\">\n            <fieldset>\n                <%= showError('email', user) %>\n                <div class=\"pure-control-group\">\n                    <label for=\"email\">Email</label>\n                    <input id=\"email\" \n                        class=\"pure-u-1\"\n                        name=\"email\" \n                        type=\"email\" \n                        value=\"<%- user.get('email') %>\"\n                        placeholder=\"Email\">\n                </div>\n\n\n                <%= showError('password', user) %>\n                <div class=\"pure-control-group\">\n                    <label for=\"password\">Password</label>\n                    <input id=\"password\" \n                        class=\"pure-u-1\"\n                        name=\"password\" \n                        type=\"password\" \n                        value=\"<%- user.get('password') %>\"\n                        placeholder=\"Password\">\n                </div>\n                <div class=\"pure-control-group\">\n                    <label for=\"confirm_password\">Confirm</label>\n                    <input id=\"confirm_password\" \n                        class=\"pure-u-1\"\n                        name=\"confirm_password\" \n                        type=\"password\" \n                        value=\"<%- user.get('password') %>\"\n                        placeholder=\"Confirm Password\">\n                </div>\n\n\n                <div class=\"pure-control-group save-row\">\n\n                    <button type=\"button\" \n                    class=\"pure-button pure-button-primary save\">\n                        Save\n                    </button>\n                </div>\n\n            </fieldset>\n        </form>\n    </div>\n</div>\n\n<% } %>\n\n\n\n";
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 module.exports = "\n<% if(errors[name]) { %>\n    <div class=\"alert alert-error\">\n        <%- errors[name] %>\n    </div>\n<% } %>";
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 module.exports = "<div class=\"loading\">\n  <div class=\"loading-1\"></div>\n  <div class=\"loading-2\"></div>\n  <div class=\"loading-3\"></div>\n  <div class=\"loading-4\"></div>\n  <div class=\"loading-5\"></div>\n  <div class=\"loading-6\"></div>\n  <div class=\"loading-7\"></div>\n  <div class=\"loading-8\"></div>\n  <div class=\"loading-9\"></div>\n  <div class=\"loading-10\"></div>\n  <div class=\"base\"></div>\n</div>";
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 module.exports = "<div class=\"pure-form\">\n\t<input type=\"text\" name=\"filter\" class=\"filter\" \n\tvalue=\"<%- getFilterText() %>\"\n\tplaceholder=\"Search <%- name %>\"/>\n</div>";
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 module.exports = "<div class=\"pager\">\n\t<div class=\"page-counter\">\n\t\t<span>Page <%- collection.getPage() %></span> of <span><%- collection.pageCount() %></span>\n\t</div>\n\n\t<ul>\n\t\t<% if(collection.getPage() > 0) { %>\n\t\t\t<li class=\"prev\">\n\t\t\t\t<a class=\"to-page\" \n\t\t\t\t\tdata-page=\"<%- collection.getPage() - 1 %>\"\n\t\t\t\t\thref=\"javascript:void(0)\">Previous</a>\n\t\t\t</li>\n\t\t<% } %>\n\t\t<% fib().slice(2).forEach(function(num) { %>\n\t\t\t<li>\n\t\t\t\t<a href=\"javascript:void(0)\"\n\t\t\t\t\tdata-page=\"<%- num %>\"\n\t\t\t\t\tclass=\"to-page <%- collection.getPage() === num? 'active' : '' %>\">\n\t\t\t\t\t<%- num %>\n\t\t\t\t</a>\n\t\t\t</li>\n\t\t<% }); %>\n\t\t<% if(collection.getPage() < collection.pageCount()) { %>\n\t\t\t<li class=\"next\">\n\t\t\t\t<a class=\"to-page\" \n\t\t\t\t\tdata-page=\"<%- collection.getPage() + 1 %>\"\n\t\t\t\t\thref=\"javascript:void(0)\">Next</a>\n\t\t\t</li>\n\t\t<% } %>\n\t</ul>\n</div>";
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 module.exports = "<div class=\"side-nav\">\n  <ul>\n    <!-- separate --> \n    <li>\n      <a href=\"#\" title=\"Home\">\n        <i class=\"icon ion-home\"></i>\n      </a>\n    </li>\n\n    <li>\n      <a href=\"#vulns\" title=\"Known Vulnerabilities\">\n      \t<i class=\"icon ion-bug\"></i>\n      </a>\n    </li>\n    <li>\n      <a href=\"#report\" title=\"Report a Vulnerability\">\n      \t<i class=\"icon ion-speakerphone\"></i>\n      </a>\n    </li>\n\n  </ul>\n</div>";
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 module.exports = "<h1 class=\"title\">\n  <a href=\"/#\">\n    vuln.pub\n  </a>\n</h1>\n\n<% if(app.auth.hasAttempted()) { %>\n  <div class=\"profile-management\">\n    <ul>\n      <% if(app.auth.isLoggedIn()) { %>\n        <li>\n          <a href=\"#settings\">Settings</a>\n        </li>\n        <li>\n          <a href=\"#logout\">Logout</a>\n        </li>\n\n      <% } else { %>\n        <li>\n          <a href=\"#login\">Login</a>\n        </li>\n        <li>\n          <a href=\"#register\">Register</a>\n        </li>\n\n      <% } %>\n\n    </ul>\n  </div>\n<% } %>\n\n\n<div id=\"omni-search\">\n\n</div>";
 
-},{}],49:[function(require,module,exports){
-module.exports = "<div class=\"pure-control-group pure-u-1-2\">\n    <label for=\"effects_package\">\n        Effected Package\n    </label>\n    <%= showError('effects_package', vuln, 'Effected Package') %>\n    <input id=\"effects_package\" \n        class=\"pure-input-1\"\n        name=\"effects_package\" \n        type=\"text\" \n        value=\"<%- vuln.get('effects_package') %>\"\n        placeholder=\"Package Name\"/>\n</div>\n\n\n<div class=\"pure-control-group pure-u-1-2\">\n    <label for=\"effects_version\">\n        Effected Version\n    </label>\n    <%= showError('effects_version', vuln, 'Effected Version') %>\n    <input id=\"effects_version\" \n        class=\"pure-input-1\"\n        name=\"effects_version\" \n        type=\"text\" \n        value=\"<%- vuln.get('effects_version') %>\"\n        placeholder=\"Version\"/>\n\n    <h6>Use <a target=\"blank\" href=\"http://semver.org/\">\n        semver to qualify versions</a></h6>\n</div>";
-
 },{}],50:[function(require,module,exports){
-module.exports = "<h3 class=\"section\">Report a new Vulnerability</h3>\n\n<div class=\"pure-g report-grid\">\n    <div class=\"pure-u-11-24\">\n        <form class=\"pure-form pure-form-stacked\">\n            <fieldset>\n                <div class=\"pure-control-group\">\n                    <label for=\"name\">\n                        Name\n                    </label>\n                \t<%= showError('name', vuln) %>\n                    <input id=\"name\" \n                        class=\"pure-input-1\"\n                    \tname=\"name\" \n                    \ttype=\"text\" \n                    \tvalue=\"<%- vuln.get('name') %>\"\n                    \tplaceholder=\"Name\"/>\n                </div>\n\n\n\n                <div id=\"add-vuln-effect\" class=\"pure-g\"></div>\n                <% if(!hasView('effects')) { %>\n                <div class=\"pure-g add-package\">\n                    <div class=\"pure-u-1-2\">\n                        <button type=\"button\" \n                            class=\"pure-button button-warning add-effected button-small\">\n                            Add Effected Package\n                        </button>\n                    </div>\n                    <div class=\"pure-u-1-2\">\n                        <button type=\"button\" \n                            class=\"pure-button button-success add-patched button-small\">\n                            Add Patched Package\n                        </button>\n                    </div>\n                </div>\n                <% } %>\n\n                <div class=\"pure-control-group\">\n                    <label for=\"name\">\n                        Description\n                    </label>\n                \t<%= showError('description', vuln) %>\n                    <textarea id=\"description\" \n                        class=\"pure-input-1\"\n                    \tname=\"description\" \n                    \ttype=\"text\" \n                    \tplaceholder=\"A detailed description of why it is a vulnerability, how it works, and how to mitigate it.\"><%- vuln.get('description') %></textarea>\n                </div>\n                <h6>Use <a target=\"blank\" href=\"http://daringfireball.net/projects/markdown/syntax\">markdown</a> for formatting</h6>\n\n\n                <div class=\"pure-control-group\">\n                    <label for=\"external_link\">\n                    \tExternal Link\n                    </label>\n                \t<%= showError('external_link', vuln) %>\n                    <input id=\"external_link\" \n                        class=\"pure-input-1\"\n                    \tname=\"external_link\" \n                    \ttype=\"text\" \n                    \tvalue=\"<%- vuln.get('external_link') %>\"\n                    \tplaceholder=\"Eg: CVE page, ExploitDB, Pastebin, etc\"/>\n                </div>\n\n                <% if(vuln.get('id')) { %>\n                    <div class=\"pure-control-group\">\n                        <div class=\"alert alert-success\">\n                            New vulnerability has been created \n                            <a href=\"#vulns/<%- vuln.get('id') %>\">here</a>, thanks!\n\n                        </div>\n                    </div>\n                <% } else { %>\n                    <div class=\"pure-control-group action-row\">\n                        <button type=\"button\" class=\"pure-button button-primary save\">\n                            Create\n                        </button>\n                        <button type=\"button\" class=\"pure-button cancel\">\n                            Cancel\n                        </button>\n                    </div>\n                <% } %>\n            </fieldset>\n        </form>\n    </div>\n    <div class=\"pure-u-11-24 preview-wrap\">\n    \t<div id=\"report-preview\"></div>\n    </div>\n</div>";
+module.exports = "\n\n<div class=\"pure-control-group pure-u-2-5\">\n    <label for=\"name\">\n        Effected Package\n    </label>\n    <%= showError('name', effect) %>\n    <input id=\"name\" \n        class=\"pure-input-1\"\n        type=\"text\" \n        value=\"<%- effect.get('name') %>\"\n        placeholder=\"ex: openssl\"/>\n    <div id=\"search-view\"></div>\n\n</div>\n\n\n<div class=\"pure-control-group pure-u-2-5\">\n    <label for=\"version\">\n        Effected Version\n    </label>\n    <%= showError('version', effect) %>\n    <input id=\"version\" \n        class=\"pure-input-1\"\n        type=\"text\" \n        value=\"<%- effect.get('version') %>\"\n        placeholder=\"ex: ~> 4.2.0\"/>\n\n    <h6>Use <a target=\"blank\" href=\"http://semver.org/\">\n        semver to qualify versions</a></h6>\n</div>\n\n<div class=\"pure-congrol-group pure-u-1-5 add-effect-wrap\">\n    <a class=\"pure-button button-secondary add-effect\" href=\"javascript:void(0);\">\n        <i class=\"icon ion-plus-circled\"></i>\n    </a>\n</div>\n";
 
 },{}],51:[function(require,module,exports){
-module.exports = "<ul class=\"package-search\">\n<% _.each(packageSearch.slice(currentIndex, currentIndex + sliceSize), function(p, i) { %> \n\t<li class=\"<%- i === sliceOffset? 'active' : '' %>\">\n\t\t<a href=\"javascript:void(0)\"\n\t\t\tclass=\"select-package\"\n\t\t\tdata-package=<%- p.get('id') %>>\n\t\t\t<%- p.get('name') %>\n\t\t</a>\n\t</li>\n<% }); %>\n</ul>";
+module.exports = "<h3 class=\"section\">Report a new Vulnerability</h3>\n\n<div class=\"pure-g report-grid\">\n    <div class=\"pure-u-11-24\">\n        <form class=\"pure-form pure-form-stacked\">\n            <fieldset>\n                <div class=\"pure-control-group\">\n                    <label for=\"name\">\n                        Name\n                    </label>\n                    <%= showError('name', vuln) %>\n                    <input id=\"name\" \n                        class=\"pure-input-1\"\n                        name=\"name\" \n                        type=\"text\" \n                        value=\"<%- vuln.get('name') %>\"\n                        placeholder=\"Short title about the vulnerability\"/>\n                </div>\n\n                <ul class=\"effects\">\n                    <% _.each(vuln.get('effects'), function(effect) { %>\n                        <li class=\"<%- effect.vulnerable? 'vulnerable' : 'patched' %>\">\n                            <span class=\"text-muted kind\">\n                                <%- effect.vulnerable? 'Vulnerable' : 'Patched' %>\n                            </span>\n                            <%- effect.name %> <%- effect.version %>\n\n                            <a href=\"javascript:void(0);\"\n                                class=\"remove-effect pull-right\"\n                                data-name=\"<%- effect.name %>\"\n                                data-version=\"<%- effect.version %>\"\n                                data-vulnerable=\"<%- effect.vulnerable %>\">\n                                <i class=\"ion ion-close-circled\"></i>\n                            </a>\n\n                        </li>\n                    <% }) %>\n                </ul>\n\n\n                <div id=\"add-vuln-effect\" class=\"pure-g\"></div>\n                <% if(!hasView('effects')) { %>\n                <div class=\"pure-g add-package\">\n                    <div class=\"pure-u-1-2\">\n                        <button type=\"button\" \n                            class=\"pure-button button-warning add-effected button-small\">\n                            Add Effected Package\n                        </button>\n                    </div>\n                    <div class=\"pure-u-1-2\">\n                        <button type=\"button\" \n                            class=\"pure-button button-success add-patched button-small\">\n                            Add Patched Package\n                        </button>\n                    </div>\n                </div>\n                <% } %>\n\n                <div class=\"pure-control-group\">\n                    <label for=\"name\">\n                        Description\n                    </label>\n                    <%= showError('description', vuln) %>\n                    <textarea id=\"description\" \n                        class=\"pure-input-1\"\n                        name=\"description\" \n                        type=\"text\" \n                        placeholder=\"A detailed description of why it is a vulnerability, how it works, and how to mitigate it.\"><%- vuln.get('description') %></textarea>\n                </div>\n                <h6>Use <a target=\"blank\" href=\"http://daringfireball.net/projects/markdown/syntax\">markdown</a> for formatting</h6>\n\n\n                <div class=\"pure-control-group\">\n                    <label for=\"external_link\">\n                        External Link\n                    </label>\n                    <%= showError('external_link', vuln) %>\n                    <input id=\"external_link\" \n                        class=\"pure-input-1\"\n                        name=\"external_link\" \n                        type=\"text\" \n                        value=\"<%- vuln.get('external_link') %>\"\n                        placeholder=\"Eg: CVE page, ExploitDB, Pastebin, etc\"/>\n                </div>\n\n                <% if(vuln.get('id')) { %>\n                    <div class=\"pure-control-group\">\n                        <div class=\"alert alert-success\">\n                            New vulnerability has been created \n                            <a href=\"#vulns/<%- vuln.get('id') %>\">here</a>, thanks!\n\n                        </div>\n                    </div>\n                <% } else { %>\n                    <div class=\"pure-control-group action-row\">\n                        <button type=\"button\" class=\"pure-button button-primary save\">\n                            Create\n                        </button>\n                        <button type=\"button\" class=\"pure-button cancel\">\n                            Cancel\n                        </button>\n                    </div>\n                <% } %>\n            </fieldset>\n        </form>\n    </div>\n    <div class=\"pure-u-11-24 preview-wrap\">\n        <div id=\"report-preview\"></div>\n    </div>\n</div>";
 
 },{}],52:[function(require,module,exports){
-module.exports = "<h3 class=\"section\">Vulnerabilities</h3>\n\n<div class=\"vuln-list pure-g\">\n\n\t<% if(!vulns.length && !vulns.isLoading()) { %> \n\t\t<div class=\"pure-u-1-1\">\n\t\t\t<h6>No vulnerabilities found</h6>\n\t\t</div>\n\t<% } else { %>\n\t\t<% vulns.each(function(vuln) { %> \n\t\t<div class=\"vuln-item\">\n\t\t\t<div class=\"pure-u-2-3\">\n\t\t\t\t<a href=\"#vulns/<%- vuln.get('id') %>\">\n\t\t\t\t\t<%- vuln.get('name') %>\n\t\t\t\t</a>\n\t\t\t</div>\n\t\t</div>\n\t\t<% }); %>\n\t<% } %>\n</div>\n\n<div id=\"vuln-pager\"></div>";
+module.exports = "<ul class=\"package-search\">\n<% _.each(packageSearch.slice(currentIndex, currentIndex + sliceSize), function(p, i) { %> \n\t<li class=\"<%- i === sliceOffset? 'active' : '' %>\">\n\t\t<a href=\"javascript:void(0)\"\n\t\t\tclass=\"select-package\"\n\t\t\tdata-package=<%- p.get('id') %>>\n\t\t\t<%- p.get('name') %>\n\t\t</a>\n\t</li>\n<% }); %>\n</ul>";
 
 },{}],53:[function(require,module,exports){
-module.exports = "<div class=\"pure-g vuln-detail\">\n\t<div class=\"pure-u-1-1\">\n\n\n\n\t\t<h1><%- vuln.get('name') || 'No Name' %></h1>\n\n\n\t\t<h5 class=\"vuln-section text-muted\">Description</h5>\n\t\t<%= markdown.toHTML(vuln.get('description') || '') %>\n\n\t\t<h5 class=\"vuln-section text-muted\">Effected Packages</h5>\n\t\t<ul class=\"effects\">\n\t\t\t<% _.each(vuln.get('effects'), function(effect) { %>\n\t\t\t\t<li class=\"<%- effect.vulnerable? 'vulnerable' : 'patched' %>\">\n\t\t\t\t\t<span class=\"text-muted kind\">\n\t\t\t\t\t\t<%- effect.vulnerable? 'Vulnerable' : 'Patched' %>\n\t\t\t\t\t</span>\n\t\t\t\t\t<%- effect.name %> <%- effect.version %>\n\t\t\t\t</li>\n\t\t\t<% }) %>\n\t\t</ul>\n\n\n\n\t\t<h5 class=\"vuln-section text-muted\">External Resources</h5>\n\t\t<a href=\"<%- vuln.get('external_link') %>\">\n\t\t\t<%- vuln.get('external_link') %>\n\t\t</a>\n\t</div>\n</div>";
+module.exports = "<h3 class=\"section\">Vulnerabilities</h3>\n\n<div class=\"vuln-list pure-g\">\n\n\t<% if(!vulns.length && !vulns.isLoading()) { %> \n\t\t<div class=\"pure-u-1-1\">\n\t\t\t<h6>No vulnerabilities found</h6>\n\t\t</div>\n\t<% } else { %>\n\t\t<% vulns.each(function(vuln) { %> \n\t\t<div class=\"vuln-item\">\n\t\t\t<div class=\"pure-u-2-3\">\n\t\t\t\t<a href=\"#vulns/<%- vuln.get('id') %>\">\n\t\t\t\t\t<%- vuln.get('name') %>\n\t\t\t\t</a>\n\t\t\t</div>\n\t\t</div>\n\t\t<% }); %>\n\t<% } %>\n</div>\n\n<div id=\"vuln-pager\"></div>";
 
 },{}],54:[function(require,module,exports){
+module.exports = "<div class=\"pure-g vuln-detail\">\n    <div class=\"pure-u-1-1\">\n\n\n\n        <h1><%- vuln.get('name') || 'No Name' %></h1>\n\n\n        <h5 class=\"vuln-section text-muted\">Description</h5>\n        <%= markdown.toHTML(vuln.get('description') || '') %>\n\n        <h5 class=\"vuln-section text-muted\">Effected Packages</h5>\n        <ul class=\"effects\">\n            <% _.each(vuln.get('effects'), function(effect) { %>\n                <li class=\"<%- effect.vulnerable? 'vulnerable' : 'patched' %>\">\n                    <span class=\"text-muted kind\">\n                        <%- effect.vulnerable? 'Vulnerable' : 'Patched' %>\n                    </span>\n                    <%- effect.name %> <%- effect.version %>\n                </li>\n            <% }) %>\n        </ul>\n\n\n\n        <h5 class=\"vuln-section text-muted\">External Resources</h5>\n        <a href=\"<%- vuln.get('external_link') %>\">\n            <%- vuln.get('external_link') %>\n        </a>\n    </div>\n</div>";
+
+},{}],55:[function(require,module,exports){
 //     Backbone.js 1.1.2
 
 //     (c) 2010-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -3176,7 +3260,7 @@ module.exports = "<div class=\"pure-g vuln-detail\">\n\t<div class=\"pure-u-1-1\
 
 }));
 
-},{"underscore":62}],55:[function(require,module,exports){
+},{"underscore":63}],56:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -3201,7 +3285,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -3266,14 +3350,14 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -3863,7 +3947,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":57,"_process":56,"inherits":55}],59:[function(require,module,exports){
+},{"./support/isBuffer":58,"_process":57,"inherits":56}],60:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.1
  * http://jquery.com/
@@ -13055,12 +13139,12 @@ return jQuery;
 
 }));
 
-},{}],60:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 // super simple module for the most common nodejs use case.
 exports.markdown = require("./markdown");
 exports.parse = exports.markdown.toHTML;
 
-},{"./markdown":61}],61:[function(require,module,exports){
+},{"./markdown":62}],62:[function(require,module,exports){
 // Released under MIT license
 // Copyright (c) 2009-2010 Dominic Baggott
 // Copyright (c) 2009-2010 Ash Berlin
@@ -14787,7 +14871,7 @@ function merge_text_nodes( jsonml ) {
   }
 } )() );
 
-},{"util":58}],62:[function(require,module,exports){
+},{"util":59}],63:[function(require,module,exports){
 //     Underscore.js 1.7.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors

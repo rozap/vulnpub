@@ -21,9 +21,8 @@ defmodule Service.VulnConsumer do
   end
 
   def is_vulnerable?(package, effects) do
+    IO.inspect package.version
     {:ok, package_version} = Version.parse(package.version)
-    :io.format("PACKAGE VERSION ~p EFFECTED BY ~p ~n", [package.version, (for n <- effects, do: n.version)])
-
     {unsafe, safe} = Enum.partition(effects, 
       fn effect -> effect.vulnerable end) 
     #match a vuln

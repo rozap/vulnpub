@@ -1,31 +1,31 @@
 <div class="pure-g vuln-detail">
-	<div class="pure-u-1-1">
+    <div class="pure-u-1-1">
 
 
 
-		<h1><%- vuln.get('name') || 'No Name' %></h1>
+        <h1><%- vuln.get('name') || 'No Name' %></h1>
 
 
-		<h5 class="vuln-section text-muted">Description</h5>
-		<%= markdown.toHTML(vuln.get('description') || '') %>
+        <h5 class="vuln-section text-muted">Description</h5>
+        <%= markdown.toHTML(vuln.get('description') || '') %>
 
-		<h5 class="vuln-section text-muted">Effected Packages</h5>
-		<ul class="effects">
-			<% _.each(vuln.get('effects'), function(effect) { %>
-				<li class="<%- effect.vulnerable? 'vulnerable' : 'patched' %>">
-					<span class="text-muted kind">
-						<%- effect.vulnerable? 'Vulnerable' : 'Patched' %>
-					</span>
-					<%- effect.name %> <%- effect.version %>
-				</li>
-			<% }) %>
-		</ul>
+        <h5 class="vuln-section text-muted">Effected Packages</h5>
+        <ul class="effects">
+            <% _.each(vuln.get('effects'), function(effect) { %>
+                <li class="<%- effect.vulnerable? 'vulnerable' : 'patched' %>">
+                    <span class="text-muted kind">
+                        <%- effect.vulnerable? 'Vulnerable' : 'Patched' %>
+                    </span>
+                    <%- effect.name %> <%- effect.version %>
+                </li>
+            <% }) %>
+        </ul>
 
 
 
-		<h5 class="vuln-section text-muted">External Resources</h5>
-		<a href="<%- vuln.get('external_link') %>">
-			<%- vuln.get('external_link') %>
-		</a>
-	</div>
+        <h5 class="vuln-section text-muted">External Resources</h5>
+        <a href="<%- vuln.get('external_link') %>">
+            <%- vuln.get('external_link') %>
+        </a>
+    </div>
 </div>

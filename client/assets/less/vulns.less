@@ -1,88 +1,97 @@
 .vuln-list {
 
-	.vuln-item {
-		padding:@margin-width/2 @margin-width/4;
-		.details {
-			p {
-				margin: 0px;
-				text-align: right;
-			}
-		}
-	}
+    .vuln-item {
+        padding:@margin-width/2 @margin-width/4;
+        .details {
+            p {
+                margin: 0px;
+                text-align: right;
+            }
+        }
+    }
 }
 
 
 
 .vuln-detail {
-	.vuln-section {
-		.section();
-	}
+    .vuln-section {
+        .section();
+    }
 
-	.effects {
-
-		li {
-			margin: @margin-width/2 0px;
-			padding: @margin-width/2;
-		}
-		li.vulnerable {
-			border-left: 4px solid @red;
-		}
-		li.patched {
-			border-left: 4px solid @green;
-		}
-
-		.kind {
-			min-width: @margin-width*5;
-			display: inline-block;
-		}
-	}
+    
 }
 
 .report-grid {
-	min-height: 768px;
+    min-height: 768px;
 
-	form {
-		textarea {
-			min-height: @margin-width*8;
-		}		
-		h6 {
-			margin-top: 0px;
-			float: right;
-		}
-	}
-
-
-
-	.preview-wrap {
-		border-left: 1px solid @gray-light;
-		margin-left: @margin-width*2;
-		padding-left: @margin-width*2;
-		min-height:768px;
-	}
+    form {
+        textarea {
+            min-height: @margin-width*8;
+        }       
+        h6 {
+            margin-top: 0px;
+            float: right;
+        }
+    }
 
 
-	.package-search {
-		li {
-			padding: @margin-width/4;
-			border-radius: 2px;
-		}
-		li.active {
-			background: @light-blue;
-			a {
-				color:@white;
-			}
-		}		
-	}
+
+    .preview-wrap {
+        border-left: 1px solid @gray-light;
+        margin-left: @margin-width*2;
+        padding-left: @margin-width*2;
+        min-height:768px;
+    }
+
+
+    .package-search {
+        li {
+            padding: @margin-width/4;
+            border-radius: 2px;
+        }
+        li.active {
+            background: @light-blue;
+            a {
+                color:@white;
+            }
+        }       
+    }
 }
 
 .add-package {
-	text-align: center;
-	margin-top: @margin-width;
-	margin-bottom: @margin-width;
+    text-align: center;
+    margin-top: @margin-width;
+    margin-bottom: @margin-width;
 }
 
 #add-vuln-effect {
-	.pure-control-group:first-of-type {
-		padding-right: @margin-width;
-	}
+    .pure-control-group:first-of-type {
+        padding-right: @margin-width;
+    }
+
+    .add-effect-wrap {
+        text-align: center;
+        .add-effect {
+            margin-top: 38px;
+        }
+    }
+}
+
+.effects {
+
+    li {
+        margin: @margin-width/2 0px;
+        padding: @margin-width/2;
+    }
+    li.vulnerable {
+        border-left: 4px solid @red;
+    }
+    li.patched {
+        border-left: 4px solid @green;
+    }
+
+    .kind {
+        min-width: @margin-width*5;
+        display: inline-block;
+    }
 }

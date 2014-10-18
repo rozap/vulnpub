@@ -2,6 +2,7 @@ var View = require('./abstract'),
     _ = require('underscore'),
     PackageCollection = require('../collections/packages'),
     Vuln = require('../models/vuln'),
+    Effect = require('../models/effect'),
     VulnView = require('./vuln'),
     ReportTemplate = require('../../templates/vuln/report.html'),
     SearchViewTemplate = require('../../templates/vuln/search-packages.html'),
@@ -76,14 +77,20 @@ var SearchView = View.extend({
     },
 
     select: function() {
-        this.trigger('select', this.packageSearch.at(this.currentIndex + this.sliceOffset));
-        this.reset();
+        var pack = this.packageSearch.at(this.currentIndex + this.sliceOffset);
+        if (pack) {
+            this.trigger('select', pack);
+            this.reset();
+        }
     },
 
     onClickPackage: function(e) {
-        var id = parseInt($(e.currentTarget).data('package'));
-        this.trigger('select', this.packageSearch.get(id));
-        this.reset();
+        var id = parseInt($(e.currentTarget).data('package')),
+            pack = this.packageSearch.get(id);
+        if (pack) {
+            this.trigger('select', pack);
+            this.reset();
+        }
     },
 
     onWheel: function(e) {
@@ -97,11 +104,69 @@ var EffectsView = View.extend({
     el: '#add-vuln-effect',
     template: _.template(EffectsViewTemplate),
     events: {
-        'keydown #effects_package': 'keydown',
-        'keyup #effects_package': 'keyup',
+        'keydown #name': 'keydown',
+        'keyup #name': 'keyup',
+        'click .add-effect': 'addEffect'
     },
 
-    include: ['vuln'],
+    include: ['vuln', 'effect'],
+
+    onStart: function() {
+        this.reset();
+        this.addSearch();
+
+    },
+
+    reset: function() {
+        //empty one
+        this.effect = new Effect({
+            vulnerable: this.vulnerable
+        }, this.opts());
+        this.listenTo(this.effect, 'change', this.renderIt);
+    },
+
+    serialize: function() {
+        return _.object(['name', 'version'].map(function(key) {
+            return [key, this.$el.find('#' + key).val()];
+        }.bind(this)));
+    },
+
+
+    onSelected: function(pack) {
+        this.effect.set('name', pack.get('name'));
+        this.endView('search');
+        this.$el.find('#version').focus();
+    },
+
+
+    addEffect: function() {
+
+        this.effect = this.effect.set(this.serialize());
+        if (!this.effect.isValid()) {
+            this.render();
+            return;
+        }
+        var effects = this.vuln.get('effects') || [];
+        effects.push(this.effect.toJSON());
+        this.vuln.set('effects', effects);
+        this.vuln.trigger('change');
+        this.end();
+    },
+
+    addSearch: function() {
+        var search = this.spawn('search', new SearchView(this.opts()));
+        this.listenTo(search, 'select', this.onSelected);
+    },
+
+    keydown: function(e) {
+        this.trigger('keydown', e);
+    },
+
+    keyup: function(e) {
+        if (!this.hasView('search')) this.addSearch();
+        this.trigger('keyup', e);
+    },
+
 
 });
 
@@ -116,6 +181,7 @@ module.exports = View.extend({
     events: {
         'keyup input': 'update',
         'keyup textarea': 'update',
+        'click .remove-effect': 'removeEffect',
         'click .add-effected': 'addEffected',
         'click .add-patched': 'addPatched',
         'click .save': 'save'
@@ -134,7 +200,6 @@ module.exports = View.extend({
             vuln: this.vuln,
             el: '#report-preview'
         })));
-        this.addSearch();
     },
 
 
@@ -147,6 +212,13 @@ module.exports = View.extend({
         this.render();
     },
 
+    removeEffect: function(e) {
+        var toRemove = $(e.currentTarget).data();
+        this.vuln.set('effects', _.reject(this.vuln.get('effects'), function(effect) {
+            return _.isEqual(effect, toRemove);
+        }));
+    },
+
     addEffected: function() {
         this._createEffectsView(true);
     },
@@ -155,29 +227,8 @@ module.exports = View.extend({
         this._createEffectsView(false);
     },
 
-    addSearch: function() {
-        var search = this.spawn('search', new SearchView(this.opts()));
-        this.listenTo(search, 'select', this.onSelected);
-    },
-
     update: function() {
         return this.vuln.set(this.$el.find('form').serializeObject());
-    },
-
-    keydown: function(e) {
-        this.trigger('keydown', e);
-    },
-
-    keyup: function(e) {
-        if (!this.hasView('search')) this.addSearch();
-        this.trigger('keyup', e);
-    },
-
-    onSelected: function(pack) {
-        this.vuln.set('effects_package', pack.get('name'));
-        this.endView('search');
-        this.render();
-        this.$el.find('input[name="effects_version]').focus();
     },
 
     save: function() {

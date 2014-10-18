@@ -201,8 +201,29 @@ ul {
         font-size: 16px !important;
 
     }
-
 }
+
+
+
+input.error {
+    border: 1px solid @red !important;
+    &:focus {
+        border: 1px solid darken(@red, 25%) !important;    
+    };
+}
+
+input.warn {
+    border: 1px solid @orange !important;
+    &:focus {
+        border: 1px solid darken(@orange, 25%) !important;
+    }
+}
+
+.pull-right {
+    float:right;
+}
+
+
 @import "vulns.less";
 @import "home.less";
 @import "loaders.less";
