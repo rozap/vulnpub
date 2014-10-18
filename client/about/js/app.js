@@ -1,12 +1,8 @@
-console.log("about")
+console.log("about");
 var $ = require('jquery'),
-	_ = require('underscore'),
-	JsonMarkup = require('json-markup'),
-	Examples = require('./examples');
+    Examples = require('./examples'),
+    Formatter = require('../../app/js/util/json-format');
 
 $(document).ready(function() {
-
-	_.zip($('.manifest-example'), Examples).map(function(pair) {
-		$(pair[0]).html(JsonMarkup(pair[1]));
-	});
-})
+    Formatter.format(Examples);
+});

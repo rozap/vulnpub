@@ -24,7 +24,7 @@ defmodule Test.ParserUnmanaged do
     assert Dict.get(req_body, "manifest") == Dict.get(resp_body, "manifest")
     assert Dict.get(req_body, "name") == Dict.get(resp_body, "name")
     id = Dict.get(resp_body, "id")
-    :timer.sleep(800)  #packages are loaded async so wait here
+    :timer.sleep(200)  #packages are loaded async so wait here
 
     #now get the monitor that was just created back and verify that express is in there with the formatted version
     {_, _, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/monitors/#{id}", nil, [{"authentication", "foo:#{key}"}])
@@ -33,7 +33,7 @@ defmodule Test.ParserUnmanaged do
     assert some_package["name"] == "some-package-name"
     assert some_other["name"] == "some-other-name"
     assert yet_another["name"] == "yet-another-name"
-    assert some_package["version"] == "5.3"
+    assert some_package["version"] == "5.3.0"
     assert some_other["version"] == "6.3.1"
     assert yet_another["version"] == "0.3.1"
   end

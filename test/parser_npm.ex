@@ -28,7 +28,7 @@ defmodule Test.ParseNPMTest do
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/monitors/#{id}", nil, [{"authentication", "foo:#{key}"}])
     [express] = resp_body["packages"]
     assert express["name"] == "express"
-    assert express["version"] == "3.5.x"
+    assert express["version"] == "3.5.0"
     assert id != nil
   end
 

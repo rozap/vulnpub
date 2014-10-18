@@ -1,16 +1,5 @@
 {
-	"unmanaged": [{
-		"name": "some package name",
-		"version": "5.3",
-		"homepage": "github.com/something/some-package-name"
-	}],
 	"managed": {
-		"package.json": {
-			"manager": "npm"
-		},
-		"requirements.txt": {
-			"manager": "pypi"
-		},
 		"dpkg.txt": {
 			"manager": "dpkg"
 		}

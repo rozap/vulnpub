@@ -43,21 +43,16 @@ defmodule Service.Emailer do
     end
   end
 
-
   defp key, do: Config.get!([:vulnpub])[:email_apikey]
 
 
-  defp handle(:prod, {:activate, user}, state) do
-    template = File.read! @email_templates <> "activation.json"
-    payload = interpolate(template, %{:key => key, :email => user.email, :username => user.username})
-    #send it off...
-    send_email payload, user
+
+  defp handle(:dev, _, state) do
+    IO.puts "Not sending email"
     {:noreply, state}
   end
-
-
-  defp handle(_, {:activate, user}, state) do
-    :io.format("Not sending activate email to user: ~p~n", [user.email])
+  defp handle(:test, _, state) do
+    IO.puts "Not sending email"
     {:noreply, state}
   end
 
@@ -81,6 +76,14 @@ defmodule Service.Emailer do
     {:noreply, state}
   end
 
+
+  defp handle(_, {:activate, user}, state) do
+    template = File.read! @email_templates <> "activation.json"
+    payload = interpolate(template, %{:key => key, :email => user.email, :username => user.username})
+    #send it off...
+    send_email payload, user
+    {:noreply, state}
+  end
 
 
 

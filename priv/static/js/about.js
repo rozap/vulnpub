@@ -1,46 +1,68 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-console.log("about")
+console.log("about");
 var $ = require('jquery'),
-	_ = require('underscore'),
-	JsonMarkup = require('json-markup'),
-	Examples = require('./examples');
+    Examples = require('./examples'),
+    Formatter = require('../../app/js/util/json-format');
 
 $(document).ready(function() {
-
-	_.zip($('.manifest-example'), Examples).map(function(pair) {
-		$(pair[0]).html(JsonMarkup(pair[1]));
-	});
-})
-},{"./examples":2,"jquery":3,"json-markup":4,"underscore":5}],2:[function(require,module,exports){
+    Formatter.format(Examples);
+});
+},{"../../app/js/util/json-format":3,"./examples":2,"jquery":4}],2:[function(require,module,exports){
 module.exports = [{
-		"managed": {
-			"package.json": {
-				"manager": "npm"
-			}
-		}
-	}, {
-		"managed": {
-			"package.json": {
-				"manager": "npm"
-			},
-			"requirements.txt": {
-				"manager": "pypi"
-			},
-			"dpkg.txt": {
-				"manager": "dpkg"
-			}
-		}
-	}, {
-		"unmanaged": [{
-			"name": "some package name",
-			"version": "4.2.0",
-			"homepage": "github.com/something/some-package-name"
-		}]
-	}
+    "managed": {
+      "package.json": {
+        "manager": "npm"
+      }
+    }
+  }, {
+    "managed": {
+      "package.json": {
+        "manager": "npm"
+      },
+      "requirements.txt": {
+        "manager": "pypi"
+      },
+      "dpkg.txt": {
+        "manager": "dpkg"
+      }
+    }
+  }, {
+    "unmanaged": [{
+      "name": "some package name",
+      "version": "4.2.0",
+      "homepage": "github.com/something/some-package-name"
+    }]
+  }, {
+    "managed": {
+      "dpkg.txt": {
+        "manager": "dpkg"
+      }
+    }
+  },
 
 
 ]
 },{}],3:[function(require,module,exports){
+var $ = require('jquery'),
+    _ = require('underscore'),
+    JsonMarkup = require('json-markup');
+
+
+module.exports = {
+    format: function(examples) {
+        _.zip($('.manifest-example'), examples).map(function(pair) {
+            $(pair[0]).html(JsonMarkup(pair[1]));
+        });
+
+        ///hack to get the keys stringified
+        $('.json-markup-key').each(function(i, el) {
+            var $el = $(el),
+                str = '"' + $el.text().split(':')[0] + '":';
+            $el.text(str);
+        })
+    }
+};
+},{"jquery":4,"json-markup":5,"underscore":6}],4:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.1
  * http://jquery.com/
@@ -9232,7 +9254,7 @@ return jQuery;
 
 }));
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var INDENT = '    ';
 
 var type = function(doc) {
@@ -9302,7 +9324,7 @@ module.exports = function(doc) {
 	return '<div class="json-markup">'+visit(doc)+'</div>';
 };
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 //     Underscore.js 1.7.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors

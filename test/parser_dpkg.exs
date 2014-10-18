@@ -32,10 +32,10 @@ defmodule Test.ParseDpkgTest do
     assert npm["name"] == "npm"
     assert nodejs["version"] == "0.10.25"
     assert npm["version"] == "1.3.10"
-    assert bluez["version"] == "4.101"
-    assert blueman["version"] == "1.23"
-    assert binutils["version"] == "2.24"
-    assert bind9["version"] == "1:9.9.5"
+    assert bluez["version"] == "4.101.0"
+    assert blueman["version"] == "1.23.0"
+    assert binutils["version"] == "2.24.0"
+    assert bind9["version"] == "9.9.5"
   end
 
 

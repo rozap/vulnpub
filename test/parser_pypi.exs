@@ -34,8 +34,8 @@ defmodule Test.ParserPyPiTest do
     assert venv["name"] == "virtualenv"
 
     assert twisted["version"] == "13.2.0"
-    assert apt["version"] == "0.9.3.5"
-    assert dateutil["version"] == "2.2"
+    assert apt["version"] == "0.9.3"
+    assert dateutil["version"] == "2.2.0"
     assert debian["version"] == "0.1.21"
     assert venv["version"] == "1.11.4"
 

@@ -33,8 +33,13 @@ defmodule Manifest.Parser.Parser do
     existing = Enum.filter(packages, fn {_, _, p} -> not (is_nil p) end)
     to_create = Enum.filter(packages, fn {_, _, p} -> is_nil p end)
 
-    new_packages = Enum.map(to_create, 
-      fn {name, version, _} -> 
+    new_packages = to_create
+      |> Enum.map(fn {name, version, _} -> 
+        {name, extract_version(version)} end)
+      |> Enum.filter(fn {name, version} -> 
+        version != :error end)
+      |> Enum.map(fn {name, version} -> 
+        IO.inspect("CREATING #{name} #{version}")
         Package.allocate(%{:name => name, :version => version}) 
       end)
     existing = Enum.map(existing, fn {_, _, p} -> p end)
@@ -49,6 +54,28 @@ defmodule Manifest.Parser.Parser do
     create_package_monitors(monitor, packages ++ existing)
   end
 
+
+
+
+  defp extract_version(version) do
+    IO.inspect "EXTRACT VERSION #{version}"
+    case Version.parse(version) do
+      {:ok, _} -> 
+        version
+      :error ->
+        ## attempt to fix it
+        case Regex.run(~r/(\d+\.\d+\.\d+)/, version) do
+          nil ->
+            case Regex.run(~r/(\d+\.\d+)/, version) do
+              nil -> [:error]
+              versions ->
+                v = List.first(versions)
+                "#{v}.0"
+            end
+          versions -> List.first(versions)
+        end
+    end
+  end
   
 
   def get_package_listing(filename, details, monitor) do
