@@ -1,11 +1,12 @@
-var Collection = require('./abstract');
+var Collection = require('./abstract'),
+    Monitor = require('../models/monitor');
 
 
 module.exports = Collection.extend({
-
-	api: function() {
-		return 'monitors'
-	},
+    model: Monitor,
+    api: function() {
+        return 'monitors';
+    },
 
 
 });

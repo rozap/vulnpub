@@ -63,6 +63,20 @@ defmodule Test.MonitorTest do
     assert status == 202
   end
 
+
+  test "can delete a monitor" do
+    {_, _, apikey_resp} = DBHelpers.create_apikey()
+    key = Dict.get(apikey_resp, "key")
+    headers = [{"authentication", "foo:#{key}"}]
+    {_, _, resp_body} = simulate_json_file(Vulnpub.Router, :post, "api/v1/monitors", "test/json/new_monitor.json", headers)
+    id = Dict.get(resp_body, "id")
+    {status, req_body, resp_body} = simulate_json_file(Vulnpub.Router, :delete, "api/v1/monitors/#{id}", "test/json/update_monitor.json", headers)
+    assert status == 202
+    {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/monitors", nil, headers)
+    assert status == 200
+    assert resp_body["data"] === []
+  end
+
   test "cannot update someone elses monitor" do
     {_, _, resp} = DBHelpers.create_apikey(1)
     bad_key = Dict.get(resp, "key")
@@ -71,6 +85,17 @@ defmodule Test.MonitorTest do
     {_, _, resp_body} = simulate_json_file(Vulnpub.Router, :post, "api/v1/monitors", "test/json/new_monitor.json", [{"authentication", "foo:#{key}"}])
     id = Dict.get(resp_body, "id")
     {status, req_body, resp_body} = simulate_json_file(Vulnpub.Router, :put, "api/v1/monitors/#{id}", "test/json/update_monitor.json", [{"authentication", "foo_1:#{bad_key}"}])
+    assert status == 401
+  end
+
+  test "cannot update someone elses monitor" do
+    {_, _, resp} = DBHelpers.create_apikey(1)
+    bad_key = Dict.get(resp, "key")
+    {_, _, apikey_resp} = DBHelpers.create_apikey()
+    key = Dict.get(apikey_resp, "key")
+    {_, _, resp_body} = simulate_json_file(Vulnpub.Router, :post, "api/v1/monitors", "test/json/new_monitor.json", [{"authentication", "foo:#{key}"}])
+    id = Dict.get(resp_body, "id")
+    {status, req_body, resp_body} = simulate_json_file(Vulnpub.Router, :delete, "api/v1/monitors/#{id}", "test/json/update_monitor.json", [{"authentication", "foo_1:#{bad_key}"}])
     assert status == 401
   end
 

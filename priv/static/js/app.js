@@ -169,18 +169,19 @@ module.exports = Collection.extend({
 
 });
 },{"../models/alert":9,"./abstract":3}],5:[function(require,module,exports){
-var Collection = require('./abstract');
+var Collection = require('./abstract'),
+    Monitor = require('../models/monitor');
 
 
 module.exports = Collection.extend({
-
-	api: function() {
-		return 'monitors'
-	},
+    model: Monitor,
+    api: function() {
+        return 'monitors';
+    },
 
 
 });
-},{"./abstract":3}],6:[function(require,module,exports){
+},{"../models/monitor":13,"./abstract":3}],6:[function(require,module,exports){
 var Collection = require('./abstract');
 
 
@@ -538,6 +539,7 @@ module.exports = {
     onStart: function() {
         this.listenTo(this, 'request', this._onRequest);
         this.listenTo(this, 'sync', this._onSync);
+        this.listenTo(this, 'remove', this._onSync);
         this.listenTo(this, 'error', this._onError);
     },
 
@@ -887,6 +889,7 @@ module.exports = View.extend({
         'click .new-monitor': 'create',
         'click .dismiss-alert': 'dismiss',
         'click .alert-item-inner': 'gotoVuln',
+        'click .remove-monitor': 'removeMonitor'
     },
 
     _greetings: ['hello', 'greetings', 'sup', 'what\'s happening', 'how goes it'],
@@ -898,11 +901,10 @@ module.exports = View.extend({
         this._greet = this._greetings[Math.floor(Math.random() * this._greetings.length)];
 
         this.alerts = new Alerts([], this.opts());
-        this.listenTo(this.alerts, 'sync error remove', this.renderIt);
-        this.alerts.fetch();
-
         this.monitors = new Monitors([], this.opts());
-        this.listenTo(this.monitors, 'sync error add', this.renderIt);
+        this.listenTo(this.alerts, 'sync error remove', this.renderIt);
+        this.listenTo(this.monitors, 'sync error add remove', this.renderIt);
+        this.alerts.fetch();
         this.monitors.fetch();
     },
 
@@ -921,6 +923,11 @@ module.exports = View.extend({
 
     onCreated: function(monitor) {
         this.monitors.add(monitor);
+    },
+
+    removeMonitor: function(e) {
+        var id = $(e.currentTarget).data('id');
+        this.monitors.get(id).destroy();
     },
 
     create: function() {
@@ -1542,10 +1549,26 @@ module.exports = View.extend({
 	el: '.header',
 	template: _.template(TopNavTemplate),
 
+	events: {
+		'click': 'home',
+		'click a': 'nope'
+	},
+
 	onStart: function() {
 		this.listenTo(this.app.dispatcher, 'auth.change', this.render);
 		this.spawn('omni', new OmniSearch(this.opts()))
 		this.render();
+	},
+
+	nope: function(e) {
+		e.awfulHack = true;
+	},
+
+	home: function(e) {
+		if (e.awfulHack) return;
+		this.app.router.navigate('#', {
+			trigger: true
+		});
 	}
 
 })
@@ -1668,10 +1691,10 @@ module.exports = "\n\n<div class=\"pure-g\">\n    <div class=\"pure-u-1-1\">\n  
 module.exports = "<div class=\"modal\">\n\n    <div class=\"modal-inner\">\n        <div class=\"modal-header\">\n            <h5 class=\"section\">Create a new Monitor</h5>\n        </div>\n\n        <div class=\"pure-g\">\n            <div class=\"pure-u-1-1\">\n                <form class=\"pure-form pure-form-stacked create-monitor\">\n                    <fieldset>\n                        <div class=\"pure-control-group\">\n                            <label for=\"name\">\n                                Name\n                            </label>\n                            <%= showError('name', monitor) %>\n                            <input id=\"name\" \n                                class=\"pure-input-1\"\n                                name=\"name\" \n                                type=\"text\" \n                                value=\"<%- monitor.get('name') %>\"\n                                placeholder=\"Name\"/>\n                        </div>\n\n                        <div class=\"pure-control-group\">\n                            <label for=\"manifest\">\n                                Publicly Accessible <a href=\"/about/manifest\" target=\"_blank\">manifest file</a>\n                            </label>\n                            <%= showError('manifest', monitor) %>\n                            <input id=\"manifest\" \n                                class=\"pure-input-1\"\n                                name=\"manifest\" \n                                type=\"text\" \n                                value=\"<%- monitor.get('manifest') %>\"\n                                placeholder=\"Manifest URL\"/>\n                        </div>\n\n                        <div class=\"modal-footer\">\n                            <div class=\"pure-control-group action-row\">\n                                <% if(monitor.get('id')) { %>\n                                    <div class=\"alert alert-success\">\n                                        \"<%- monitor.get('name') %>\" has been created\n                                    </div>\n                                    <button type=\"button\" \n                                        class=\"pure-button cancel\">\n                                        Close\n                                    </button>\n\n                                <% } else { %> \n                                    <button type=\"button\" \n                                        class=\"pure-button button-primary save\">\n                                        Create\n                                    </button>\n                                    <button type=\"button\" class=\"pure-button cancel\">\n                                        Cancel\n                                    </button>\n                                <% } %>\n                            </div>\n                        </div>\n                    </fieldset>\n                </form>\n            </div>\n        </div>\n    </div>\n</div>\n";
 
 },{}],42:[function(require,module,exports){
-module.exports = "<h3><%- greet() %></h3>\n\n<h5 class=\"section\">\n\tAlerts\n</h5>\n<% if(alerts.length === 0) { %>\n\t<h6>You have no outstanding vulnerability alerts. Hooray!</h6>\n<% } else { %>\n\t<div class=\"pure-g alert-list\">\n\t\t<% alerts.each(function(al) { %>\n\t\t<div class=\"pure-u-1-1 alert-item\">\n\t\t\t<div class=\"alert-item-inner\"\n\t\t\t\tdata-vuln=\"<%- al.get('vuln').id %>\">\n\t\t\t\t<h4><%- al.get('vuln').name %></h4>\n\t\t\t\t<h5 class=\"text-muted\">Effecting package \n\t\t\t\t\t<span class=\"not-muted\"><%- al.get('package').name %></span> in monitor <%- al.get('monitor').name %>\n\t\t\t\t</h5>\n\t\t\t\t<a href=\"javascript:void(0)\" \n\t\t\t\t\tdata-alert=\"<%- al.get('id') %>\"\n\t\t\t\t\tclass=\"pure-button button-warning button-xsmall dismiss-alert\">\n\t\t\t\t\tDismiss\n\t\t\t\t</a>\n\t\t\t</div>\n\t\t</div>\n\t\t<% }) %>\n\t</div>\n<% } %>\n<div id=\"alert-pager\"></div>\n\n\n<div id=\"create-monitor\"></div>\n\n\n<h5 class=\"section\">\n\tMonitors \n\t<a href=\"javascript:void(0)\" \n\t\tclass=\"new-monitor pure-button button-primary button-small\">\n\t\t\tNew Monitor\n\t</a>\n</h5>\n\n<% if(monitors.isLoading()) { %>\n\t<%= inject('loader') %>\n<% } else if(!monitors.length) { %>\n\t<div class=\"pure-g monitor-list\">\n\t\t<div class=\"pure-u-1-1\">\n\t\t\t<h6>You aren't monitoring any repositories yet<h6>\n\t\t</div>\n\t</div>\n<% } else { %>\n\t<div class=\"pure-g monitor-list\">\n\t\t<% monitors.each(function(mon, i) { %>\n\t\t\t<div class=\"pure-u-1-2 monitor-card-wrap\">\n\t\t\t\t<div class=\"card <%- i % 2 == 0? 'left' : 'right' %>\">\n\n\t\t\t\t\t<h4>\n\t\t\t\t\t\t<a href=\"#monitors/<%- mon.get('id') %>\">\n\t\t\t\t\t\t\t<%- mon.get('name') %>\n\t\t\t\t\t\t</a>\n\t\t\t\t\t</h4>\n\n\t\t\t\t\t<a class=\"pure-button button-secondary button-xsmall\" \n\t\t\t\t\t\thref=\"<%- mon.get('manifest') %>\"\n\t\t\t\t\t\ttarget=\"_blank\">\n\t\t\t\t\t\tView Manifest\n\t\t\t\t\t</a>\n\t\t\t\t</div>\n\n\t\t\t</div>\n\t\t<% }); %>\n\t</div>\n<% } %>";
+module.exports = "<h3><%- greet() %></h3>\n\n<h5 class=\"section\">\n    Alerts\n</h5>\n<% if(alerts.length === 0) { %>\n    <h6>You have no outstanding vulnerability alerts. Hooray!</h6>\n<% } else { %>\n    <div class=\"pure-g alert-list\">\n        <% alerts.each(function(al) { %>\n        <div class=\"pure-u-1-1 alert-item\">\n            <div class=\"alert-item-inner\"\n                data-vuln=\"<%- al.get('vuln').id %>\">\n                <h4><%- al.get('vuln').name %></h4>\n                <h5 class=\"text-muted\">Effecting package \n                    <span class=\"not-muted\"><%- al.get('package').name %></span> in monitor <%- al.get('monitor').name %>\n                </h5>\n                <a href=\"javascript:void(0)\" \n                    data-alert=\"<%- al.get('id') %>\"\n                    class=\"pure-button button-warning button-xsmall dismiss-alert\">\n                    Dismiss\n                </a>\n            </div>\n        </div>\n        <% }) %>\n    </div>\n<% } %>\n<div id=\"alert-pager\"></div>\n\n\n<div id=\"create-monitor\"></div>\n\n\n<h5 class=\"section\">\n    Monitors \n    <a href=\"javascript:void(0)\" \n        class=\"new-monitor pure-button button-primary button-small\">\n            New Monitor\n    </a>\n</h5>\n\n<div class=\"pure-g monitor-list\">\n    <% if(monitors.isLoading()) { %>\n        <div class=\"pure-u-1 load-wrap\">\n            <%= inject('loader') %>\n        </div>\n    <% } else if(!monitors.length) { %>\n            <div class=\"pure-u-1-1\">\n                <h6>You aren't monitoring any repositories yet<h6>\n            </div>\n    <% } else { %>\n        <% monitors.each(function(mon, i) { %>\n            <div class=\"pure-u-1-2 monitor-card-wrap\">\n                <div class=\"card <%- i % 2 == 0? 'left' : 'right' %>\">\n\n                    <h4>\n                        <a href=\"#monitors/<%- mon.get('id') %>\">\n                            <%- mon.get('name') %>\n                        </a>\n                    </h4>\n\n                    <a class=\"pure-button button-secondary button-xsmall\" \n                        href=\"<%- mon.get('manifest') %>\"\n                        target=\"_blank\">\n                        View Manifest\n                    </a>\n                    <a class=\"pure-button button-error button-xsmall remove-monitor\" \n                        href=\"javascript:void(0);\"\n                        data-id=\"<%- mon.get('id') %>\"\n                        target=\"_blank\">\n                        Delete\n                    </a>\n                </div>\n\n            </div>\n        <% }); %>\n    <% } %>\n</div>";
 
 },{}],43:[function(require,module,exports){
-module.exports = "\n<div class=\"landing\">\n\t<div class=\"limited\">\n\t\t<h1>\n\t\t\tvuln.pub is a seclist monitoring and notification service.\n\t\t</h1>\n\n\t\t<p class=\"hero-tagline\">\n\t\t\tvuln.pub watches for vulnerabilities published on security lists. It notifies you when a dependency in your application has a potential vulnerability.\n\t\t</p>\n\n\t\t<div class=\"landing-actions\">\n\t\t\t<a href=\"#register\"\n\t\t\t class=\"pure-button button-success button-xlarge\">\n\t\t\t\tRegister\n\t\t\t</a>\n\t\t\t<span class=\"text-muted\">or</span>\n\t\t\t<a href=\"#login\" class=\"pure-button button-primary button-xlarge\">\n\t\t\t\tLogin\n\t\t\t</a>\n\t\t</div>\n\t</div>\n\t<div class=\"setup-steps pure-g\">\n\n\t\t<div class=\"step\">\n\t\t\t<h5>Describe how your dependencies are managed</h5>\n\t\t\t<pre class=\"manifest-example\"></pre>\n\t\t</div>\n\n\t\t<div class=\"step\">\n\t\t\t<h5>Host your file somewhere, then log in and create a vulnpub monitor</h5>\n\t\t\t<img src=\"/static/images/repo-index.png\"/>\n\t\t</div>\n\n\t\t<div class=\"step\">\n\t\t\t<h5>Receive emails when a vulnerability effects a dependency</h5>\n\t\t</div>\n\n\t</div>\n</div>";
+module.exports = "\n<div class=\"landing\">\n\t<div class=\"limited\">\n\t\t<h1>\n\t\t\tvuln.pub is a seclist monitoring and notification service.\n\t\t</h1>\n\n\t\t<p class=\"hero-tagline\">\n\t\t\tvuln.pub watches for vulnerabilities published on security lists. It notifies you when a dependency in your application has a potential vulnerability.\n\t\t</p>\n\n\t\t<div class=\"landing-actions\">\n\t\t\t<a href=\"#register\"\n\t\t\t class=\"pure-button button-success button-xlarge\">\n\t\t\t\tRegister\n\t\t\t</a>\n\t\t\t<span class=\"text-muted\">or</span>\n\t\t\t<a href=\"#login\" class=\"pure-button button-primary button-xlarge\">\n\t\t\t\tLogin\n\t\t\t</a>\n\t\t</div>\n\t</div>\n\t<div class=\"setup-steps pure-g\">\n\n\t\t<div class=\"step\">\n\t\t\t<h5>Describe how your dependencies are managed</h5>\n\t\t\t<pre class=\"manifest-example\"></pre>\n\t\t</div>\n\n\t\t<div class=\"step\">\n\t\t\t<h5>Host your file somewhere, then log in and create a vulnpub monitor</h5>\n\t\t\t<img src=\"/static/images/repo-index.png\"/>\n\t\t</div>\n\n\t\t<div class=\"step\">\n\t\t\t<h5>Receive emails when a vulnerability effects a dependency</h5>\n\t\t\t<img src=\"/static/images/email-alert.png\"/>\n\n\t\t</div>\n\n\t</div>\n</div>";
 
 },{}],44:[function(require,module,exports){
 module.exports = "<h3><%- monitor.get('name') %></h3>\n\n<% if(monitor.isLoading()) { %>\n\t<%= inject('loader') %>\n<% } else { %>\n\n\t<h5 class=\"section\">\n\t\t<% if(monitor.get('packages').length === 0) { %>\n\t\t\tThis monitor isn't monitoring any packages. If you just created it then\n\t\t\tit may take a few minutes for the packages to show up here. \n\t\t<% } else { %>\n\t\t\tThis monitor is monitoring the following packages\n\t\t<% } %>\n\t</h5>\n\n\t<div class=\"pure-g package-list\">\n\n\t\t<% _.each(monitor.get('packages'), function(p, idx) { %>\n\t\t\t<div class=\"pure-u-1-3\">\n\t\t\t\t<div class=\"card package-card\n\t\t\t\t\t<%- idx % 3 == 0? 'left' : '' %>\n\t\t\t\t\t<%- (idx + 1) % 3 == 0? 'right' : '' %>\">\n\t\t\t\t\t<h4><%- p.name %></h4>\n\t\t\t\t\t<p class=\"text-muted\"><%- p.version %></p>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t<% }) %>\n\t</div>\n<% } %>";
@@ -1695,7 +1718,7 @@ module.exports = "<div class=\"pager\">\n\t<div class=\"page-counter\">\n\t\t<sp
 module.exports = "<div class=\"side-nav\">\n  <ul>\n    <!-- separate --> \n    <li>\n      <a href=\"#\" title=\"Home\">\n        <i class=\"icon ion-home\"></i>\n      </a>\n    </li>\n\n    <li>\n      <a href=\"#vulns\" title=\"Known Vulnerabilities\">\n      \t<i class=\"icon ion-bug\"></i>\n      </a>\n    </li>\n    <li>\n      <a href=\"#report\" title=\"Report a Vulnerability\">\n      \t<i class=\"icon ion-speakerphone\"></i>\n      </a>\n    </li>\n\n  </ul>\n</div>";
 
 },{}],51:[function(require,module,exports){
-module.exports = "<h1 class=\"title\">\n  <a href=\"/#\">\n    vuln.pub\n  </a>\n</h1>\n\n<% if(app.auth.hasAttempted()) { %>\n  <div class=\"profile-management\">\n    <ul>\n      <% if(app.auth.isLoggedIn()) { %>\n        <li>\n          <a href=\"#settings\">Settings</a>\n        </li>\n        <li>\n          <a href=\"#logout\">Logout</a>\n        </li>\n\n      <% } else { %>\n        <li>\n          <a href=\"#login\">Login</a>\n        </li>\n        <li>\n          <a href=\"#register\">Register</a>\n        </li>\n\n      <% } %>\n\n    </ul>\n  </div>\n<% } %>\n\n\n<div id=\"omni-search\">\n\n</div>";
+module.exports = "\n<% if(app.auth.hasAttempted()) { %>\n  <div class=\"profile-management\">\n    <ul>\n      <% if(app.auth.isLoggedIn()) { %>\n        <li>\n          <a href=\"#settings\">Settings</a>\n        </li>\n        <li>\n          <a href=\"#logout\">Logout</a>\n        </li>\n\n      <% } else { %>\n        <li>\n          <a href=\"#login\">Login</a>\n        </li>\n        <li>\n          <a href=\"#register\">Register</a>\n        </li>\n\n      <% } %>\n\n    </ul>\n  </div>\n<% } %>\n\n\n<div id=\"omni-search\">\n\n</div>";
 
 },{}],52:[function(require,module,exports){
 module.exports = "\n\n<div class=\"pure-control-group pure-u-2-5\">\n    <label for=\"name\">\n        Effected Package\n    </label>\n    <%= showError('name', effect) %>\n    <input id=\"name\" \n        class=\"pure-input-1\"\n        type=\"text\" \n        value=\"<%- effect.get('name') %>\"\n        placeholder=\"ex: openssl\"/>\n    <div id=\"search-view\"></div>\n\n</div>\n\n\n<div class=\"pure-control-group pure-u-2-5\">\n    <label for=\"version\">\n        Effected Version\n    </label>\n    <%= showError('version', effect) %>\n    <input id=\"version\" \n        class=\"pure-input-1\"\n        type=\"text\" \n        value=\"<%- effect.get('version') %>\"\n        placeholder=\"ex: ~> 4.2.0\"/>\n\n    <h6>Use <a target=\"blank\" href=\"http://semver.org/\">\n        semver to qualify versions</a></h6>\n</div>\n\n<div class=\"pure-congrol-group pure-u-1-5 add-effect-wrap\">\n    <a class=\"pure-button button-secondary add-effect\" href=\"javascript:void(0);\">\n        <i class=\"icon ion-plus-circled\"></i>\n    </a>\n</div>\n";

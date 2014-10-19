@@ -55,8 +55,8 @@ defmodule Repo.Migrations.CreateUser do
     "CREATE TABLE IF NOT EXISTS
         package_monitors(
           id serial primary key,
-          monitor_id integer references monitors(id), 
-          package_id integer references packages(id)
+          monitor_id integer references monitors(id) ON DELETE CASCADE, 
+          package_id integer references packages(id) ON DELETE CASCADE
         )",
 
 

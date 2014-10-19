@@ -1,29 +1,29 @@
 <h3><%- greet() %></h3>
 
 <h5 class="section">
-	Alerts
+    Alerts
 </h5>
 <% if(alerts.length === 0) { %>
-	<h6>You have no outstanding vulnerability alerts. Hooray!</h6>
+    <h6>You have no outstanding vulnerability alerts. Hooray!</h6>
 <% } else { %>
-	<div class="pure-g alert-list">
-		<% alerts.each(function(al) { %>
-		<div class="pure-u-1-1 alert-item">
-			<div class="alert-item-inner"
-				data-vuln="<%- al.get('vuln').id %>">
-				<h4><%- al.get('vuln').name %></h4>
-				<h5 class="text-muted">Effecting package 
-					<span class="not-muted"><%- al.get('package').name %></span> in monitor <%- al.get('monitor').name %>
-				</h5>
-				<a href="javascript:void(0)" 
-					data-alert="<%- al.get('id') %>"
-					class="pure-button button-warning button-xsmall dismiss-alert">
-					Dismiss
-				</a>
-			</div>
-		</div>
-		<% }) %>
-	</div>
+    <div class="pure-g alert-list">
+        <% alerts.each(function(al) { %>
+        <div class="pure-u-1-1 alert-item">
+            <div class="alert-item-inner"
+                data-vuln="<%- al.get('vuln').id %>">
+                <h4><%- al.get('vuln').name %></h4>
+                <h5 class="text-muted">Effecting package 
+                    <span class="not-muted"><%- al.get('package').name %></span> in monitor <%- al.get('monitor').name %>
+                </h5>
+                <a href="javascript:void(0)" 
+                    data-alert="<%- al.get('id') %>"
+                    class="pure-button button-warning button-xsmall dismiss-alert">
+                    Dismiss
+                </a>
+            </div>
+        </div>
+        <% }) %>
+    </div>
 <% } %>
 <div id="alert-pager"></div>
 
@@ -32,41 +32,47 @@
 
 
 <h5 class="section">
-	Monitors 
-	<a href="javascript:void(0)" 
-		class="new-monitor pure-button button-primary button-small">
-			New Monitor
-	</a>
+    Monitors 
+    <a href="javascript:void(0)" 
+        class="new-monitor pure-button button-primary button-small">
+            New Monitor
+    </a>
 </h5>
 
-<% if(monitors.isLoading()) { %>
-	<%= inject('loader') %>
-<% } else if(!monitors.length) { %>
-	<div class="pure-g monitor-list">
-		<div class="pure-u-1-1">
-			<h6>You aren't monitoring any repositories yet<h6>
-		</div>
-	</div>
-<% } else { %>
-	<div class="pure-g monitor-list">
-		<% monitors.each(function(mon, i) { %>
-			<div class="pure-u-1-2 monitor-card-wrap">
-				<div class="card <%- i % 2 == 0? 'left' : 'right' %>">
+<div class="pure-g monitor-list">
+    <% if(monitors.isLoading()) { %>
+        <div class="pure-u-1 load-wrap">
+            <%= inject('loader') %>
+        </div>
+    <% } else if(!monitors.length) { %>
+            <div class="pure-u-1-1">
+                <h6>You aren't monitoring any repositories yet<h6>
+            </div>
+    <% } else { %>
+        <% monitors.each(function(mon, i) { %>
+            <div class="pure-u-1-2 monitor-card-wrap">
+                <div class="card <%- i % 2 == 0? 'left' : 'right' %>">
 
-					<h4>
-						<a href="#monitors/<%- mon.get('id') %>">
-							<%- mon.get('name') %>
-						</a>
-					</h4>
+                    <h4>
+                        <a href="#monitors/<%- mon.get('id') %>">
+                            <%- mon.get('name') %>
+                        </a>
+                    </h4>
 
-					<a class="pure-button button-secondary button-xsmall" 
-						href="<%- mon.get('manifest') %>"
-						target="_blank">
-						View Manifest
-					</a>
-				</div>
+                    <a class="pure-button button-secondary button-xsmall" 
+                        href="<%- mon.get('manifest') %>"
+                        target="_blank">
+                        View Manifest
+                    </a>
+                    <a class="pure-button button-error button-xsmall remove-monitor" 
+                        href="javascript:void(0);"
+                        data-id="<%- mon.get('id') %>"
+                        target="_blank">
+                        Delete
+                    </a>
+                </div>
 
-			</div>
-		<% }); %>
-	</div>
-<% } %>
+            </div>
+        <% }); %>
+    <% } %>
+</div>

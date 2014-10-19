@@ -19,6 +19,7 @@ module.exports = {
     onStart: function() {
         this.listenTo(this, 'request', this._onRequest);
         this.listenTo(this, 'sync', this._onSync);
+        this.listenTo(this, 'remove', this._onSync);
         this.listenTo(this, 'error', this._onError);
     },
 

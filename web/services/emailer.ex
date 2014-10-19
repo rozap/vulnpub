@@ -47,10 +47,6 @@ defmodule Service.Emailer do
 
 
 
-  defp handle(:dev, _, state) do
-    IO.puts "Not sending email"
-    {:noreply, state}
-  end
   defp handle(:test, _, state) do
     IO.puts "Not sending email"
     {:noreply, state}

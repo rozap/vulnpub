@@ -17,6 +17,7 @@ module.exports = View.extend({
         'click .new-monitor': 'create',
         'click .dismiss-alert': 'dismiss',
         'click .alert-item-inner': 'gotoVuln',
+        'click .remove-monitor': 'removeMonitor'
     },
 
     _greetings: ['hello', 'greetings', 'sup', 'what\'s happening', 'how goes it'],
@@ -28,11 +29,10 @@ module.exports = View.extend({
         this._greet = this._greetings[Math.floor(Math.random() * this._greetings.length)];
 
         this.alerts = new Alerts([], this.opts());
-        this.listenTo(this.alerts, 'sync error remove', this.renderIt);
-        this.alerts.fetch();
-
         this.monitors = new Monitors([], this.opts());
-        this.listenTo(this.monitors, 'sync error add', this.renderIt);
+        this.listenTo(this.alerts, 'sync error remove', this.renderIt);
+        this.listenTo(this.monitors, 'sync error add remove', this.renderIt);
+        this.alerts.fetch();
         this.monitors.fetch();
     },
 
@@ -51,6 +51,11 @@ module.exports = View.extend({
 
     onCreated: function(monitor) {
         this.monitors.add(monitor);
+    },
+
+    removeMonitor: function(e) {
+        var id = $(e.currentTarget).data('id');
+        this.monitors.get(id).destroy();
     },
 
     create: function() {

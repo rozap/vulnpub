@@ -39,7 +39,6 @@ defmodule Manifest.Parser.Parser do
       |> Enum.filter(fn {name, version} -> 
         version != :error end)
       |> Enum.map(fn {name, version} -> 
-        IO.inspect("CREATING #{name} #{version}")
         Package.allocate(%{:name => name, :version => version}) 
       end)
     existing = Enum.map(existing, fn {_, _, p} -> p end)
@@ -58,16 +57,16 @@ defmodule Manifest.Parser.Parser do
 
 
   defp extract_version(version) do
-    IO.inspect "EXTRACT VERSION #{version}"
+
     case Version.parse(version) do
-      {:ok, _} -> 
-        version
+      {:ok, v} -> 
+        "#{v.major}.#{v.minor}.#{v.patch}"
       :error ->
         ## attempt to fix it
         case Regex.run(~r/(\d+\.\d+\.\d+)/, version) do
           nil ->
             case Regex.run(~r/(\d+\.\d+)/, version) do
-              nil -> [:error]
+              nil -> :error
               versions ->
                 v = List.first(versions)
                 "#{v}.0"

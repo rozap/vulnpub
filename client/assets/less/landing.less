@@ -4,7 +4,7 @@
 
     .limited {
         margin:0px auto;
-        max-width: 1280px;
+        max-width: @small-screen;
     }
 
     .landing-actions {
@@ -20,13 +20,20 @@
     }
 
 
-    @media only screen and (min-width: 768px) {
+
+    .step {
+        .pure-u-1;
+    }
+
+
+
+
+    @media only screen and (min-width: @small-screen) {
         .step {
             .pure-u-1-3;
         }
 
     }
-
 
 }
 
