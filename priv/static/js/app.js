@@ -30,39 +30,36 @@ $(document).ready(function() {
 })
 },{"./router":16,"backbone":57,"jquery":62}],2:[function(require,module,exports){
 module.exports = [{
-    "managed": {
-      "package.json": {
-        "manager": "npm"
-      }
+  "managed": {
+    "package.json": {
+      "manager": "npm"
     }
-  }, {
-    "managed": {
-      "package.json": {
-        "manager": "npm"
-      },
-      "requirements.txt": {
-        "manager": "pypi"
-      },
-      "dpkg.txt": {
-        "manager": "dpkg"
-      }
+  }
+}, {
+  "managed": {
+    "package.json": {
+      "manager": "npm"
+    },
+    "requirements.txt": {
+      "manager": "pypi"
+    },
+    "dpkg.txt": {
+      "manager": "dpkg"
     }
-  }, {
-    "unmanaged": [{
-      "name": "some package name",
-      "version": "4.2.0",
-      "homepage": "github.com/something/some-package-name"
-    }]
-  }, {
-    "managed": {
-      "dpkg.txt": {
-        "manager": "dpkg"
-      }
+  }
+}, {
+  "unmanaged": [{
+    "name": "some package name",
+    "version": "4.2.0",
+    "homepage": "github.com/something/some-package-name"
+  }]
+}, {
+  "managed": {
+    "package.json": {
+      "manager": "npm"
     }
-  },
-
-
-]
+  }
+}];
 },{}],3:[function(require,module,exports){
 var Backbone = require('backbone'),
     _ = require('underscore'),
@@ -1496,7 +1493,6 @@ module.exports = View.extend({
     initialize: function(opts) {
         View.prototype.initialize.call(this, opts);
         this.user = new User(this.app.auth.getUser(), this.opts());
-        console.log(this.user.toJSON());
         this.listenTo(this.user, 'sync error request', this.renderIt);
         this.user.fetch();
         this.app.dispatcher.trigger('nav.show');
@@ -1541,37 +1537,24 @@ module.exports = View.extend({
 })
 },{"../../templates/util/side-nav.html":50,"./abstract":22,"underscore":66}],35:[function(require,module,exports){
 var View = require('./abstract'),
-	_ = require('underscore'),
-	OmniSearch = require('./omni-search'),
-	TopNavTemplate = require('../../templates/util/top-nav.html');
+    _ = require('underscore'),
+    OmniSearch = require('./omni-search'),
+    TopNavTemplate = require('../../templates/util/top-nav.html');
 
 module.exports = View.extend({
-	el: '.header',
-	template: _.template(TopNavTemplate),
+    el: '.header',
+    template: _.template(TopNavTemplate),
 
-	events: {
-		'click': 'home',
-		'click a': 'nope'
-	},
+    events: {
+        'click': 'home'
+    },
 
-	onStart: function() {
-		this.listenTo(this.app.dispatcher, 'auth.change', this.render);
-		this.spawn('omni', new OmniSearch(this.opts()))
-		this.render();
-	},
-
-	nope: function(e) {
-		e.awfulHack = true;
-	},
-
-	home: function(e) {
-		if (e.awfulHack) return;
-		this.app.router.navigate('#', {
-			trigger: true
-		});
-	}
-
-})
+    onStart: function() {
+        this.listenTo(this.app.dispatcher, 'auth.change', this.render);
+        this.spawn('omni', new OmniSearch(this.opts()));
+        this.render();
+    }
+});
 },{"../../templates/util/top-nav.html":51,"./abstract":22,"./omni-search":29,"underscore":66}],36:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
@@ -1700,7 +1683,7 @@ module.exports = "\n<div class=\"landing\">\n\t<div class=\"limited\">\n\t\t<h1>
 module.exports = "<h3><%- monitor.get('name') %></h3>\n\n<% if(monitor.isLoading()) { %>\n\t<%= inject('loader') %>\n<% } else { %>\n\n\t<h5 class=\"section\">\n\t\t<% if(monitor.get('packages').length === 0) { %>\n\t\t\tThis monitor isn't monitoring any packages. If you just created it then\n\t\t\tit may take a few minutes for the packages to show up here. \n\t\t<% } else { %>\n\t\t\tThis monitor is monitoring the following packages\n\t\t<% } %>\n\t</h5>\n\n\t<div class=\"pure-g package-list\">\n\n\t\t<% _.each(monitor.get('packages'), function(p, idx) { %>\n\t\t\t<div class=\"pure-u-1-3\">\n\t\t\t\t<div class=\"card package-card\n\t\t\t\t\t<%- idx % 3 == 0? 'left' : '' %>\n\t\t\t\t\t<%- (idx + 1) % 3 == 0? 'right' : '' %>\">\n\t\t\t\t\t<h4><%- p.name %></h4>\n\t\t\t\t\t<p class=\"text-muted\"><%- p.version %></p>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t<% }) %>\n\t</div>\n<% } %>";
 
 },{}],45:[function(require,module,exports){
-module.exports = "\n<h3 class=\"section\">\n    Account Settings\n</h3>\n\n\n<% if(user.isLoading()) { %>\n<%= inject('loader') %>\n<% } else { %>\n<div class=\"pure-g\">\n    <div class=\"pure-u-1-3\">\n        <form class=\"pure-form pure-form-stacked\">\n            <fieldset>\n                <%= showError('email', user) %>\n                <div class=\"pure-control-group\">\n                    <label for=\"email\">Email</label>\n                    <input id=\"email\" \n                        class=\"pure-u-1\"\n                        name=\"email\" \n                        type=\"email\" \n                        value=\"<%- user.get('email') %>\"\n                        placeholder=\"Email\">\n                </div>\n\n\n                <%= showError('password', user) %>\n                <div class=\"pure-control-group\">\n                    <label for=\"password\">Password</label>\n                    <input id=\"password\" \n                        class=\"pure-u-1\"\n                        name=\"password\" \n                        type=\"password\" \n                        value=\"<%- user.get('password') %>\"\n                        placeholder=\"Password\">\n                </div>\n                <div class=\"pure-control-group\">\n                    <label for=\"confirm_password\">Confirm</label>\n                    <input id=\"confirm_password\" \n                        class=\"pure-u-1\"\n                        name=\"confirm_password\" \n                        type=\"password\" \n                        value=\"<%- user.get('password') %>\"\n                        placeholder=\"Confirm Password\">\n                </div>\n\n\n                <div class=\"pure-control-group save-row\">\n\n                    <button type=\"button\" \n                    class=\"pure-button pure-button-primary save\">\n                        Save\n                    </button>\n                </div>\n\n            </fieldset>\n        </form>\n    </div>\n</div>\n\n<% } %>\n\n\n\n";
+module.exports = "\n<h3 class=\"section\">\n    Account Settings\n</h3>\n\n\n<% if(user.isLoading()) { %>\n<%= inject('loader') %>\n<% } else { %>\n<div class=\"pure-g\">\n    <div class=\"pure-u-1-2\">\n        <form class=\"pure-form pure-form-stacked\">\n            <fieldset>\n                <%= showError('email', user) %>\n                <div class=\"pure-control-group\">\n                    <label for=\"email\">Email</label>\n                    <input id=\"email\" \n                        class=\"pure-u-1\"\n                        name=\"email\" \n                        type=\"email\" \n                        value=\"<%- user.get('email') %>\"\n                        placeholder=\"Email\">\n                </div>\n\n\n                <%= showError('password', user) %>\n                <div class=\"pure-control-group\">\n                    <label for=\"password\">Password</label>\n                    <input id=\"password\" \n                        class=\"pure-u-1\"\n                        name=\"password\" \n                        type=\"password\" \n                        value=\"<%- user.get('password') %>\"\n                        placeholder=\"Password\">\n                </div>\n                <div class=\"pure-control-group\">\n                    <label for=\"confirm_password\">Confirm</label>\n                    <input id=\"confirm_password\" \n                        class=\"pure-u-1\"\n                        name=\"confirm_password\" \n                        type=\"password\" \n                        value=\"<%- user.get('password') %>\"\n                        placeholder=\"Confirm Password\">\n                </div>\n\n\n                <div class=\"pure-control-group save-row\">\n\n                    <button type=\"button\" \n                    class=\"pure-button pure-button-primary save\">\n                        Save\n                    </button>\n                </div>\n\n            </fieldset>\n        </form>\n    </div>\n\n    <div class=\"pure-u-1-2\">\n        <\n    </div>\n</div>\n\n<% } %>\n\n\n\n";
 
 },{}],46:[function(require,module,exports){
 module.exports = "\n<% if(errors[name]) { %>\n    <div class=\"alert alert-error\">\n        <%- errors[name] %>\n    </div>\n<% } %>";
@@ -1718,7 +1701,7 @@ module.exports = "<div class=\"pager\">\n\t<div class=\"page-counter\">\n\t\t<sp
 module.exports = "<div class=\"side-nav\">\n  <ul>\n    <!-- separate --> \n    <li>\n      <a href=\"#\" title=\"Home\">\n        <i class=\"icon ion-home\"></i>\n      </a>\n    </li>\n\n    <li>\n      <a href=\"#vulns\" title=\"Known Vulnerabilities\">\n      \t<i class=\"icon ion-bug\"></i>\n      </a>\n    </li>\n    <li>\n      <a href=\"#report\" title=\"Report a Vulnerability\">\n      \t<i class=\"icon ion-speakerphone\"></i>\n      </a>\n    </li>\n\n  </ul>\n</div>";
 
 },{}],51:[function(require,module,exports){
-module.exports = "\n<% if(app.auth.hasAttempted()) { %>\n  <div class=\"profile-management\">\n    <ul>\n      <% if(app.auth.isLoggedIn()) { %>\n        <li>\n          <a href=\"#settings\">Settings</a>\n        </li>\n        <li>\n          <a href=\"#logout\">Logout</a>\n        </li>\n\n      <% } else { %>\n        <li>\n          <a href=\"#login\">Login</a>\n        </li>\n        <li>\n          <a href=\"#register\">Register</a>\n        </li>\n\n      <% } %>\n\n    </ul>\n  </div>\n<% } %>\n\n\n<div id=\"omni-search\">\n\n</div>";
+module.exports = "<a class=\"header-link\" href=\"#\"></a>\n\n<% if(app.auth.hasAttempted()) { %>\n  <div class=\"profile-management\">\n    <ul>\n      <% if(app.auth.isLoggedIn()) { %>\n        <li>\n          <a href=\"#settings\">Settings</a>\n        </li>\n        <li>\n          <a href=\"#logout\">Logout</a>\n        </li>\n\n      <% } else { %>\n        <li>\n          <a href=\"#login\">Login</a>\n        </li>\n        <li>\n          <a href=\"#register\">Register</a>\n        </li>\n\n      <% } %>\n\n    </ul>\n  </div>\n<% } %>\n\n\n<div id=\"omni-search\">\n\n</div>";
 
 },{}],52:[function(require,module,exports){
 module.exports = "\n\n<div class=\"pure-control-group pure-u-2-5\">\n    <label for=\"name\">\n        Effected Package\n    </label>\n    <%= showError('name', effect) %>\n    <input id=\"name\" \n        class=\"pure-input-1\"\n        type=\"text\" \n        value=\"<%- effect.get('name') %>\"\n        placeholder=\"ex: openssl\"/>\n    <div id=\"search-view\"></div>\n\n</div>\n\n\n<div class=\"pure-control-group pure-u-2-5\">\n    <label for=\"version\">\n        Effected Version\n    </label>\n    <%= showError('version', effect) %>\n    <input id=\"version\" \n        class=\"pure-input-1\"\n        type=\"text\" \n        value=\"<%- effect.get('version') %>\"\n        placeholder=\"ex: ~> 4.2.0\"/>\n\n    <h6>Use <a target=\"blank\" href=\"http://semver.org/\">\n        semver to qualify versions</a></h6>\n</div>\n\n<div class=\"pure-congrol-group pure-u-1-5 add-effect-wrap\">\n    <a class=\"pure-button button-secondary add-effect\" href=\"javascript:void(0);\">\n        <i class=\"icon ion-plus-circled\"></i>\n    </a>\n</div>\n";

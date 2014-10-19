@@ -1,0 +1,58 @@
+<script type="text/javascript" src="/static/js/about.js"></script>
+
+
+
+<div id="raw" class="about landing limited">
+    <h2 class="section">About</h2>
+
+
+    <div class="pure-g">
+
+        <div class="pure-u-1-1">
+            <h4>What?</h4>
+            <p>
+                The vuln.pub manifest is a simple JSON file that tells vuln.pub what dependencies
+                are used in your project.
+
+                <br>
+                <br>
+
+                This manifest must be publicly accessible over http(s). If you update the manifest or any
+                referenced files, your new dependencies will be pulled into vuln.pub for monitoring. 
+            </p>
+        </div>
+        
+    </div>
+
+    <div class="pure-g">
+
+        <div class="pure-u-1-2">
+            <h4>Data</h4>
+            <p>
+                For packages that you install through a package manager, such as npm, apt, or pip, you can reference your dependencies file (package.json, requirements.txt, etc) from your manifest. If those are the only dependencies you want to monitor, then you're done.
+
+                <br>
+                <br>
+                If you put your manifest at 
+                <span class="code">
+                    https://a-site.com/some-project/master/.vp-manifest.json
+                </span>
+                and specify <span class="code">package.json</span> as a managed file, then vuln.pub will look for
+                your package.json in the same directory as your manifest, which in this case would be 
+
+                <span class="code">
+                    https://a-site.com/some-project/master/package.json
+                </span>
+
+                <br>
+                <br>
+                The package managers in the example to the right are currently all that's supported.
+            </p>
+        </div>
+        <div class="pure-u-1-2">
+            <pre class="manifest-example">
+
+            </pre>
+        </div>
+    </div>
+</div>

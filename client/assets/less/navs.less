@@ -1,5 +1,4 @@
 .header {
-    cursor: pointer;
     position: fixed;
     width: 100%;
     height: @header-height;
@@ -11,6 +10,13 @@
     background-image: url("/static/images/head.png");
     background-position: 0px -38px;
     background-repeat: no-repeat;
+
+    .header-link {
+        position: absolute;
+        top:0px;
+        width:420px;
+        height: @header-height;
+    }
 
 
     &:hover {

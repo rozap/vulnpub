@@ -1,47 +1,44 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 console.log("about");
 var $ = require('jquery'),
-    Examples = require('./examples'),
-    Formatter = require('../../app/js/util/json-format');
+	Examples = require('./examples'),
+	Formatter = require('../../app/js/util/json-format');
 
 $(document).ready(function() {
-    Formatter.format(Examples);
+	Formatter.format(Examples);
 });
 },{"../../app/js/util/json-format":3,"./examples":2,"jquery":4}],2:[function(require,module,exports){
 module.exports = [{
-    "managed": {
-      "package.json": {
-        "manager": "npm"
-      }
+  "managed": {
+    "package.json": {
+      "manager": "npm"
     }
-  }, {
-    "managed": {
-      "package.json": {
-        "manager": "npm"
-      },
-      "requirements.txt": {
-        "manager": "pypi"
-      },
-      "dpkg.txt": {
-        "manager": "dpkg"
-      }
+  }
+}, {
+  "managed": {
+    "package.json": {
+      "manager": "npm"
+    },
+    "requirements.txt": {
+      "manager": "pypi"
+    },
+    "dpkg.txt": {
+      "manager": "dpkg"
     }
-  }, {
-    "unmanaged": [{
-      "name": "some package name",
-      "version": "4.2.0",
-      "homepage": "github.com/something/some-package-name"
-    }]
-  }, {
-    "managed": {
-      "dpkg.txt": {
-        "manager": "dpkg"
-      }
+  }
+}, {
+  "unmanaged": [{
+    "name": "some package name",
+    "version": "4.2.0",
+    "homepage": "github.com/something/some-package-name"
+  }]
+}, {
+  "managed": {
+    "package.json": {
+      "manager": "npm"
     }
-  },
-
-
-]
+  }
+}];
 },{}],3:[function(require,module,exports){
 var $ = require('jquery'),
     _ = require('underscore'),

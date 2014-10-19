@@ -18,7 +18,6 @@ module.exports = View.extend({
     initialize: function(opts) {
         View.prototype.initialize.call(this, opts);
         this.user = new User(this.app.auth.getUser(), this.opts());
-        console.log(this.user.toJSON());
         this.listenTo(this.user, 'sync error request', this.renderIt);
         this.user.fetch();
         this.app.dispatcher.trigger('nav.show');

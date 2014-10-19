@@ -25,23 +25,28 @@ end
 
 
 defmodule Resources.ApiKey.Authenticator do
-  use Resources.Authenticator, [only: [:show]]
+  use Resources.Authenticator, [only: [:index, :destroy]]
 end
 
 defmodule Resources.ApiKey.Authorizor do
   import Ecto.Query
-  use Resources.ModelAuthorizor, [only: [:show]]
 
-  def handle({:show, conn, params, module, bundle}) do
+  def is_owner({verb, conn, params, module, bundle}) do
     try do
       user_id = bundle[:user].id
       key = params[:id]
-      [monitor] = (from a in Models.ApiKey, where: a.user_id == ^user_id and a.key == ^key, select: a) |> Repo.all
-      {:show, conn, params, module, bundle}
+      [monitor] = (from a in Models.ApiKey, 
+        where: a.user_id == ^user_id and a.key == ^key, 
+        select: a) 
+        |> Repo.all
+      {verb, conn, params, module, bundle}
     rescue
       _ -> throw {:unauthorized, %{error: "You are not authorized to do that"}}
     end
   end
+
+  def handle(req = {:destroy, conn, params, module, bundle}), do: is_owner(req)
+  def handle(req), do: req
 
   
 
@@ -54,9 +59,9 @@ defmodule Resources.ApiKey do
 
   use Finch.Resource, [
     before: [
-        Resources.ApiKey.Validator, 
         Resources.ApiKey.Authenticator,
-        Resources.ApiKey.Authorizor
+        Resources.ApiKey.Authorizor,
+        Resources.ApiKey.Validator
     ]
   ]
 
@@ -65,6 +70,12 @@ defmodule Resources.ApiKey do
   def get_id(params), do: params[:id]
   def repo, do: Repo
   def model, do: Models.ApiKey
+  
+  def tap(q, :where, {:index, _, _, _, bundle}) do
+    user_id = bundle[:user].id
+    q |> where([a], a.user_id == ^user_id) 
+  end
+  def tap(q, clause, req), do: super(q, clause, req)
 
 
   def handle({:create, conn, params, module, bundle}) do
