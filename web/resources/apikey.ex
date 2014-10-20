@@ -25,7 +25,7 @@ end
 
 
 defmodule Resources.ApiKey.Authenticator do
-  use Resources.Authenticator, [only: [:index, :destroy]]
+  use Resources.Authenticator, [only: [:index, :destroy, :show]]
 end
 
 defmodule Resources.ApiKey.Authorizor do
@@ -81,7 +81,7 @@ defmodule Resources.ApiKey do
   def handle({:create, conn, params, module, bundle}) do
     %{:username => username, :password => password} = params
     [user] = (from u in Models.User, where: u.username == ^username, select: u) |> Repo.all
-    props = %{:user_id => user.id, :key => Models.ApiKey.gen_key}
+    props = %{user_id: user.id, key: Models.ApiKey.gen_key, web: params[:web]}
     key = Models.ApiKey.allocate(props) |> Repo.insert |> to_serializable
     {conn, created, key}
   end

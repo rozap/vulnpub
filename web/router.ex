@@ -11,7 +11,7 @@ defmodule Vulnpub.Router do
     scope path: "/v1" do
       resources "/users", Resources.User, only: [:create, :update, :show]
       resources "/monitors", Resources.Monitor, only: [:create, :destroy, :update, :show, :index]
-      resources "/apikey", Resources.ApiKey, only: [:create, :destroy, :index]
+      resources "/apikey", Resources.ApiKey, only: [:create, :destroy, :index, :show]
       resources "/vulns", Resources.Vuln, only: [:create, :show, :index]
       resources "/packages", Resources.Package, only: [:show, :index]
       resources "/alerts", Resources.Alert, only: [:index, :update]

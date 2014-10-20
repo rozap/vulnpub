@@ -8,7 +8,9 @@
 <%= inject('loader') %>
 <% } else { %>
 <div class="pure-g">
-    <div class="pure-u-1-2">
+    <div class="pure-u-2-5">
+        <h4>Login Settings</h4>
+
         <form class="pure-form pure-form-stacked">
             <fieldset>
                 <%= showError('email', user) %>
@@ -55,9 +57,21 @@
             </fieldset>
         </form>
     </div>
-
-    <div class="pure-u-1-2">
-        <
+    <div class="pure-u-1-5"></div>
+    <div class="pure-u-2-5">
+        <h4>API Keys</h4>
+        <% apikeys.each(function(key) { %>
+            <div class="card">
+                <h4 class="apikey">
+                    <%- key.get('key') %>
+                </h4>
+                <span class="text-muted">Created: <%- key.get('created') %></span>
+                <a class="pull-right pure-button button-error button-xsmall revoke"
+                    data-id="<%- key.get('key') %>">
+                    Revoke Access
+                </a>
+            </div>
+        <% }) %>
     </div>
 </div>
 

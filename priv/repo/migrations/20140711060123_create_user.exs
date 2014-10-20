@@ -17,7 +17,8 @@ defmodule Repo.Migrations.CreateUser do
           key varchar(255), 
           user_id integer references users(id),
           created timestamp DEFAULT NOW(), 
-          modified timestamp DEFAULT NOW()
+          modified timestamp DEFAULT NOW(),
+          web boolean DEFAULT FALSE
         )",
     "CREATE TABLE IF NOT EXISTS
         vulns(

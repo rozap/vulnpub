@@ -1,4 +1,5 @@
 {
 	"username": "foo",
-	"password": "baz"
+	"password": "baz",
+	"web": true
 }

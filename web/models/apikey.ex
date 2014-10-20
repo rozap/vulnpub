@@ -6,6 +6,7 @@ defmodule Models.ApiKey do
     belongs_to :user, Models.User
     field :created, :datetime
     field :modified, :datetime
+    field :web, :boolean
 
   end
 

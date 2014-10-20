@@ -1,6 +1,7 @@
 var Backbone = require('backbone'),
     _ = require('underscore'),
     $ = require('jquery'),
+    moment = require('moment'),
     viewMixins = require('../util/view-mixins'),
     ErrorTemplate = require('../../templates/util/error.html');
 
@@ -55,7 +56,8 @@ module.exports = Backbone.View.extend({
             _: _,
             hasView: this.hasView.bind(this),
             app: this.app,
-            showError: this._errors.bind(this)
+            showError: this._errors.bind(this),
+            moment: moment
         }, viewMixins, included, ctx);
     },
 

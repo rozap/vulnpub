@@ -31,6 +31,7 @@ module.exports = View.extend({
     login: function() {
         this.apikey
             .set(this.$el.find('form').serializeObject())
+            .set('web', true)
             .save()
             .then(this.redirect.bind(this));
     },

@@ -33,7 +33,7 @@ defmodule Vulnpub.Mixfile do
       {:jazz, github: "meh/jazz"},
       {:decimal, "~> 0.2.4" },
       {:bcrypt, "0.5.0", github: "smarkets/erlang-bcrypt", compile: "make"},
-      {:finch, "0.0.2", github: "rozap/finch"}
+      {:finch, "0.0.3"}
     ]
   end
 end
