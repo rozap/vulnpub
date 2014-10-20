@@ -1,6 +1,6 @@
 
 
-defmodule Test.VulnTest do
+defmodule Test.AlertTest do
   use ExUnit.Case
   use PlugHelper
 
