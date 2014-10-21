@@ -1,3 +1,11 @@
+defmodule Service.Stats.Flusher do
+
+  def start_link(opts) do
+    
+  end
+  
+end
+
 defmodule Service.StatsCollector do
   use Supervisor
   require Phoenix.Config
@@ -11,7 +19,8 @@ defmodule Service.StatsCollector do
   def kids do
     [
       Service.Stats.Collector,
-      # Service.Stats.Mem
+      # Service.Stats.Mem,
+      Service.Stats.CPU
     ]
   end
 
