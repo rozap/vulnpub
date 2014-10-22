@@ -1,23 +1,14 @@
 defmodule Service.Stats.Mem do
+  use GenEvent
 
-
-  def start_link() do
-    stream = Stream.interval(1000)
-      |> Stream.map(&(get &1))
-      |> Stream.map(&(put &1))
-
-    Process.link(self)
-    {:ok, self}
+  def handle_event(:tick, parent) do
+    GenServer.cast(:stats_collector, {:insert, "mem", [value: get]})
+    {:ok, parent}
   end
 
-
-  def get(_) do
-    # data = {total, used, _} = :memsup.get_memory_data
-    # Float.round(100 * used/total, 2)
-  end
-
-  def put(_) do
-    IO.format("PUTTING")
+  def get do
+    data = {total, used, _} = :memsup.get_memory_data
+    Float.round(100 * used/total, 2)
   end
 
 end

@@ -1,25 +1,13 @@
 defmodule Service.Stats.CPU do
   use GenEvent
 
-  def handle_event(:flush, parent) do
+  def handle_event(:tick, parent) do
+    GenServer.cast(:stats_collector, {:insert, "cpu", [value: get]})
+    {:ok, parent}
   end
 
-
-
-
-  defmodule Stats do
-    
-    def start_link(options \\ []) do
-      GenEvent.start_link Keyword.put_new(options, :name, __MODULE__)
-    end
-    
-    def get_cpu_stats(_) do
-      :cpu_sup.util |> Float.round
-    end
-
-    def build_message(value) do
-      %{type: :cpu, data: %{utilization: value}}
-    end
+  defp get do
+    :cpu_sup.util |> Float.round
   end
 
 end

@@ -66,6 +66,8 @@ defmodule Logger.Backends.Syslog do
 
   defp log_event(level, msg, ts, md, %{colors: colors} = state) do
     data = format_event(level, msg, ts, md, state)
+    IO.puts "LOG TO"
+    IO.puts Config.get([:vulnpub])[:log_location]
     {:ok, file} = File.open(Config.get([:vulnpub])[:log_location], [:append])
     IO.write(file, data)
     File.close(file)

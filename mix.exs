@@ -13,7 +13,7 @@ defmodule Vulnpub.Mixfile do
   def application do
     [
       mod: { Vulnpub, [] },
-      applications: [:phoenix, :cowboy, :logger, :postgrex, :ecto, :plug]
+      applications: [:phoenix, :cowboy, :logger, :postgrex, :ecto, :plug, :os_mon]
     ]
   end
 
