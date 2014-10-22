@@ -3,6 +3,7 @@ defmodule Service.Emailer do
   use Jazz
   use HTTPotion.Base
   require Phoenix.Config
+  require Logger
   alias Phoenix.Config
 
 
@@ -37,9 +38,9 @@ defmodule Service.Emailer do
     response = post @message_send, payload
 
     if HTTPotion.Response.success? response do
-      GenServer.cast(:logger, {:info, [email: user.email, message: "Sent email to person"]})
+      Logger.info("Sent email to #{user.email}")
     else
-      GenServer.cast(:logger, {:error, [email: user.email, payload: payload, response: response]})
+      Logger.error("Failed to send email #{user.email}", [response])
     end
   end
 

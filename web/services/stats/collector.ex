@@ -1,5 +1,5 @@
 defmodule Service.Stats.Collector do
-
+  require Logger
   require Phoenix.Config
   alias Phoenix.Config
   use GenServer
@@ -56,7 +56,7 @@ defmodule Service.Stats.Collector do
     headers = %{"Content-Type" => "application/json"}
     response = HTTPotion.post(url, js, headers)
     if not HTTPotion.Response.success? response do 
-      GenServer.cast(:logger, {:error, [msg: "Failed to post to influx"]})
+      Logger.error "Failed to post to influx"
     end
   end
 

@@ -11,7 +11,6 @@ defmodule Vulnpub do
       worker(Service.MonitorConsumer, [{}, []]),
       worker(Service.VulnConsumer, [{}, []]),
       worker(Service.Emailer, [[], []]),
-      worker(Service.Logger, [[], []]),
       worker(Service.MonitorPoller, []),
       worker(Service.StatsCollector, [[]])
     ]

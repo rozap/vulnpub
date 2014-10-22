@@ -3,6 +3,7 @@ defmodule Service.MonitorPoller do
   import Ecto.Query
   alias Models.Monitor
   require Phoenix.Config
+  require Logger
   alias Phoenix.Config
 
 
@@ -17,7 +18,7 @@ defmodule Service.MonitorPoller do
   defp loop(freq) do
     fetch
     :timer.sleep(freq)
-    GenServer.cast(:logger, {:debug, [msg: "Updated monitors"]})
+    Logger.debug "Updated monitors"
     loop(freq)
   end
 

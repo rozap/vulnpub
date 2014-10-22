@@ -1,7 +1,7 @@
 defmodule Service.VulnConsumer do
   use GenServer
   import Ecto.Query, only: [from: 2]
-
+  require Logger
   alias Models.PackageMonitor
   alias Models.Package
   alias Models.Monitor
@@ -46,27 +46,19 @@ defmodule Service.VulnConsumer do
 
   defp create_monitor_alert(monitor_id, package_id, vuln) do
     case (from a in Alert, where: a.monitor_id == ^monitor_id, select: a) |> Repo.all do
-      [existing] -> GenServer.cast(:logger, {:debug, 
-          [
-            message: "alert already exists", 
-            alert: existing.id 
-          ]
-        })
+      [existing] -> Logger.debug("alert #{existing.id} already exists")
       [] -> 
-        alert = Alert.allocate(%{:monitor_id => monitor_id, :vuln_id => vuln.id, :package_id => package_id}) 
-          |> Repo.insert
+        alert = Alert.allocate(%{
+          :monitor_id => monitor_id, 
+          :vuln_id => vuln.id, 
+          :package_id => package_id}
+        ) |> Repo.insert
 
         package = Repo.get(Package, package_id)
         monitor = Repo.get(Monitor, monitor_id)
         user = Repo.get(User, monitor.user_id)
         GenServer.cast(:emailer, {:alert, alert, vuln, package, monitor, user})
-        GenServer.cast(:logger, {:debug, 
-          [
-            message: "created alert", 
-            user: user.username, 
-            package: package.name
-          ]
-        })
+        Logger.debug("Created alert for #{user.username} and package #{package.name}")
     end
   end
 

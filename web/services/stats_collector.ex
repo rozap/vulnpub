@@ -1,6 +1,6 @@
 defmodule Service.Stats.Flusher do
 
-  def start_link(opts) do
+  def start_link(_) do
     
   end
   
@@ -9,6 +9,7 @@ end
 defmodule Service.StatsCollector do
   use Supervisor
   require Phoenix.Config
+  require Logger
   alias Phoenix.Config
 
   def start_link(opts \\ []) do
@@ -20,7 +21,7 @@ defmodule Service.StatsCollector do
     [
       Service.Stats.Collector,
       # Service.Stats.Mem,
-      Service.Stats.CPU
+      # Service.Stats.CPU
     ]
   end
 
@@ -30,7 +31,7 @@ defmodule Service.StatsCollector do
     freq = Config.get([:vulnpub])[:stats_flush_freq]
     :timer.sleep(freq)
     GenServer.cast(:stats_collector, :flush)
-    GenServer.cast(:logger, {:debug, [msg: "Flushing influx data"]})    
+    Logger.info "Flushing influx data"
     broadcast_flush
   end
 

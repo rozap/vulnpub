@@ -1,6 +1,7 @@
 defmodule Service.MonitorConsumer do
   use GenServer
   require Util
+  require Logger
   alias Models.Monitor
   alias Models.PackageMonitor
   import Ecto.Query, only: [from: 2]
@@ -37,9 +38,7 @@ defmodule Service.MonitorConsumer do
   end
 
   defp parse(nodename, _, _) do
-    GenServer.cast(:logger, {
-      :warn, [message: "Unknown manifest node named: ", name: nodename]
-    })
+    Logger.warn "Unknown manifest node named: #{nodename}"
   end
 
 
@@ -47,7 +46,7 @@ defmodule Service.MonitorConsumer do
     monitor = Repo.get Monitor, monitor.id
     monitor = %{monitor | last_polled: Util.now}
     Repo.update(monitor)
-    GenServer.cast(:logger, {:debug, [msg: "Updated monitor", monitor: monitor.id]})
+    Logger.info "Updated monitor #{monitor.id}"
   end
 
 
@@ -73,22 +72,17 @@ defmodule Service.MonitorConsumer do
   def handle_cast({:create, monitor}, state) do
     HTTPotion.start
     try do
-      GenServer.cast(:logger, {:info, [message: "Getting url: ", url: monitor.manifest]})
+      Logger.info "Getting url #{monitor.manifest}"
       response = HTTPotion.get monitor.manifest
       if HTTPotion.Response.success? response do
         Jazz.decode!(response.body)
           |> parse_manifest(monitor)
           |> update_monitor_timestamp
       else
-        GenServer.cast(:logger, 
-          {
-            :warn, 
-            [message: "manifest not accessible", location: monitor.manifest]
-          }
-        )
+        Logger.warn("Manifest not accessible: #{monitor.manifest}")
       end
     rescue
-      e -> GenServer.cast(:logger, {:error, [e: e]})
+      e -> Logger.error(e.message)
     end
     {:noreply, state}
   end

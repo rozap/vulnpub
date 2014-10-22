@@ -2,6 +2,9 @@ defmodule Logger.Backends.Syslog do
   @moduledoc false
 
   use GenEvent
+  require Phoenix.Config
+  alias Phoenix.Config
+
 
   def init(_) do
     if user = Process.whereis(:user) do
@@ -63,7 +66,7 @@ defmodule Logger.Backends.Syslog do
 
   defp log_event(level, msg, ts, md, %{colors: colors} = state) do
     data = format_event(level, msg, ts, md, state)
-    {:ok, file} = File.open("/var/log/vp.log", [:append])
+    {:ok, file} = File.open(Config.get([:vulnpub])[:log_location], [:append])
     IO.write(file, data)
     File.close(file)
   end
