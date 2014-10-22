@@ -5,7 +5,7 @@ defmodule Service.Stats.Collector do
   use GenServer
   use Jazz
 
-  def start_link(opts) do
+  def start_link(opts \\ 0) do
     GenServer.start_link(__MODULE__, opts)
   end
 

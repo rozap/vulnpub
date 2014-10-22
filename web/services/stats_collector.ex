@@ -1,12 +1,6 @@
-defmodule Service.Stats.Flusher do
 
-  def start_link(_) do
-    
-  end
-  
-end
 
-defmodule Service.StatsCollector do
+defmodule Service.StatsManager do
   use Supervisor
   require Phoenix.Config
   require Logger
@@ -19,21 +13,14 @@ defmodule Service.StatsCollector do
 
   def kids do
     [
-      Service.Stats.Collector,
-      # Service.Stats.Mem,
-      # Service.Stats.CPU
+      {Service.Stats.Collector, [], []},
+      {Task, [fn -> __MODULE__.Flusher.run end], [id: :flusher]},
+      {Task, [fn -> __MODULE__.Ticker.run end], [id: :ticker]}
     ]
   end
 
 
 
-  def broadcast_flush do
-    freq = Config.get([:vulnpub])[:stats_flush_freq]
-    :timer.sleep(freq)
-    GenServer.cast(:stats_collector, :flush)
-    Logger.info "Flushing influx data"
-    broadcast_flush
-  end
 
   ###
   #
@@ -44,11 +31,26 @@ defmodule Service.StatsCollector do
   # 
 
   def init(_) do
-    children = Enum.map(kids, fn k -> worker(k, [[]]) end)
-    Task.async(fn -> broadcast_flush end)
+    children = Enum.map(kids, fn {svc, args, opts} -> worker(svc, args, opts) end)
     supervise(children, strategy: :one_for_one)
   end
 
+
+  defmodule Flusher do
+    def run do
+      Stream.interval(2000)
+        |> Stream.map(fn(_) -> IO.puts("FLUSH") end)
+        |> Stream.run
+    end
+  end
+
+  defmodule Ticker do
+    def run do
+      Stream.interval(1000)
+        |> Stream.map(fn(_) -> IO.puts("TICK") end)
+        |> Stream.run
+    end
+  end
 
 
 end
