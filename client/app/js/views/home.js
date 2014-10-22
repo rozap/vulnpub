@@ -4,7 +4,39 @@ var View = require('./abstract'),
     Alerts = require('../collections/alerts'),
     CreateMonitor = require('./create-monitor'),
     HomeTemplate = require('../../templates/home/home.html'),
+    MonitorTemplate = require('../../templates/home/monitor.html'),
+
     Pager = require('./pager');
+
+
+var MonitorView = View.extend({
+    tagName: 'div',
+    attributes: {
+        'class': 'pure-u-1-2 monitor-card-wrap'
+    },
+    template: _.template(MonitorTemplate),
+    include: ['model', 'askConfirm'],
+
+    events: {
+        'click .remove-monitor': 'remove',
+        'click .confirm-remove': 'confirmRemove',
+        'click .dont-remove': 'dontRemove'
+
+    },
+
+    confirmRemove: function() {
+        this.model.destroy();
+    },
+
+    remove: function() {
+        this.set('askConfirm', true);
+    },
+
+    dontRemove: function() {
+        this.set('askConfirm', false);
+    }
+});
+
 
 module.exports = View.extend({
 
@@ -17,8 +49,9 @@ module.exports = View.extend({
         'click .new-monitor': 'create',
         'click .dismiss-alert': 'dismiss',
         'click .alert-item-inner': 'gotoVuln',
-        'click .remove-monitor': 'removeMonitor'
     },
+
+    _views: [],
 
     _greetings: ['hello', 'greetings', 'sup', 'what\'s happening', 'how goes it'],
 
@@ -47,16 +80,27 @@ module.exports = View.extend({
                 collection: this.alerts
             })))
         }
+        this._endMonitors();
+        var $ms = this.$el.find('.monitor-list');
+        this.monitors.each(function(monitor) {
+            var view = new MonitorView(this.opts({
+                model: monitor
+            }));
+            this._views.push(view);
+            $ms.append(view.render().el);
+        }.bind(this))
+    },
+
+    _endMonitors: function() {
+        _.invoke(this._views, 'end');
+        this._views = [];
     },
 
     onCreated: function(monitor) {
         this.monitors.add(monitor);
     },
 
-    removeMonitor: function(e) {
-        var id = $(e.currentTarget).data('id');
-        this.monitors.get(id).destroy();
-    },
+
 
     create: function() {
         var view = this.spawn('create', new CreateMonitor(this.opts()));
@@ -82,6 +126,11 @@ module.exports = View.extend({
         })
         al.save().then(this.alerts.fetch.bind(this.alerts));
         e.preventDefault();
+    },
+
+    end: function() {
+        this._endMonitors();
+        View.prototype.end.call(this);
     }
 
 

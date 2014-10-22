@@ -48,35 +48,5 @@
             <div class="pure-u-1-1">
                 <h6>You aren't monitoring any repositories yet<h6>
             </div>
-    <% } else { %>
-        <% monitors.each(function(mon, i) { %>
-            <div class="pure-u-1-2 monitor-card-wrap">
-                <div class="card <%- i % 2 == 0? 'left' : 'right' %>">
-
-                    <h4>
-                        <a href="#monitors/<%- mon.get('id') %>">
-                            <%- mon.get('name') %>
-                        </a>
-                    </h4>
-
-                    <p class="text-muted">
-                        Updated <%- moment(mon.get('last_polled')).fromNow() %>
-                    </p>
-
-                    <a class="pure-button button-secondary button-xsmall" 
-                        href="<%- mon.get('manifest') %>"
-                        target="_blank">
-                        View Manifest
-                    </a>
-                    <a class="pure-button button-error button-xsmall remove-monitor" 
-                        href="javascript:void(0);"
-                        data-id="<%- mon.get('id') %>"
-                        target="_blank">
-                        Delete
-                    </a>
-                </div>
-
-            </div>
-        <% }); %>
     <% } %>
 </div>

@@ -10,11 +10,11 @@ defmodule Plug.Stats do
     
     Plug.Conn.register_before_send(conn, fn conn -> 
 
-      # url = Enum.join(conn.path_info, "/")
-      # after_time = :os.timestamp()
-      # diff = :timer.now_diff(after_time, before_time) / 1000
-      # GenServer.cast(:stats_collector, {:insert, "latency", [value: diff, url: url]})
-      # GenServer.cast(:stats_collector, {:insert, conn.method, [value: 1, url: url]})
+      url = Enum.join(conn.path_info, "/")
+      after_time = :os.timestamp()
+      diff = :timer.now_diff(after_time, before_time) / 1000
+      GenServer.cast(:stats_collector, {:insert, "latency", [value: diff, url: url]})
+      GenServer.cast(:stats_collector, {:insert, conn.method, [value: 1, url: url]})
 
       conn
     end)

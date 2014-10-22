@@ -1,12 +1,21 @@
 defmodule Service.Stats.CPU do
 
-  def start_link(opts) do
-    GenServer.start_link(__MODULE__, opts)
+  def start_link(opts \\ []) do
+    GenEvent.start_link Keyword.put_new(opts, :name, __MODULE__)
+
+    Stream.interval(1000)
+      |> get
+      |> send
+    {:ok, self}
   end
 
-  def get do
+  def get(_) do
     data = {total, used, _} = :memsup.get_memory_data
-    :cpu_sup.util |> Float.end
+    :cpu_sup.util |> Float.round
+  end
+
+  def send(value) do
+    GenServer.cast(:stats_collector, {:insert, "cpu", [value: value]})
   end
 
   defp ms do

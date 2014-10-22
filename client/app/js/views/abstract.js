@@ -28,6 +28,7 @@ module.exports = Backbone.View.extend({
             view.render();
         }.bind(this));
         this.post(ctx);
+        return this;
     },
 
     shouldRender: function() {

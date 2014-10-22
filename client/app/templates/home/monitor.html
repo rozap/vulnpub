@@ -1,0 +1,33 @@
+<div class="card">
+
+    <h4>
+        <a href="#monitors/<%- model.get('id') %>">
+            <%- model.get('name') %>
+        </a>
+    </h4>
+
+    <p class="text-muted">
+        Updated <%- moment(model.get('last_polled')).fromNow() %>
+    </p>
+
+
+    <% if(!askConfirm) { %>
+        <a class="pure-button button-secondary button-xsmall" 
+            href="<%- model.get('manifest') %>"
+            target="_blank">
+            View Manifest
+        </a>
+
+        <a class="pure-button button-error button-xsmall remove-monitor" 
+            href="javascript:void(0);"
+            target="_blank">
+            Delete
+        </a>
+
+    <% } else { %>
+        <span>Are you sure?</span>
+        <a class="pure-button button-success button-xsmall dont-remove">Nevermind</a>
+        <a class="pure-button button-error button-xsmall confirm-remove">Yes</a>
+
+    <% } %>
+</div>
