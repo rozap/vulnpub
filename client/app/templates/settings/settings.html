@@ -3,15 +3,11 @@
     Account Settings
 </h3>
 
-
-<% if(user.isLoading()) { %>
-<%= inject('loader') %>
-<% } else { %>
 <div class="pure-g">
     <div class="pure-u-2-5">
         <h4>Login Settings</h4>
 
-        <form class="pure-form pure-form-stacked">
+        <form class="user-form pure-form pure-form-stacked">
             <fieldset>
                 <%= showError('email', user) %>
                 <div class="pure-control-group">
@@ -45,6 +41,12 @@
                         placeholder="Confirm Password">
                 </div>
 
+                <% if(isSaving && !user.getErrors()) { %>
+                    <div class="alert alert-success">
+                        Your settings have been saved.
+                    </div>
+                <% } %>
+
 
                 <div class="pure-control-group save-row">
 
@@ -60,6 +62,42 @@
     <div class="pure-u-1-5"></div>
     <div class="pure-u-2-5">
         <h4>API Keys</h4>
+
+        <form class="apikey-form pure-form pure-g margin-left">
+            <div class="pure-u-1">
+                <h3>Create an API key</h3>
+            </div>
+
+            <% if(newKey.getErrors()) { %>
+                <div class="pure-u-1">
+                    <%= showError('username', newKey) %>
+                    <%= showError('password', newKey) %>
+                </div>
+            <% } %>
+
+            <div class="pure-u-2-5">
+                <input
+                    name="username" 
+                    class="pure-input-1"
+                    type="text" 
+                    value="<%- newKey.get('username') %>"
+                    placeholder="Username">
+            </div>
+            <div class="pure-u-2-5 password-wrap">
+                <input
+                    name="password" 
+                    class="pure-input-1 append-button"
+                    type="password" 
+                    value="<%- newKey.get('password') %>"
+                    placeholder="Password">
+            </div>
+            <div class="pure-u-1-5">
+                <button type="button" class="pure-button button-success append-button create-key">
+                    Create
+                </button>
+            </div>
+        </form>
+
         <% apikeys.each(function(key) { %>
             <div class="card">
                 <h4 class="apikey">
@@ -68,14 +106,12 @@
                 <span class="text-muted">Created: <%- key.get('created') %></span>
                 <a class="pull-right pure-button button-error button-xsmall revoke"
                     data-id="<%- key.get('key') %>">
-                    Revoke Access
+                    Revoke
                 </a>
             </div>
         <% }) %>
     </div>
 </div>
-
-<% } %>
 
 
 

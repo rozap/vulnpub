@@ -20,6 +20,8 @@
 
 @small-screen: 1280px;
 
+
+
 @import "pure.less";
 
 * {
@@ -232,6 +234,19 @@ input.warn {
 }
 
 
+.pure-button.append-button {
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;
+    line-height: 1.3em;
+
+}
+input.append-button {
+    border-bottom-right-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+    border-right:none;
+}
+
+
 
 @import "vulns.less";
 @import "home.less";
@@ -242,3 +257,4 @@ input.warn {
 @import "icons.less";
 @import "about.less";
 @import "navs.less";
+@import "settings.less";

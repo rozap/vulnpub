@@ -19,8 +19,6 @@ defmodule Test.UserTest do
     assert Dict.get(req_body, "email") == Dict.get(resp_body, "email")
     assert Dict.get(resp_body, "id") != nil
     assert status == 201
-    Dict.get(resp_body, "id")
-
   end
 
   test "cannot create a user that is missing fields" do
@@ -30,6 +28,28 @@ defmodule Test.UserTest do
     assert pw_msg == "This needs to be a string"
     assert un_msg == "This needs to be a string"
     assert status == 400
+  end
+
+  test "can update your email" do
+    {_, _, resp} = DBHelpers.create_apikey
+    IO.inspect resp
+    %{"key" => key, "user_id" => id} = resp
+    headers = [{"authentication", "foo:#{key}"}]
+    {status, _, resp} = simulate_json_file(Vulnpub.Router, :put, "api/v1/users/#{id}", "test/json/update_user.json", headers)
+    assert resp["email"] == "new_email"
+  end
+
+  test "can update your password" do
+    {_, _, resp} = DBHelpers.create_apikey
+    %{"key" => key, "user_id" => id} = resp
+    headers = [{"authentication", "foo:#{key}"}]
+    {status, _, resp} = simulate_json_file(Vulnpub.Router, :put, "api/v1/users/#{id}", "test/json/update_user_1.json", headers)
+    IO.inspect resp
+    assert status == 202
+    {status, _, resp} = simulate_json_file(Vulnpub.Router, :post, "api/v1/apikey", "test/json/new_apikey_2.json")
+    IO.inspect resp
+    assert status == 201
+    assert resp["key"] != nil
   end
 
   test "cannot create a user that is missing fields" do

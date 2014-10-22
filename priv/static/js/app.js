@@ -758,6 +758,7 @@ module.exports = Backbone.View.extend({
     _errors: function(name, model, nameMap) {
         var errors = model.getErrors();
         if (errors) {
+            console.log(errors)
             return this._errorTemplate({
                 name: name,
                 nameMap: nameMap,
@@ -1492,6 +1493,7 @@ var View = require('./abstract'),
     SettingsTemplate = require('../../templates/settings/settings.html'),
     User = require('../models/user'),
     Apikeys = require('../collections/apikeys');
+Apikey = require('../models/apikey');
 
 
 module.exports = View.extend({
@@ -1499,26 +1501,38 @@ module.exports = View.extend({
     el: '#main',
     template: _.template(SettingsTemplate),
 
-    include: ['user', 'apikeys'],
+    include: ['user', 'apikeys', 'newKey', 'isSaving'],
 
     events: {
         'click .save': 'save',
-        'click .revoke': 'revoke'
+        'click .revoke': 'revoke',
+        'click .create-key': 'createKey'
     },
 
     initialize: function(opts) {
         View.prototype.initialize.call(this, opts);
         this.user = new User(this.app.auth.getUser(), this.opts());
         this.apikeys = new Apikeys([], this.opts());
-        this.listenTo(this.user, 'sync error request', this.renderIt);
+        this.newKey = new Apikey({}, this.opts());
+        this.listenTo(this.user, 'sync error request invalid', this.renderIt);
         this.listenTo(this.apikeys, 'sync error, request remove', this.renderIt);
+        this.listenTo(this.newKey, 'sync', this.onNewKey);
+        this.listenTo(this.newKey, 'error', this.renderIt);
         this.user.fetch();
+        this.fetch();
+        this.app.dispatcher.trigger('nav.show');
+    },
+
+    fetch: function() {
         this.apikeys.fetch({
             data: {
-                'filter:web': false
+                'filter': 'web:false'
             }
         });
-        this.app.dispatcher.trigger('nav.show');
+    },
+
+    post: function() {
+        console.log(this.user.getErrors())
     },
 
     onStart: function() {
@@ -1526,16 +1540,33 @@ module.exports = View.extend({
     },
 
     save: function() {
-        this.user.set(this.$el.find('form').serializeObject()).save();
+        this.isSaving = true;
+        this.user
+            .set(this.$el.find('.user-form').serializeObject())
+            .save();
     },
 
     revoke: function(e) {
         var id = $(e.currentTarget).data('id');
         this.apikeys.get(id).destroy();
+    },
+
+    createKey: function() {
+        this.newKey
+            .set(this.$el.find('.apikey-form').serializeObject())
+            .set({
+                web: false
+            })
+            .save();
+    },
+
+    onNewKey: function() {
+        this.newKey.clear();
+        this.fetch();
     }
 
 });
-},{"../../templates/settings/settings.html":46,"../collections/apikeys":5,"../models/user":15,"./abstract":23,"underscore":68}],35:[function(require,module,exports){
+},{"../../templates/settings/settings.html":46,"../collections/apikeys":5,"../models/apikey":11,"../models/user":15,"./abstract":23,"underscore":68}],35:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     SideNavTemplate = require('../../templates/util/side-nav.html');
@@ -1711,7 +1742,7 @@ module.exports = "\n<div class=\"landing\">\n\t<div class=\"limited\">\n\t\t<h1>
 module.exports = "<h3><%- monitor.get('name') %></h3>\n\n<% if(monitor.isLoading()) { %>\n\t<%= inject('loader') %>\n<% } else { %>\n\n\t<h5 class=\"section\">\n\t\t<% if(monitor.get('packages').length === 0) { %>\n\t\t\tThis monitor isn't monitoring any packages. If you just created it then\n\t\t\tit may take a few minutes for the packages to show up here. \n\t\t<% } else { %>\n\t\t\tThis monitor is monitoring the following packages\n\t\t<% } %>\n\t</h5>\n\n\t<div class=\"pure-g package-list\">\n\n\t\t<% _.each(monitor.get('packages'), function(p, idx) { %>\n\t\t\t<div class=\"pure-u-1-3\">\n\t\t\t\t<div class=\"card package-card\n\t\t\t\t\t<%- idx % 3 == 0? 'left' : '' %>\n\t\t\t\t\t<%- (idx + 1) % 3 == 0? 'right' : '' %>\">\n\t\t\t\t\t<h4><%- p.name %></h4>\n\t\t\t\t\t<p class=\"text-muted\"><%- p.version %></p>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t<% }) %>\n\t</div>\n<% } %>";
 
 },{}],46:[function(require,module,exports){
-module.exports = "\n<h3 class=\"section\">\n    Account Settings\n</h3>\n\n\n<% if(user.isLoading()) { %>\n<%= inject('loader') %>\n<% } else { %>\n<div class=\"pure-g\">\n    <div class=\"pure-u-2-5\">\n        <h4>Login Settings</h4>\n\n        <form class=\"pure-form pure-form-stacked\">\n            <fieldset>\n                <%= showError('email', user) %>\n                <div class=\"pure-control-group\">\n                    <label for=\"email\">Email</label>\n                    <input id=\"email\" \n                        class=\"pure-u-1\"\n                        name=\"email\" \n                        type=\"email\" \n                        value=\"<%- user.get('email') %>\"\n                        placeholder=\"Email\">\n                </div>\n\n\n                <%= showError('password', user) %>\n                <div class=\"pure-control-group\">\n                    <label for=\"password\">Password</label>\n                    <input id=\"password\" \n                        class=\"pure-u-1\"\n                        name=\"password\" \n                        type=\"password\" \n                        value=\"<%- user.get('password') %>\"\n                        placeholder=\"Password\">\n                </div>\n                <div class=\"pure-control-group\">\n                    <label for=\"confirm_password\">Confirm</label>\n                    <input id=\"confirm_password\" \n                        class=\"pure-u-1\"\n                        name=\"confirm_password\" \n                        type=\"password\" \n                        value=\"<%- user.get('password') %>\"\n                        placeholder=\"Confirm Password\">\n                </div>\n\n\n                <div class=\"pure-control-group save-row\">\n\n                    <button type=\"button\" \n                    class=\"pure-button pure-button-primary save\">\n                        Save\n                    </button>\n                </div>\n\n            </fieldset>\n        </form>\n    </div>\n    <div class=\"pure-u-1-5\"></div>\n    <div class=\"pure-u-2-5\">\n        <h4>API Keys</h4>\n        <% apikeys.each(function(key) { %>\n            <div class=\"card\">\n                <h4 class=\"apikey\">\n                    <%- key.get('key') %>\n                </h4>\n                <span class=\"text-muted\">Created: <%- key.get('created') %></span>\n                <a class=\"pull-right pure-button button-error button-xsmall revoke\"\n                    data-id=\"<%- key.get('key') %>\">\n                    Revoke Access\n                </a>\n            </div>\n        <% }) %>\n    </div>\n</div>\n\n<% } %>\n\n\n\n";
+module.exports = "\n<h3 class=\"section\">\n    Account Settings\n</h3>\n\n<div class=\"pure-g\">\n    <div class=\"pure-u-2-5\">\n        <h4>Login Settings</h4>\n\n        <form class=\"user-form pure-form pure-form-stacked\">\n            <fieldset>\n                <%= showError('email', user) %>\n                <div class=\"pure-control-group\">\n                    <label for=\"email\">Email</label>\n                    <input id=\"email\" \n                        class=\"pure-u-1\"\n                        name=\"email\" \n                        type=\"email\" \n                        value=\"<%- user.get('email') %>\"\n                        placeholder=\"Email\">\n                </div>\n\n\n                <%= showError('password', user) %>\n                <div class=\"pure-control-group\">\n                    <label for=\"password\">Password</label>\n                    <input id=\"password\" \n                        class=\"pure-u-1\"\n                        name=\"password\" \n                        type=\"password\" \n                        value=\"<%- user.get('password') %>\"\n                        placeholder=\"Password\">\n                </div>\n                <div class=\"pure-control-group\">\n                    <label for=\"confirm_password\">Confirm</label>\n                    <input id=\"confirm_password\" \n                        class=\"pure-u-1\"\n                        name=\"confirm_password\" \n                        type=\"password\" \n                        value=\"<%- user.get('password') %>\"\n                        placeholder=\"Confirm Password\">\n                </div>\n\n                <% if(isSaving && !user.getErrors()) { %>\n                    <div class=\"alert alert-success\">\n                        Your settings have been saved.\n                    </div>\n                <% } %>\n\n\n                <div class=\"pure-control-group save-row\">\n\n                    <button type=\"button\" \n                    class=\"pure-button pure-button-primary save\">\n                        Save\n                    </button>\n                </div>\n\n            </fieldset>\n        </form>\n    </div>\n    <div class=\"pure-u-1-5\"></div>\n    <div class=\"pure-u-2-5\">\n        <h4>API Keys</h4>\n\n        <form class=\"apikey-form pure-form pure-g margin-left\">\n            <div class=\"pure-u-1\">\n                <h3>Create an API key</h3>\n            </div>\n\n            <% if(newKey.getErrors()) { %>\n                <div class=\"pure-u-1\">\n                    <%= showError('username', newKey) %>\n                    <%= showError('password', newKey) %>\n                </div>\n            <% } %>\n\n            <div class=\"pure-u-2-5\">\n                <input\n                    name=\"username\" \n                    class=\"pure-input-1\"\n                    type=\"text\" \n                    value=\"<%- newKey.get('username') %>\"\n                    placeholder=\"Username\">\n            </div>\n            <div class=\"pure-u-2-5 password-wrap\">\n                <input\n                    name=\"password\" \n                    class=\"pure-input-1 append-button\"\n                    type=\"password\" \n                    value=\"<%- newKey.get('password') %>\"\n                    placeholder=\"Password\">\n            </div>\n            <div class=\"pure-u-1-5\">\n                <button type=\"button\" class=\"pure-button button-success append-button create-key\">\n                    Create\n                </button>\n            </div>\n        </form>\n\n        <% apikeys.each(function(key) { %>\n            <div class=\"card\">\n                <h4 class=\"apikey\">\n                    <%- key.get('key') %>\n                </h4>\n                <span class=\"text-muted\">Created: <%- key.get('created') %></span>\n                <a class=\"pull-right pure-button button-error button-xsmall revoke\"\n                    data-id=\"<%- key.get('key') %>\">\n                    Revoke\n                </a>\n            </div>\n        <% }) %>\n    </div>\n</div>\n\n\n\n";
 
 },{}],47:[function(require,module,exports){
 module.exports = "\n<% if(errors[name]) { %>\n    <div class=\"alert alert-error\">\n        <%- errors[name] %>\n    </div>\n<% } %>";
