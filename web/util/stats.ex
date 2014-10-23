@@ -18,9 +18,6 @@ defmodule Plug.Stats do
 
       conn
     end)
-    conn
-
-
   end
 end
 
