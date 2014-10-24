@@ -23,6 +23,11 @@ module.exports = View.extend({
     },
 
     onStart: function() {
+        // this.app.dispatcher.trigger('views.omni.search', this, {
+        //     collection: this.monitor,
+        //     name: 'packages',
+        //     searchOn: 'name'
+        // })
         this.render();
     },
 

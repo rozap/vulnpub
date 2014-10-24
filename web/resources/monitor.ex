@@ -59,6 +59,19 @@ defmodule Resources.Monitor do
   def page_size, do: 100
 
 
+  defp apply_package_filter(expr, params) do
+    String.split(params.filter, ",")
+      |> Enum.map(fn(pair) -> String.split(pair, ":") end)
+      |> Enum.map(fn([col, value]) -> {String.split(col, "."), value} end)
+      |> Enum.filter(fn({toks, value}) -> hd(toks) == "package" end)
+      |> Enum.reduce(expr, fn({toks, value}, x) ->
+          col = String.to_atom(Enum.join(tl(toks), "."))
+          x |> where([pm, p], ilike(field(p, ^col), ^value))
+        end)
+  end
+
+
+
   def handle({:show, conn, params, module, bundle}) do
     id = get_id(params)
     result = (from m in model,
@@ -68,10 +81,14 @@ defmodule Resources.Monitor do
       |> List.first 
       |> to_serializable
 
-    packages = (from pm in PackageMonitor,
-      join: p in Package, on: pm.package_id == p.id,
-      where: pm.monitor_id == ^id,
-      select: p)
+
+    packages = PackageMonitor
+      |> where([pm], pm.monitor_id == ^id)
+      |> join(:left, [pm], p in pm.package, pm.package_id == p.id)
+      |> apply_package_filter(params)
+      |> apply_order(params)
+      |> limit(page_size)
+      |> select([pm, p], p)
       |> Repo.all
       |> Finch.Serializer.to_serializable(Package, [exclude: []])
 
