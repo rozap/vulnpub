@@ -60,14 +60,19 @@ defmodule Resources.Monitor do
 
 
   defp apply_package_filter(expr, params) do
-    String.split(params.filter, ",")
-      |> Enum.map(fn(pair) -> String.split(pair, ":") end)
-      |> Enum.map(fn([col, value]) -> {String.split(col, "."), value} end)
-      |> Enum.filter(fn({toks, value}) -> hd(toks) == "package" end)
-      |> Enum.reduce(expr, fn({toks, value}, x) ->
-          col = String.to_atom(Enum.join(tl(toks), "."))
-          x |> where([pm, p], ilike(field(p, ^col), ^value))
-        end)
+    if params[:filter] do 
+      String.split(params.filter, ",")
+        |> Enum.map(fn(pair) -> String.split(pair, ":") end)
+        |> Enum.map(fn([col, value]) -> {String.split(col, "."), value} end)
+        |> Enum.filter(fn({toks, value}) -> hd(toks) == "package" end)
+        |> Enum.reduce(expr, fn({toks, value}, x) ->
+            value = "%#{value}%"
+            col = String.to_atom(Enum.join(tl(toks), "."))
+            x |> where([pm, p], ilike(field(p, ^col), ^value))
+          end)
+    else
+      expr
+    end
   end
 
 

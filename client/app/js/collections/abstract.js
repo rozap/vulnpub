@@ -29,12 +29,17 @@ module.exports = Backbone.Collection.extend({
 
     fetch: function(opts) {
         opts = opts || {};
-        opts.data = opts.data || {
+        opts.data = opts.data || this._getUrlParams();
+        return Backbone.Collection.prototype.fetch.call(this, opts);
+    },
+
+    _getUrlParams: function() {
+        var opts = {
             page: this.getPage(),
             order: this._currentOrder
         };
-        if (this._filter.name && this._filter.value) opts.data.filter = this._getFilters();
-        return Backbone.Collection.prototype.fetch.call(this, opts);
+        if (this._filter.name && this._filter.value) opts.filter = this._getFilters();
+        return opts;
     },
 
     setPage: function(p) {

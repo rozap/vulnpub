@@ -92,12 +92,17 @@ module.exports = Backbone.Collection.extend({
 
     fetch: function(opts) {
         opts = opts || {};
-        opts.data = opts.data || {
+        opts.data = opts.data || this._getUrlParams();
+        return Backbone.Collection.prototype.fetch.call(this, opts);
+    },
+
+    _getUrlParams: function() {
+        var opts = {
             page: this.getPage(),
             order: this._currentOrder
         };
-        if (this._filter.name && this._filter.value) opts.data.filter = this._getFilters();
-        return Backbone.Collection.prototype.fetch.call(this, opts);
+        if (this._filter.name && this._filter.value) opts.filter = this._getFilters();
+        return opts;
     },
 
     setPage: function(p) {
@@ -297,15 +302,25 @@ module.exports = Model.extend({
     }
 });
 },{"./abstract":9}],14:[function(require,module,exports){
-var Model = require('./abstract');
+var Model = require('./abstract'),
+    Collection = require('../collections/abstract');
 
 
 module.exports = Model.extend({
-	api: function() {
-		return 'monitors';
-	}
+
+    initialize: function(attrs, opts) {
+        Model.prototype.initialize.apply(this, Array.prototype.slice.call(arguments));
+        var c = new Collection([], opts);
+        ['getFilters'].map(function(name) {
+            this[name] = c[name].bind(this);
+        }.bind(this));
+    },
+
+    api: function() {
+        return 'monitors';
+    }
 });
-},{"./abstract":9}],15:[function(require,module,exports){
+},{"../collections/abstract":3,"./abstract":9}],15:[function(require,module,exports){
 var Model = require('./abstract');
 
 module.exports = Model.extend({
@@ -1138,6 +1153,7 @@ module.exports = View.extend({
 var View = require('./abstract'),
     _ = require('underscore'),
     Monitor = require('../models/monitor'),
+    Collection = require('../collections/abstract'),
     Template = require('../../templates/monitor/monitor.html'),
     Pager = require('./pager');
 
@@ -1151,27 +1167,37 @@ module.exports = View.extend({
     initialize: function(opts) {
         View.prototype.initialize.call(this, opts);
         this.app.dispatcher.trigger('nav.show');
-
+        this._setupProxy();
         this.monitor = new Monitor({
             id: this.monitor_id
         }, this.opts());
         this.listenTo(this.monitor, 'sync', this.renderIt);
-        this.monitor.fetch();
+        this.fetch();
+    },
+
+    fetch: function() {
+        this.monitor.fetch({
+            data: this.proxy._getUrlParams()
+        });
     },
 
     onStart: function() {
-        // this.app.dispatcher.trigger('views.omni.search', this, {
-        //     collection: this.monitor,
-        //     name: 'packages',
-        //     searchOn: 'name'
-        // })
+        this.app.dispatcher.trigger('views.omni.search', this, {
+            collection: this.proxy,
+            name: 'packages',
+            searchOn: 'package.name'
+        });
         this.render();
     },
 
+    _setupProxy: function() {
+        this.proxy = new Collection([], this.opts());
+        this.proxy.fetch = this.fetch.bind(this);
+    }
 
 
 });
-},{"../../templates/monitor/monitor.html":46,"../models/monitor":14,"./abstract":23,"./pager":31,"underscore":69}],30:[function(require,module,exports){
+},{"../../templates/monitor/monitor.html":46,"../collections/abstract":3,"../models/monitor":14,"./abstract":23,"./pager":31,"underscore":69}],30:[function(require,module,exports){
 var View = require('./abstract'),
     _ = require('underscore'),
     PagerTemplate = require('../../templates/util/omni-search.html');
@@ -3478,8 +3504,6 @@ var process = module.exports = {};
 process.nextTick = (function () {
     var canSetImmediate = typeof window !== 'undefined'
     && window.setImmediate;
-    var canMutationObserver = typeof window !== 'undefined'
-    && window.MutationObserver;
     var canPost = typeof window !== 'undefined'
     && window.postMessage && window.addEventListener
     ;
@@ -3488,29 +3512,8 @@ process.nextTick = (function () {
         return function (f) { return window.setImmediate(f) };
     }
 
-    var queue = [];
-
-    if (canMutationObserver) {
-        var hiddenDiv = document.createElement("div");
-        var observer = new MutationObserver(function () {
-            var queueList = queue.slice();
-            queue.length = 0;
-            queueList.forEach(function (fn) {
-                fn();
-            });
-        });
-
-        observer.observe(hiddenDiv, { attributes: true });
-
-        return function nextTick(fn) {
-            if (!queue.length) {
-                hiddenDiv.setAttribute('yes', 'no');
-            }
-            queue.push(fn);
-        };
-    }
-
     if (canPost) {
+        var queue = [];
         window.addEventListener('message', function (ev) {
             var source = ev.source;
             if ((source === window || source === null) && ev.data === 'process-tick') {
@@ -3550,7 +3553,7 @@ process.emit = noop;
 
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
-};
+}
 
 // TODO(shtylman)
 process.cwd = function () { return '/' };
