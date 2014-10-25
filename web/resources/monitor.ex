@@ -56,7 +56,7 @@ defmodule Resources.Monitor do
 
   def model, do: Monitor
   def repo, do: Repo
-  def page_size, do: 100
+  def page_size, do: 99
 
 
   defp apply_package_filter(expr, params) do
@@ -87,17 +87,35 @@ defmodule Resources.Monitor do
       |> to_serializable
 
 
-    packages = PackageMonitor
+    offset = (Dict.get(params, :page, "0") |> String.to_integer) * page_size
+
+    package_expr = PackageMonitor
       |> where([pm], pm.monitor_id == ^id)
       |> join(:left, [pm], p in pm.package, pm.package_id == p.id)
       |> apply_package_filter(params)
+
+    packages = package_expr
       |> apply_order(params)
       |> limit(page_size)
+      |> offset(offset)
       |> select([pm, p], p)
       |> Repo.all
       |> Finch.Serializer.to_serializable(Package, [exclude: []])
 
-    result = Dict.put(result, "packages", packages)
+
+    [package_count] = package_expr 
+      |> select([pm, p], count(p.id)) 
+      |> Repo.all
+    IO.inspect package_count
+    pages = trunc(package_count / page_size)
+
+    package_attr = %{:meta => %{
+          :pages => pages, 
+          :count => package_count, 
+          :next => trunc((page_size + offset) / page_size)
+        }, :data => packages}
+
+    result = Dict.put(result, "packages", package_attr)
     {conn, ok, result}
   end
 

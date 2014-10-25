@@ -15,15 +15,17 @@
 
 	<div class="pure-g package-list">
 
-		<% _.each(monitor.get('packages'), function(p, idx) { %>
+		<% proxy.each(function(p, idx) { %>
 			<div class="pure-u-1-3">
 				<div class="card package-card
 					<%- idx % 3 == 0? 'left' : '' %>
 					<%- (idx + 1) % 3 == 0? 'right' : '' %>">
-					<h4><%- p.name %></h4>
-					<p class="text-muted"><%- p.version %></p>
+					<h4><%- p.get('name') %></h4>
+					<p class="text-muted"><%- p.get('version') %></p>
 				</div>
 			</div>
 		<% }) %>
 	</div>
 <% } %>
+
+<div id="package-pager"></div>

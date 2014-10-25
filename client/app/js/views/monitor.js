@@ -10,7 +10,7 @@ module.exports = View.extend({
     el: '#main',
     template: _.template(Template),
 
-    include: ['monitor'],
+    include: ['monitor', 'proxy'],
 
     initialize: function(opts) {
         View.prototype.initialize.call(this, opts);
@@ -19,6 +19,7 @@ module.exports = View.extend({
         this.monitor = new Monitor({
             id: this.monitor_id
         }, this.opts());
+        this.listenTo(this.monitor, 'sync', this.loadProxy);
         this.listenTo(this.monitor, 'sync', this.renderIt);
         this.fetch();
     },
@@ -36,6 +37,21 @@ module.exports = View.extend({
             searchOn: 'package.name'
         });
         this.render();
+    },
+
+    loadProxy: function() {
+        this.proxy.set(this.monitor.get('packages').data);
+        this.proxy.meta = this.monitor.get('packages').meta;
+    },
+
+    post: function() {
+        var packages = this.monitor.get('packages');
+        if (this.proxy.pageCount()) {
+            this.spawn('pager', new Pager(this.opts({
+                el: this.$el.find('#package-pager').selector,
+                collection: this.proxy
+            })));
+        }
     },
 
     _setupProxy: function() {
