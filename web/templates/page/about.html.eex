@@ -18,7 +18,7 @@
                 <br>
 
                 This manifest must be publicly accessible over http(s). If you update the manifest or any
-                referenced files, your new dependencies will be pulled into vuln.pub for monitoring. 
+                referenced files, your new dependencies will be automatically pulled into vuln.pub for monitoring. 
             </p>
         </div>
         

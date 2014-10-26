@@ -76,12 +76,27 @@ defmodule Service.Emailer do
 
   defp handle(_, {:activate, user}, state) do
     template = File.read! @email_templates <> "activation.json"
-    payload = interpolate(template, %{:key => key, :email => user.email, :username => user.username})
+    payload = interpolate(template, %{
+      key: key, 
+      email: user.email, 
+      username: user.username
+    })
     #send it off...
     send_email payload, user
     {:noreply, state}
   end
 
+  defp handle(_, {:forgot, user, reset}, state) do
+    template = File.read! @email_templates <> "forgot.json"
+    payload = interpolate(template, %{
+      key: key, 
+      email: user.email, 
+      username: user.username, 
+      reset_key: reset.key
+    })
+    send_email payload, user
+    {:noreply, state}
+  end
 
 
 

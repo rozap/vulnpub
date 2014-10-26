@@ -29,7 +29,7 @@ defmodule Test.ParserUnmanaged do
     #now get the monitor that was just created back and verify that express is in there with the formatted version
     {_, _, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/monitors/#{id}", nil, [{"authentication", "foo:#{key}"}])
 
-    [some_package, some_other, yet_another] = resp_body["packages"]
+    [some_package, some_other, yet_another] = resp_body["packages"]["data"]
     assert some_package["name"] == "some-package-name"
     assert some_other["name"] == "some-other-name"
     assert yet_another["name"] == "yet-another-name"

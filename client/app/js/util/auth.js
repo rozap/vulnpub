@@ -59,7 +59,9 @@ Auth.prototype = {
                 'authentication': key.username + ':' + key.key
             };
         } catch (e) {
-            console.warn('cannot parse localstorage ;_;', localStorage[name]);
+            if (localStorage[name] && localStorage[name].length) {
+                console.warn('cannot parse localstorage ;_;', localStorage[name]);
+            }
         }
     },
 

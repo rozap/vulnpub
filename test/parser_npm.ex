@@ -26,7 +26,7 @@ defmodule Test.ParseNPMTest do
 
     #now get the monitor that was just created back and verify that express is in there with the formatted version
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/monitors/#{id}", nil, [{"authentication", "foo:#{key}"}])
-    [express] = resp_body["packages"]
+    [express] = resp_body["packages"]["data"]
     assert express["name"] == "express"
     assert express["version"] == "3.5.0"
     assert id != nil

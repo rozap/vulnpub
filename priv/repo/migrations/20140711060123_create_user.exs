@@ -83,19 +83,29 @@ defmodule Repo.Migrations.CreateUser do
           modified timestamp DEFAULT NOW(),
           fulfilled timestamp DEFAULT null,
           acknowledged boolean DEFAULT FALSE
+        )",
+
+    "CREATE TABLE IF NOT EXISTS
+        resets(
+          id serial primary key,
+          user_id integer references users(id),
+          key varchar(255),
+          created timestamp DEFAULT NOW(), 
+          modified timestamp DEFAULT NOW()
         )"
 
     ]
   end
 
   def down do
-    ["DROP TABLE IF EXISTS alerts",
-     "DROP TABLE IF EXISTS vuln_effects",
-     "DROP TABLE IF EXISTS package_monitors",
-     "DROP TABLE IF EXISTS packages",
-     "DROP TABLE IF EXISTS monitors",
-     "DROP TABLE IF EXISTS apikeys", 
-     "DROP TABLE IF EXISTS vulns",
-     "DROP TABLE IF EXISTS users"]
+    ["DROP TABLE IF EXISTS resets",
+      "DROP TABLE IF EXISTS alerts",
+      "DROP TABLE IF EXISTS vuln_effects",
+      "DROP TABLE IF EXISTS package_monitors",
+      "DROP TABLE IF EXISTS packages",
+      "DROP TABLE IF EXISTS monitors",
+      "DROP TABLE IF EXISTS apikeys", 
+      "DROP TABLE IF EXISTS vulns",
+      "DROP TABLE IF EXISTS users"]
   end
 end

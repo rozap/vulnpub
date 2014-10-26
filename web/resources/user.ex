@@ -14,13 +14,12 @@ defmodule Resources.User.Validator do
     {:username, username}
   end
 
-  # def validate_field(verb, :password, val) do
-  #   :io.format("VALIDATE ~p~n", [verb])
-  #   if String.length(val) < 8 do
-  #     throw {:bad_request, %{errors: %{password: "This needs to be 8 or more characters"}}}
-  #   end
-  #   {:password, val}
-  # end
+  def validate_field(verb, :password, val) do
+    if String.length(val) < 8 do
+      throw {:bad_request, %{errors: %{password: "This needs to be 8 or more characters"}}}
+    end
+    {:password, val}
+  end
 
   def validate_field(verb, name, val), do: super(verb, name, val)
 

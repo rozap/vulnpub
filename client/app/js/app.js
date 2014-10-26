@@ -16,6 +16,15 @@ $.fn.serializeObject = function() {
 	return obj;
 };
 
+$(document).ready(function() {
+	$(window).keydown(function(event) {
+		if (event.keyCode == 13) {
+			event.preventDefault();
+			return false;
+		}
+	});
+});
+
 var Backbone = require('backbone');
 Backbone.$ = $;
 

@@ -4,15 +4,19 @@ defmodule Resources.ApiKey.Validator do
   use Finch.Middleware.ModelValidator, [only: [:create]]
 
   def validate_together(:create, params, bundle) do
-    try do
-      %{:username => username, :password => password} = params
-      [user] = (from u in Models.User, where: u.username == ^username, select: u) |> Repo.all
-      {:ok, provided_hash} = hashed = :bcrypt.hashpw(password, user.password)
-      if List.to_string(provided_hash) != user.password do
-        raise :invalid
-      end
-    rescue
-      _ -> throw {:bad_request, %{:errors => %{:username => "The username/password combination is invalid"}}}
+    %{:username => username, :password => password} = params
+    bundle = case (from u in Models.User, where: u.username == ^username, select: u) |> Repo.all do
+      [] -> throw {:bad_request, 
+        %{:errors => %{:username => "The username is invalid"}}
+      }
+      [user] ->
+        {:ok, provided_hash} = hashed = :bcrypt.hashpw(password, user.password)
+        if List.to_string(provided_hash) != user.password do
+          raise throw {:bad_request, 
+            %{:errors => %{:username => "The username/password combination is invalid"}}
+          }
+        end
+        Dict.put(bundle, :user, user)
     end
     {params, bundle}
   end
@@ -79,9 +83,7 @@ defmodule Resources.ApiKey do
 
 
   def handle({:create, conn, params, module, bundle}) do
-    %{:username => username, :password => password} = params
-    [user] = (from u in Models.User, where: u.username == ^username, select: u) |> Repo.all
-    props = %{user_id: user.id, key: Models.ApiKey.gen_key, web: params[:web]}
+    props = %{user_id: bundle.user.id, key: Models.ApiKey.gen_key, web: params[:web]}
     key = Models.ApiKey.allocate(props) |> Repo.insert |> to_serializable
     {conn, created, key}
   end

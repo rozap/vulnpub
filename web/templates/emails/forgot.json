@@ -1,0 +1,15 @@
+{
+    "key": "#{key}",
+    "message": {
+        "html": "<h3>Hi #{username}</h3><p> <a href=\"vuln.pub/#reset/#{reset_key}\">Please click here to reset your password</a>",
+        "text": "Reset your vuln.pub password",
+        "subject": "Reset your vuln.pub password",
+        "from_email": "notifications@vuln.pub",
+        "from_name": "vuln.pub",
+        "to": [{
+            "email": "#{email}",
+            "name": "#{username}",
+            "type": "to"
+        }]
+    }
+}

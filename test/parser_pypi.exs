@@ -26,7 +26,7 @@ defmodule Test.ParserPyPiTest do
 
     #now get the monitor that was just created back and verify that express is in there with the formatted version
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/monitors/#{id}", nil, [{"authentication", "foo:#{key}"}])
-    [twisted, apt, dateutil, debian, venv] = resp_body["packages"]
+    [twisted, apt, dateutil, debian, venv] = resp_body["packages"]["data"]
     assert twisted["name"] == "Twisted-Web"
     assert apt["name"] == "python-apt"
     assert dateutil["name"] == "python-dateutil"

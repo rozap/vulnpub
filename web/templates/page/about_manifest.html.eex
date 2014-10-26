@@ -63,7 +63,7 @@
    <div class="pure-g">
 
         <div class="pure-u-1-2">
-            <h4>Unanaged Dependencies</h4>
+            <h4>Unmanaged Dependencies</h4>
             <p>
                 For packages that you have installed manually, you can still add them to vuln.pub to be monitored, but you need to specify each one in your manifest.
                 <br>

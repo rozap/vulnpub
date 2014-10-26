@@ -27,7 +27,7 @@ defmodule Test.ParseDpkgTest do
     #now get the monitor that was just created back and verify that express is in there with the formatted version
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/monitors/#{id}", nil, [{"authentication", "foo:#{key}"}])
     IO.inspect resp_body
-    [nodejs, npm, bind9, binutils, blueman, bluez] = resp_body["packages"]
+    [nodejs, npm, bind9, binutils, blueman, bluez] = resp_body["packages"]["data"]
     assert nodejs["name"] == "nodejs"
     assert npm["name"] == "npm"
     assert nodejs["version"] == "0.10.25"
