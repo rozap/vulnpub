@@ -20,23 +20,38 @@ defmodule Service.VulnConsumer do
     {:ok, initial_state}
   end
 
+
+
+  defp match_spec?(version, effect_version) do
+    {:ok, req} = Version.parse_requirement(effect_version)
+    Version.match?(version, req)
+  end
+
+
+  defp matches?(package_version, effect_version) do
+    case Version.parse(package_version) do
+      {:ok, version} -> match_spec?(version, effect_version)
+      :error -> :error
+    end
+
+  end
+
+
+
+
   def is_vulnerable?(package, effects) do
-    IO.inspect package.version
-    {:ok, package_version} = Version.parse(package.version)
     {unsafe, safe} = Enum.partition(effects, 
       fn effect -> effect.vulnerable end) 
     #match a vuln
     matches_unsafe = (unsafe
         |> Enum.any?(fn effect -> 
-            {:ok, effected_req} = Version.parse_requirement(effect.version)
-            Version.match?(package_version, effected_req)
+            matches?(package.version, effect.version)
           end))
 
     matches_safe = (safe
-          |> Enum.any?(fn effect ->
-              {:ok, effected_req} = Version.parse_requirement(effect.version)
-              Version.match?(package_version, effected_req)
-            end))
+        |> Enum.any?(fn effect ->
+            matches?(package.version, effect.version)
+          end))
 
     matches_unsafe or (not matches_safe and length(safe) > 0)
     #match a patched ^^

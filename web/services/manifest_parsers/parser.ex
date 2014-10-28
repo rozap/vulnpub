@@ -61,18 +61,18 @@ defmodule Manifest.Parser.Parser do
     case Version.parse(version) do
       {:ok, v} -> 
         "#{v.major}.#{v.minor}.#{v.patch}"
-      :error ->
+      :error -> version
         ## attempt to fix it
-        case Regex.run(~r/(\d+\.\d+\.\d+)/, version) do
-          nil ->
-            case Regex.run(~r/(\d+\.\d+)/, version) do
-              nil -> :error
-              versions ->
-                v = List.first(versions)
-                "#{v}.0"
-            end
-          versions -> List.first(versions)
-        end
+        # case Regex.run(~r/(\d+\.\d+\(.\d+)?)/, version) do
+        #   nil ->
+        #     case Regex.run(~r/(\d+\.\d+)/, version) do
+        #       nil -> 
+        #       versions ->
+        #         v = List.first(versions)
+        #         "#{v}.*"
+        #     end
+        #   versions -> List.first(versions)
+        # end
     end
   end
   
