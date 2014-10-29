@@ -27,20 +27,27 @@ defmodule Test.ParseNPMTest do
     #now get the monitor that was just created back and verify that express is in there with the formatted version
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/monitors/#{id}", nil, [{"authentication", "foo:#{key}"}])
     packages = Enum.sort_by(resp_body["packages"]["data"], &(&1["name"]))
-    IO.inspect packages
-    [%{
-      "name" => "express",
-      "version" => "3.5.*"
-      }, %{
-      "name" => "optimist",
-      "version" => "0.*.*"
-      }, %{
-      "name" => "browserify",
-      "version" => "*.*.*"
-      }, %{
+    [
+     %{
       "name" => "backbone",
       "version" => "4.2.0"
-      }] = packages
+      },
+
+      %{
+      "name" => "browserify",
+      "version" => "*.*.*"
+      },
+
+      %{
+      "name" => "express",
+      "version" => "3.5.*"
+      },
+
+      %{
+      "name" => "optimist",
+      "version" => "0.*.*"
+      }
+    ] = packages
   end
 
 

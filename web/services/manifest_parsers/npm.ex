@@ -6,17 +6,24 @@ defmodule Manifest.Parser.NPM do
   import Manifest.Parser.Parser
 
   @latest ["l", "a", "t", "e", "s", "t"]
+  @any "*"
 
-
-  defp to_spec(@latest), do: "*.*.*"
+  defp to_spec(@any), do: "*.*.*"
+  defp to_spec(@latest), do: to_spec(@any)
 
   defp to_spec(["~" | rest]) do
-    "3.3.3"
+    Enum.join(rest, "") 
+      |> Version.parse
+      |> (fn {:ok, version} -> "#{version.major}.#{version.minor}.*" end).()
   end
 
   defp to_spec(["^" | rest]) do
-    "3.3.3"
+    Enum.join(rest, "") 
+      |> Version.parse
+      |> (fn {:ok, version} -> "#{version.major}.*.*" end).()
   end
+
+  defp to_spec(version), do: Enum.join(version, "")
 
 
   ##convert the node versions from eg: 
