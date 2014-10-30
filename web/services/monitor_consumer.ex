@@ -82,7 +82,7 @@ defmodule Service.MonitorConsumer do
         Logger.warn("Manifest not accessible: #{monitor.manifest}")
       end
     rescue
-      e -> Logger.error(e.message)
+      e -> Logger.error(e[:message])
     end
     {:noreply, state}
   end

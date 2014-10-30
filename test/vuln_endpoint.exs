@@ -19,7 +19,6 @@ defmodule Test.VulnTest do
   #remove load from file here...
   test "can create a vuln" do
     {status, req_body, resp_body} = create
-    IO.inspect resp_body
     %{
       "description" => "foo",
       "name" => "baz",

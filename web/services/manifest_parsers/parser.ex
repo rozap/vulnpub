@@ -3,11 +3,13 @@ defmodule Manifest.Parser.Parser do
   import Ecto.Query, only: [from: 2]
   alias Models.Package
   alias Models.PackageMonitor
+  require Logger
 
-  def get_package(name, version) do
+  def get_package(name, version, raw_version) do
     {
       name, 
       version, 
+      raw_version,
       (from p in Package, 
         where: p.name == ^name and p.version == ^version, 
         select: p) 
@@ -28,20 +30,22 @@ defmodule Manifest.Parser.Parser do
 
 
 
-  def create_packages keylist, monitor do
-    packages = Enum.map(keylist, fn {name, version} -> get_package(name, version) end)
-    existing = Enum.filter(packages, fn {_, _, p} -> not (is_nil p) end)
-    to_create = Enum.filter(packages, fn {_, _, p} -> is_nil p end)
+  def create_packages(to_insert, monitor) do
+    packages = Enum.map(to_insert, fn {name, version, raw_version} -> 
+      get_package(name, version, raw_version) 
+    end)
+    existing = Enum.filter(packages, fn {_, _, _, p} -> not (is_nil p) end)
+    to_create = Enum.filter(packages, fn {_, _, _, p} -> is_nil p end)
 
     new_packages = to_create
-      |> Enum.map(fn {name, version, _} -> 
-        {name, extract_version(version)} end)
-      |> Enum.filter(fn {name, version} -> 
-        version != :error end)
-      |> Enum.map(fn {name, version} -> 
-        Package.allocate(%{:name => name, :version => version}) 
+      |> Enum.map(fn {name, version, raw_version, _} -> 
+        Package.allocate(%{
+          name: name,
+          version: version, 
+          raw_version: raw_version
+        }) 
       end)
-    existing = Enum.map(existing, fn {_, _, p} -> p end)
+    existing = Enum.map(existing, fn {_, _, _, p} -> p end)
 
 
     {:ok, packages} = Repo.transaction(fn -> 
@@ -49,31 +53,7 @@ defmodule Manifest.Parser.Parser do
         fn m -> Repo.insert(m) end) 
     end)
 
-
     create_package_monitors(monitor, packages ++ existing)
-  end
-
-
-
-
-  defp extract_version(version) do
-
-    case Version.parse(version) do
-      {:ok, v} -> 
-        "#{v.major}.#{v.minor}.#{v.patch}"
-      :error -> version
-        ## attempt to fix it
-        # case Regex.run(~r/(\d+\.\d+\(.\d+)?)/, version) do
-        #   nil ->
-        #     case Regex.run(~r/(\d+\.\d+)/, version) do
-        #       nil -> 
-        #       versions ->
-        #         v = List.first(versions)
-        #         "#{v}.*"
-        #     end
-        #   versions -> List.first(versions)
-        # end
-    end
   end
   
 
@@ -89,6 +69,24 @@ defmodule Manifest.Parser.Parser do
       response.body
     else 
       throw :manifest_not_accessible
+    end
+  end
+
+
+  def find_digits(raw_version) do
+    case Regex.run(~r/(\d+\.\d+(\.\d+)?)/, raw_version) do
+      [version | rest] -> 
+        case Version.Parser.parse_version(version, true) do
+          {:ok, {major, minor, patch, _}} -> 
+            if is_nil(patch) do
+              patch = 0
+            end
+            "#{major}.#{minor}.#{patch}"
+          :error -> 
+            Logger.error("find_digits: Failed to parser version #{raw_version}")
+            :error
+        end
+      _ -> :error
     end
   end
 

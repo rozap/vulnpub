@@ -4,9 +4,9 @@ defmodule Models.Package do
   schema "packages" do
     field :name
     field :version
+    field :raw_version
     field :created, :datetime
     field :modified, :datetime
-
   end
 
 

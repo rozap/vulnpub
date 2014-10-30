@@ -30,9 +30,9 @@ defmodule Manifest.Parser.NPM do
   #~1.2.3 --> 1.2.*
   #^1.2.3 --> 1.*.*
   defp convert_versions(deps) do
-    Enum.map(deps, fn {name, version} -> 
-      version = String.split(version, "", trim: true) |> to_spec
-      {name, version}
+    Enum.map(deps, fn {name, raw_version} -> 
+      version = String.split(raw_version, "", trim: true) |> to_spec
+      {name, version, raw_version}
     end)
   end
   

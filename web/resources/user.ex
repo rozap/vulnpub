@@ -66,7 +66,6 @@ defmodule Resources.User do
 
   def handle({:update, conn, params, module, bundle}) do
     id = get_id(params)
-    IO.inspect params
     params = params
       |> Dict.delete(:id)
       |> Dict.delete(:username)

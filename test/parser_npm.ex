@@ -22,7 +22,7 @@ defmodule Test.ParseNPMTest do
     assert Dict.get(req_body, "manifest") == Dict.get(resp_body, "manifest")
     assert Dict.get(req_body, "name") == Dict.get(resp_body, "name")
     id = Dict.get(resp_body, "id")
-    :timer.sleep(500)  #packages are loaded async so wait here
+    :timer.sleep(200)  #packages are loaded async so wait here
 
     #now get the monitor that was just created back and verify that express is in there with the formatted version
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/monitors/#{id}", nil, [{"authentication", "foo:#{key}"}])
@@ -30,22 +30,26 @@ defmodule Test.ParseNPMTest do
     [
      %{
       "name" => "backbone",
-      "version" => "4.2.0"
+      "version" => "4.2.0",
+      "raw_version" => "4.2.0"
       },
 
       %{
       "name" => "browserify",
-      "version" => "*.*.*"
+      "version" => "*.*.*",
+      "raw_version" => "latest"
       },
 
       %{
       "name" => "express",
-      "version" => "3.5.*"
+      "version" => "3.5.*",
+      "raw_version" => "~3.5.1"
       },
 
       %{
       "name" => "optimist",
-      "version" => "0.*.*"
+      "version" => "0.*.*",
+      "raw_version" => "^0.3.4"
       }
     ] = packages
   end

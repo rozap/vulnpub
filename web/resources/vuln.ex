@@ -72,7 +72,6 @@ end
 defmodule Resources.Vuln do
   alias Models.Vuln
   alias Models.VulnEffect
-  alias Models.Package
   use Finch.Resource, [
     before: [
       Resources.Vuln.Authenticator,

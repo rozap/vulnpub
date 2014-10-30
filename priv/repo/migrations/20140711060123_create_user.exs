@@ -48,6 +48,7 @@ defmodule Repo.Migrations.CreateUser do
           id serial primary key,
           name text,
           version varchar(255),
+          raw_version varchar(255),
           created timestamp DEFAULT NOW(), 
           modified timestamp DEFAULT NOW()
         )",

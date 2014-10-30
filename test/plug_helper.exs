@@ -32,7 +32,6 @@ defmodule PlugHelper do
             conn(http_method, path, json_body, [headers: headers])
         end
         conn = router.call(conn, [])
-        IO.inspect conn.resp_body
         
         resp_body = case Jazz.decode(conn.resp_body) do
           {:ok, body} -> body

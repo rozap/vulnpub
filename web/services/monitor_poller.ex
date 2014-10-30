@@ -9,7 +9,6 @@ defmodule Service.MonitorPoller do
 
   def start_link do
     freq = Config.get!([:vulnpub])[:monitor_poll_freq]
-    IO.puts "POLLING FOR #{freq}"
     Task.async(fn -> loop(freq) end)
     {:ok, self}
   end

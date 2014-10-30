@@ -24,13 +24,9 @@ defmodule Manifest.Parser.Dpkg do
   end
 
 
-  defp parse_version({name, version}) do
-    vnum = String.split(version, "~")
-            |> List.first
-            |> String.split("-")
-            |> List.first
-            |> remove_words
-    {name, vnum}
+  defp parse_version({name, raw_version}) do
+    version = find_digits(raw_version)
+    {name, version, raw_version}
   end
 
   def parse_deps body, monitor do

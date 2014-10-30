@@ -32,7 +32,6 @@ defmodule Test.UserTest do
 
   test "can update your email" do
     {_, _, resp} = DBHelpers.create_apikey
-    IO.inspect resp
     %{"key" => key, "user_id" => id} = resp
     headers = [{"authentication", "foo:#{key}"}]
     {status, _, resp} = simulate_json_file(Vulnpub.Router, :put, "api/v1/users/#{id}", "test/json/update_user.json", headers)
@@ -44,10 +43,8 @@ defmodule Test.UserTest do
     %{"key" => key, "user_id" => id} = resp
     headers = [{"authentication", "foo:#{key}"}]
     {status, _, resp} = simulate_json_file(Vulnpub.Router, :put, "api/v1/users/#{id}", "test/json/update_user_1.json", headers)
-    IO.inspect resp
     assert status == 202
     {status, _, resp} = simulate_json_file(Vulnpub.Router, :post, "api/v1/apikey", "test/json/new_apikey_2.json")
-    IO.inspect resp
     assert status == 201
     assert resp["key"] != nil
   end
