@@ -27,6 +27,7 @@ defmodule Test.ParseNPMTest do
     #now get the monitor that was just created back and verify that express is in there with the formatted version
     {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/monitors/#{id}", nil, [{"authentication", "foo:#{key}"}])
     packages = Enum.sort_by(resp_body["packages"]["data"], &(&1["name"]))
+    IO.inspect packages
     [
      %{
       "name" => "backbone",
@@ -52,6 +53,8 @@ defmodule Test.ParseNPMTest do
       "raw_version" => "^0.3.4"
       }
     ] = packages
+
+
   end
 
 

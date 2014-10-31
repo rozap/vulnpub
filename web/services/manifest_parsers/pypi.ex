@@ -13,12 +13,9 @@ defmodule Manifest.Parser.PyPi do
     {name, version}
   end
 
-  defp parse_version({name, version}) do
-    vnum = String.split(version, "~")
-            |> List.first
-            |> String.split("-")
-            |> List.first
-    {name, vnum}
+  defp parse_version({name, raw_version}) do
+    vnum = find_digits(raw_version)
+    {name, vnum, raw_version}
   end
 
   def parse_deps body, monitor do
