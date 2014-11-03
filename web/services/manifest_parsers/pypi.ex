@@ -1,8 +1,6 @@
 
 
 defmodule Manifest.Parser.PyPi do
-  # require Manifest.Parser.Parser
-  # use Manifest.Parser.Parser
   alias Models.Package
   alias Models.PackageMonitor
   import Manifest.Parser.Parser

@@ -73,21 +73,70 @@ defmodule Manifest.Parser.Parser do
   end
 
 
+
+  @latest ["l", "a", "t", "e", "s", "t"]
+  @any "*"
+
+
+
+  defp to_version(rest, cb) do
+    parsed = Enum.join(rest, "") 
+      |> String.strip
+      |> Version.Parser.parse_version(true)
+    case parsed do
+      {:ok, version} -> 
+        cb.(version)
+      :error -> :error
+    end
+  end
+
+  def any_patch(rest) do
+    to_version(rest, fn {major, minor, _, _} -> "#{major}.#{minor}.*" end)
+  end
+
+  def any_minor(rest) do
+    to_version(rest, fn {major, _, _, _} -> "#{major}.*.*" end)
+  end
+
+  def any(_), do: "*.*.*"
+
+
+  def to_spec(@any), do: any(@any)
+  def to_spec(@latest), do: any(@latest)
+  def to_spec([">" | rest]), do: any(rest)
+  def to_spec(["<" | rest]), do: any(rest)
+
+  def to_spec(["~", ">" | rest]), do: any_patch(rest)
+  def to_spec(["~" | rest]), do: any_patch(rest)
+
+  def to_spec(["^" | rest]), do: any_minor(rest)
+
+  def to_spec(version), do: Enum.join(version, "")
+
+
+
+  def find_digits(version) when version == "*.*.*", do: version
   def find_digits(raw_version) do
     case Regex.run(~r/(\d+\.\d+(\.\d+)?)/, raw_version) do
       [version | rest] -> 
         case Version.Parser.parse_version(version, true) do
           {:ok, {major, minor, patch, _}} -> 
             if is_nil(patch) do
-              patch = 0
+              patch = "*"
             end
             "#{major}.#{minor}.#{patch}"
           :error -> 
             Logger.error("find_digits: Failed to parser version #{raw_version}")
             :error
         end
-      _ -> :error
+
+      _ ->
+        Logger.error("find_digits: Failed to parser version #{raw_version}")
+       :error
     end
   end
+
+
+
 
 end
