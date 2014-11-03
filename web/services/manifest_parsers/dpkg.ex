@@ -18,12 +18,6 @@ defmodule Manifest.Parser.Dpkg do
     end
   end
 
-
-  defp remove_words version do
-    Regex.split(~r/\.[A-Za-z]/, version) |> List.first
-  end
-
-
   defp parse_version({name, raw_version}) do
     version = find_digits(raw_version)
     {name, version, raw_version}

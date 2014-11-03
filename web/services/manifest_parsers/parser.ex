@@ -62,7 +62,7 @@ defmodule Manifest.Parser.Parser do
       |> Enum.drop(-1)
       |> Enum.concat([filename])
       |> Enum.join("/")
-
+    Logger.info("Fetching managed file: #{location}")
     HTTPotion.start
     response = HTTPotion.get location
     if HTTPotion.Response.success? response do

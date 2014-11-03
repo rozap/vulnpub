@@ -1,0 +1,4 @@
+{
+	"manifest": "http://localhost:7777/gems.json",
+	"name": "gem mon"
+}

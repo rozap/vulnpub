@@ -18,6 +18,7 @@ defmodule Service.MonitorConsumer do
   def get_parser(:npm), do: Manifest.Parser.NPM
   def get_parser(:pypi), do: Manifest.Parser.PyPi
   def get_parser(:dpkg), do: Manifest.Parser.Dpkg
+  def get_parser(:rubygems), do: Manifest.Parser.RubyGems
   def get_parser(:unmanaged), do: Manifest.Parser.Unmanaged
 
 
@@ -82,7 +83,7 @@ defmodule Service.MonitorConsumer do
         Logger.warn("Manifest not accessible: #{monitor.manifest}")
       end
     rescue
-      e -> Logger.error(e.message)
+      e -> IO.inspect e
     end
     {:noreply, state}
   end
