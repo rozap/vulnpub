@@ -125,6 +125,33 @@ defmodule Test.AlertTest do
     assert resp_body["meta"]["count"] == 1
   end
 
+  test "wildcard patch version matches a vuln" do
+    key = create_user
+    {_, _, mon_response} = create_monitor key, 4
+    IO.inspect mon_response
+
+    id = mon_response["id"]
+    {_, _, monitor_resp} = simulate_json(
+      Vulnpub.Router, 
+      :get, 
+      "api/v1/monitors/#{id}", 
+      nil, 
+      [{"authentication", "foo:#{key}"}]
+    )
+
+
+    IO.inspect monitor_resp
+
+    {_, _, vuln_response} = create_vuln key, 9
+    :timer.sleep(20)  #packages are checked async, so wait a lil bit
+    {status, req_body, resp_body} = simulate_json(Vulnpub.Router, :get,
+       "api/v1/alerts", nil, [{"authentication", "foo:#{key}"}])
+    assert resp_body["meta"]["count"] == 1
+  end
+
+
+
+
   
 
 end

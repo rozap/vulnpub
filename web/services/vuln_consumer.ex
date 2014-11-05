@@ -28,10 +28,11 @@ defmodule Service.VulnConsumer do
   end
 
 
-  defp matches?(package_version, effect_version) do
+  def matches?(package_version, effect_version) do
+    IO.puts("Matches? #{package_version} #{effect_version}")
     case Version.parse(package_version) do
       {:ok, version} -> match_spec?(version, effect_version)
-      :error -> :error
+      :error -> false
     end
 
   end
@@ -53,7 +54,10 @@ defmodule Service.VulnConsumer do
             matches?(package.version, effect.version)
           end))
 
-    matches_unsafe or (not matches_safe and length(safe) > 0)
+    res = matches_unsafe or (not matches_safe and length(safe) > 0)
+    len = length(safe)
+    IO.puts "matches unsafe #{matches_unsafe} matches safe #{matches_safe} res #{res} len #{len}"
+    matches_unsafe or ((not matches_safe) and length(safe) > 0)
     #match a patched ^^
   end
 
