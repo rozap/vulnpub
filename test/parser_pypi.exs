@@ -32,7 +32,7 @@ defmodule Test.ParserPyPiTest do
     [
       %{"name" => "Twisted-Web", "version" => "13.2.0"},
       %{"name" => "python-apt", "version" => "0.9.3"},
-      %{"name" => "python-dateutil", "version" => "2.2.0"},
+      %{"name" => "python-dateutil", "version" => "2.2.*"},
       %{"name" => "python-debian", "version" => "0.1.21"},
       %{"name" => "virtualenv", "version" => "1.11.4"}
     ] = packages

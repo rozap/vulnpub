@@ -71,7 +71,7 @@ defmodule Service.MonitorConsumer do
 
   def handle_cast({:create, monitor}, state) do
     HTTPotion.start
-    # try do
+    try do
       Logger.info "Getting url #{monitor.manifest}"
       response = HTTPotion.get monitor.manifest
       if HTTPotion.Response.success? response do
@@ -81,9 +81,9 @@ defmodule Service.MonitorConsumer do
       else
         Logger.warn("Manifest not accessible: #{monitor.manifest}")
       end
-    # rescue
-    #   e -> IO.inspect e
-    # end
+    rescue
+      e -> IO.inspect e
+    end
     {:noreply, state}
   end
 end

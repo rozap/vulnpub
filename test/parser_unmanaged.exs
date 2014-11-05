@@ -33,7 +33,7 @@ defmodule Test.ParserUnmanaged do
     assert some_package["name"] == "some-package-name"
     assert some_other["name"] == "some-other-name"
     assert yet_another["name"] == "yet-another-name"
-    assert some_package["version"] == "5.3.0"
+    assert some_package["version"] == "5.3.*"
     assert some_other["version"] == "6.3.1"
     assert yet_another["version"] == "0.3.1"
   end
