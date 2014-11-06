@@ -35,6 +35,16 @@ defmodule Test.AlertTest do
     assert M.matches?("3.4.3", "~> 3.3.4") == false
   end
 
+  test "ignored patch matches" do
+    assert M.matches?("3.3.*", "== 3.3.4") == true
+    assert M.matches?("3.3.*", "== 3.4.4") == false
+  end
+
+
+  test "ignored minor matches " do
+    assert M.matches?("3.*.*", "== 3.3.4") == true
+    assert M.matches?("3.*.*", "== 4.3.4") == false
+  end
   
 
 end
