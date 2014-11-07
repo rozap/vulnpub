@@ -78,7 +78,7 @@ defmodule Repo.Migrations.CreateUser do
         alerts(
           id serial primary key,
           vuln_id integer references vulns(id),
-          monitor_id integer references monitors(id),
+          monitor_id integer references monitors(id) ON DELETE CASCADE,
           package_id integer references packages(id),
           created timestamp DEFAULT NOW(), 
           modified timestamp DEFAULT NOW(),

@@ -12,13 +12,12 @@ defmodule Vulnpub do
       worker(Service.VulnConsumer, [{}, []]),
       worker(Service.Emailer, [[], []]),
       worker(Service.MonitorPoller, []),
-      worker(Service.StatsManager, [[]])
+      worker(Service.StatsManager, [[]]),
+      worker(Logger, [[name: Logger.Backends.Syslog]]) #@##WIOAIJOA????
     ]
 
     :application.start(:crypto)
     :application.start(:bcrypt)
-    GenEvent.add_handler(Logger, Logger.Backends.Syslog, [])
-
     opts = [strategy: :one_for_one, name: Vulnpub.Supervisor]
     Supervisor.start_link(children, opts)
   end

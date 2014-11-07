@@ -39,7 +39,6 @@ defmodule Service.VulnConsumer do
 
 
   def matches?(package_version, effect_version) do
-    IO.puts("Matches? #{package_version} #{effect_version}")
     {:ok, req} = VPVersion.parse_requirement(effect_version)
     case VPVersion.parse(package_version) do
       {:ok, version} -> VPVersion.match?(version, req)
@@ -67,7 +66,6 @@ defmodule Service.VulnConsumer do
 
     res = matches_unsafe or (not matches_safe and length(safe) > 0)
     len = length(safe)
-    IO.puts "matches unsafe #{matches_unsafe} matches safe #{matches_safe} res #{res} len #{len}"
     matches_unsafe or ((not matches_safe) and length(safe) > 0)
     #match a patched ^^
   end
@@ -113,27 +111,5 @@ defmodule Service.VulnConsumer do
       |> Enum.map(&(create_alert(&1, vuln)))
     {:noreply, state}
   end
-
-  ##
-  # Select 
-  #
-  # def handle_cast({:new_monitor, monitor}, state) do
-
-    # (from v in Vuln,)
-
-  #   packages = (from pm in PackageMonitor,
-  #     join: p in Package, on: pm.package_id == p.id,
-  #     where: pm.monitor_id == ^id,
-  #     select: p)
-
-
-
-  #   effected = (from p in Package, where: ilike(p.name, ^vuln.effects_package), select: p)
-  #      |> Repo.all
-  #      |> Enum.filter(fn package -> is_effected_package?(package, vuln) end)
-  #      |> Enum.map(&(create_alert &1, vuln))
-  #   {:noreply, state}
-  # end
-
 
 end

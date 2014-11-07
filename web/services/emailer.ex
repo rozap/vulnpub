@@ -40,7 +40,7 @@ defmodule Service.Emailer do
     if HTTPotion.Response.success? response do
       Logger.info("Sent email to #{user.email}")
     else
-      Logger.error("Failed to send email #{user.email}", [response])
+      Logger.error("Failed to send email #{user.email}", [response.body])
     end
   end
 
@@ -68,6 +68,7 @@ defmodule Service.Emailer do
       :monitor_name => monitor.name,
       :vuln_link => link
     })
+    Logger.info("Sending email with payload #{payload}")
     send_email payload, user
     {:noreply, state}
   end
