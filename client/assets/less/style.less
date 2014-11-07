@@ -5,6 +5,8 @@
 @gray: darken(@gray-light, 8%);
 @gray-darkish: lighten(@gray-dark, 20%);
 @gray-dark: #0d0f10;
+@gray-darker: darken(#0d0f10, 20%);
+
 @black: #000000;
 
 @blue: #4e3ab5;
@@ -16,7 +18,7 @@
 
 @nav-width: 64px;
 @header-height: @margin-width*8;
-@link-color: @gray-dark;
+@link-color: @gray-darker;
 
 @small-screen: 1280px;
 
@@ -32,6 +34,10 @@ a:not(.pure-button) {
     text-decoration: none;
     transition: .2s all;
     color: @link-color;
+}
+
+a.hint {
+    border-bottom: 1px solid @gray;
 }
 a:hover:not(.pure-button) {
     color: lighten(@link-color, 40%);
@@ -174,8 +180,7 @@ ul {
     padding: @margin-width;
     margin: @margin-width/2;
     box-shadow: 0 0 @margin-width/2 rgba(0, 0, 0, 0.15);
-    h4 {
-        color: darken(@blue, 20%);
+    h3 {
         margin-top: 0px;
     }
 

@@ -35,3 +35,18 @@ pre.manifest-example {
 		color: @green;
 	}
 }
+
+.attribution-list {
+	padding: 4px 0px;
+	li {
+		margin: 4px 0px;
+
+		a {
+			padding: 4px 4px;
+			border-left: 4px solid @light-blue;
+			&:hover {
+				border-left: 4px solid lighten(@light-blue, 40%);
+			};
+		}
+	}
+}

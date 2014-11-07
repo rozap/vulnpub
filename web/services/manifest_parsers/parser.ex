@@ -126,13 +126,13 @@ defmodule Manifest.Parser.Parser do
             end
             "#{major}.#{minor}.#{patch}"
           :error -> 
-            Logger.error("find_digits: Failed to parser version #{raw_version}")
-            :error
+            Logger.error("find_digits: Failed to parse version #{raw_version}")
+            "*.*.*"
         end
 
       _ ->
-        Logger.error("find_digits: Failed to parser version #{raw_version}")
-       :error
+        Logger.error("find_digits: Failed to parse version #{raw_version}")
+       "*.*.*"
     end
   end
 

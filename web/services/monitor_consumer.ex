@@ -82,7 +82,9 @@ defmodule Service.MonitorConsumer do
         Logger.warn("Manifest not accessible: #{monitor.manifest}")
       end
     rescue
-      e -> IO.inspect e
+      e -> 
+        opts = struct(Inspect.Opts, [])
+        Inspect.Algebra.format(Inspect.Algebra.to_doc(e, opts), 80) |> Logger.error
     end
     {:noreply, state}
   end

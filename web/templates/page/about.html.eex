@@ -2,57 +2,61 @@
 
 
 
-<div id="raw" class="about landing limited">
-    <h2 class="section">About</h2>
+<div id="raw">
+    <div class="limited">
+        <div class="pure-g">
+
+            <div class="pure-u-1-1">
+                <h3 class="section">About</h3>
+                <p>
+                    vuln.pub is made by a dude in his basement. The motivation came after his Elastic Search instance got hacked and used in a DDOS attack. There was a two month window between the vulnerability publication and the actual attack. 
+
+                    <br>
+                    <br>
+                    The problem is often not the vulnerability itself. Vulnerabilities happen and will continue to happen. The problem is that the publication of the vulnerability rarely makes its way back to the user of the vulnerable software. This is what vuln.pub tries to solve. 
+                </p>
+            </div>
+            
+
+            <div class="pure-u-1-1">
+                <h3 class="section">Attribution</h3>
+                <p>
+                    Without the following projects, vuln.pub would not be possible. If you made or helped with anything on this list, thank you!
+                    <ul class="attribution-list">
+                        <li><a href="http://nodesecurity.io">Node Security</a></li>
+                        <li><a href="http://www.ubuntu.com/usn/">Ubuntu Security</a></li>
+                        <li><a href="https://github.com/rubysec/ruby-advisory-db">Ruby Security DB</a></li>
+                    </ul>
+                </p>
+            </div>
+
+            <div class="pure-u-1-1">
+                <h3 class="section">Questions</h3>
+                <p>
+                    <h5>Will vuln.pub always notify me of every vulnerability all the time forever?</h5>
+                    No. The idea is to make notification of vulnerabilities easier, but this will not catch everything. Don
+
+                    <h5>Stop spamming me!</h5>
+                    Sorry! If you get a false positive, send an email (see below) and I'll look into what happened.
+
+                    <h5>What happens if versions in my manifests are garbage?</h5>
+                    You might notice some versions you give get converted to have wildcard values. In the case where you have package "foo" in your monitor, with version "bar", clearly "bar" is not a valid version, so this is transformed into a wildcard. If a vulnerability is reported for "foo" with any version, you'll be notified.
 
 
-    <div class="pure-g">
+                </p>
+            </div>
 
-        <div class="pure-u-1-1">
-            <h4>What?</h4>
-            <p>
-                The vuln.pub manifest is a simple JSON file that tells vuln.pub what dependencies
-                are used in your project.
 
-                <br>
-                <br>
 
-                This manifest must be publicly accessible over http(s). If you update the manifest or any
-                referenced files, your new dependencies will be automatically pulled into vuln.pub for monitoring. 
-            </p>
-        </div>
-        
-    </div>
-
-    <div class="pure-g">
-
-        <div class="pure-u-1-2">
-            <h4>Data</h4>
-            <p>
-                For packages that you install through a package manager, such as npm, apt, or pip, you can reference your dependencies file (package.json, requirements.txt, etc) from your manifest. If those are the only dependencies you want to monitor, then you're done.
-
-                <br>
-                <br>
-                If you put your manifest at 
-                <span class="code">
-                    https://a-site.com/some-project/master/.vp-manifest.json
-                </span>
-                and specify <span class="code">package.json</span> as a managed file, then vuln.pub will look for
-                your package.json in the same directory as your manifest, which in this case would be 
-
-                <span class="code">
-                    https://a-site.com/some-project/master/package.json
-                </span>
-
-                <br>
-                <br>
-                The package managers in the example to the right are currently all that's supported.
-            </p>
-        </div>
-        <div class="pure-u-1-2">
-            <pre class="manifest-example">
-
-            </pre>
+            <div class="pure-u-1-1">
+                <h3 class="section">Contact</h3>
+                <p>
+                    Email at <a href="mailto:vulnpub@vuln.pub">vulnpub@vuln.pub</a>. 
+                    <br>
+                    <br>
+                    You can contact me on <a href="https://twitter.com/rozap_">twitter</a> as well.
+                </p>
+            </div>
         </div>
     </div>
 </div>

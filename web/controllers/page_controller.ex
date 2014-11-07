@@ -9,6 +9,10 @@ defmodule Vulnpub.PageController do
     render conn, "about_manifest"
   end
 
+  def about(conn, _params) do
+    render conn, "about"
+  end
+
   def not_found(conn, _params) do
     render conn, "not_found"
   end
