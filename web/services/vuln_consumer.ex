@@ -20,19 +20,30 @@ defmodule Service.VulnConsumer do
     {:ok, initial_state}
   end
 
+  defp get_req_version(matchspec) when is_tuple(matchspec) do
+    case is_version_req?(matchspec) do
+      true -> 
+        {:const, spec} = matchspec
+        spec
+      _ -> Tuple.to_list(matchspec) |> get_req_version
+    end
+  end
 
-
-  defp match_spec?(version, effect_version) do
-    {:ok, req} = Version.parse_requirement(effect_version)
-    Version.match?(version, req)
+  defp get_req_version(matchspec) when is_list(matchspec) do
+    Enum.map(matchspec, fn term -> get_req_version(term) end)
+      |> List.flatten
+      |> Enum.filter(fn term -> term != :empty end)
+      |> Enum.map(fn version -> drop_pre(version) end)
+      |> Enum.uniq
   end
 
 
   def matches?(package_version, effect_version) do
     IO.puts("Matches? #{package_version} #{effect_version}")
-    case Version.parse(package_version) do
-      {:ok, version} -> match_spec?(version, effect_version)
-      :error -> false
+    {:ok, req} = VPVersion.parse_requirement(effect_version)
+    case VPVersion.parse(package_version) do
+      {:ok, version} -> VPVersion.match?(version, req)
+      :error -> :error
     end
 
   end
