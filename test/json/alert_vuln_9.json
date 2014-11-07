@@ -5,6 +5,10 @@
 		"vulnerable": true,
 		"name": "some-package-name",
 		"version": "== 3.0.100"
+	}, {
+		"vulnerable": false,
+		"name": "some-package-name",
+		"version": "> 3.0.100"
 	}],
 	"external_link": "http://some-blog/post"
 }

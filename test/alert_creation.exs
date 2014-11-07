@@ -128,7 +128,6 @@ defmodule Test.AlertTest do
   test "wildcard patch version matches a vuln" do
     key = create_user
     {_, _, mon_response} = create_monitor key, 4
-    IO.inspect mon_response
 
     id = mon_response["id"]
     {_, _, monitor_resp} = simulate_json(
@@ -138,9 +137,6 @@ defmodule Test.AlertTest do
       nil, 
       [{"authentication", "foo:#{key}"}]
     )
-
-
-    IO.inspect monitor_resp
 
     {_, _, vuln_response} = create_vuln key, 9
     :timer.sleep(20)  #packages are checked async, so wait a lil bit

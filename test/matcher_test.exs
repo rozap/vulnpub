@@ -1,6 +1,6 @@
 
 
-defmodule Test.AlertTest do
+defmodule Test.MatcherTest do
   use ExUnit.Case
   use PlugHelper
   alias Service.VulnConsumer, as: M
