@@ -7,12 +7,7 @@ defmodule Logger.Backends.Syslog do
 
 
   def init(_) do
-    if user = Process.whereis(:user) do
-      Process.group_leader(self(), user)
-      {:ok, configure([])}
-    else
-      {:error, :ignore}
-    end
+    {:ok, :syslog}
   end
 
   def handle_call({:configure, options}, _state) do

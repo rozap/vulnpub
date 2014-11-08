@@ -12,9 +12,10 @@ defmodule Vulnpub do
       worker(Service.VulnConsumer, [{}, []]),
       worker(Service.Emailer, [[], []]),
       worker(Service.MonitorPoller, []),
-      worker(Service.StatsManager, [[]]),
-      worker(Logger, [[name: Logger.Backends.Syslog]]) #@##WIOAIJOA????
+      worker(Service.StatsManager, [[]])
     ]
+
+    Logger.add_backend({Logger.Backends.Syslog, :syslog})
 
     :application.start(:crypto)
     :application.start(:bcrypt)
