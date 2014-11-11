@@ -9,7 +9,7 @@ defmodule Service.Emailer do
 
   @api "https://mandrillapp.com/api/1.0/"
   @message_send "messages/send.json"
-  @js_headers %{"Content-Type" => "application/json"}
+  @js_headers %{"Content-Type" => "application/json; charset=utf-8"}
   @email_templates "web/templates/emails/"
   @sensitive [:key]
 
