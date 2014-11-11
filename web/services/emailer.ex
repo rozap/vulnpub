@@ -45,7 +45,8 @@ defmodule Service.Emailer do
     if HTTPotion.Response.success? response do
       Logger.info("Sent email to #{user.email}")
     else
-      Logger.error("Failed to send email #{user.email}", [response.body])
+      %{"message" => message, "status" => status} = response
+      Logger.error("mandrill: Failed to send email #{payload} \n #{user.email} \n status #{status} #{message}")
     end
   end
 
@@ -64,8 +65,6 @@ defmodule Service.Emailer do
 
     link = "http://vuln.pub/#vulns/#{vuln.id}"
 
-
-
     payload = interpolate(template, %{
       :key => key, 
       :email => user.email, 
@@ -75,7 +74,6 @@ defmodule Service.Emailer do
       :monitor_name => monitor.name,
       :vuln_link => link
     })
-    Logger.info("Sending email with payload #{payload}")
     send_email payload, user
     {:noreply, state}
   end
