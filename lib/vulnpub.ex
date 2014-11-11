@@ -15,11 +15,8 @@ defmodule Vulnpub do
       worker(Service.StatsManager, [[]])
     ]
 
-    Logger.add_backend({Logger.Backends.Syslog, :syslog})
-
-    :application.start(:crypto)
-    :application.start(:bcrypt)
     opts = [strategy: :one_for_one, name: Vulnpub.Supervisor]
+
     Supervisor.start_link(children, opts)
   end
 end

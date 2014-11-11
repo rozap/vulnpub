@@ -1,7 +1,7 @@
 
 
 defmodule Test.VersionTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   use PlugHelper
   alias VPVersion, as: V
 

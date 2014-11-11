@@ -1,7 +1,7 @@
 
 
 defmodule Test.MatcherTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   use PlugHelper
   alias Service.VulnConsumer, as: M
 

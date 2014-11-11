@@ -40,9 +40,7 @@
                     Sorry! If you get a false positive, send an email (see below) and I'll look into what happened.
 
                     <h5>What happens if versions in my manifests are garbage?</h5>
-                    You might notice some versions you give get converted to have wildcard values. In the case where you have package "foo" in your monitor, with version "bar", clearly "bar" is not a valid version, so this is transformed into a wildcard. If a vulnerability is reported for "foo" with any version, you'll be notified.
-
-
+                    You might notice some versions you give get converted to wildcard values. In the case where you have package "foo" in your monitor, with version "bar", clearly "bar" is not a valid version, so this is transformed into a wildcard. If a vulnerability is reported for "foo" with any version, you'll be notified.
                 </p>
             </div>
 
