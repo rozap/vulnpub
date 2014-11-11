@@ -11,6 +11,7 @@ defmodule Service.Emailer do
   @message_send "messages/send.json"
   @js_headers %{"Content-Type" => "application/json"}
   @email_templates "web/templates/emails/"
+  @sensitive [:key]
 
   def start_link(state, opts) do
     GenServer.start_link(__MODULE__, state, opts)
@@ -22,12 +23,16 @@ defmodule Service.Emailer do
   end
 
 
-  defp interpolate(str, dict) do
+  defp do_interpolate(str, dict) do
     Enum.reduce(dict, str, fn({key, value}, acc) -> 
       String.replace(acc, "#\{" <> Atom.to_string(key) <> "\}", value) 
     end)
   end
 
+  defp interpolate(str, dict) do
+    str = do_interpolate(str, Dict.take(dict, @sensitive))
+      |> do_interpolate(Dict.drop(dict, @sensitive))
+  end
 
   defp post(url, payload) do
     HTTPotion.start
@@ -58,6 +63,8 @@ defmodule Service.Emailer do
     template = File.read! @email_templates <> "alert.json"
 
     link = "http://vuln.pub/#vulns/#{vuln.id}"
+
+
 
     payload = interpolate(template, %{
       :key => key, 
