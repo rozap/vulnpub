@@ -14,6 +14,9 @@ module.exports = [{
     },
     "dpkg.txt": {
       "manager": "dpkg"
+    },
+    "Gemfile" : {
+      "manager" : "rubygems"
     }
   }
 }, {

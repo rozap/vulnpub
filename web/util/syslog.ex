@@ -33,7 +33,6 @@ defmodule Vulnpub.Backends.Syslog do
   ## Helpers
 
   defp configure(options) do
-    IO.puts "CONFIG THING"
     env = Application.get_env(:logger, :syslog, [])
 
     format = env
@@ -46,13 +45,10 @@ defmodule Vulnpub.Backends.Syslog do
     %{format: format, metadata: metadata, level: level, location: location}
   end
 
-
-
   defp log_event(level, msg, ts, md, state) do
     data = format_event(level, msg, ts, md, state)
     {:ok, file} = File.open(state.location, [:append])
     IO.write(file, data)
-    IO.puts "LOG THING #{data}"
     File.close(file)
   end
 

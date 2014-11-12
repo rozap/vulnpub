@@ -9,7 +9,7 @@
         <h5 class="vuln-section text-muted">Description</h5>
         <%= markdown.toHTML(vuln.get('description') || '') %>
 
-        <h5 class="vuln-section text-muted">Effected Packages</h5>
+        <h5 class="vuln-section text-muted">Relevant Packages</h5>
         <ul class="effects">
             <% _.each(vuln.get('effects'), function(effect) { %>
                 <li class="<%- effect.vulnerable? 'vulnerable' : 'patched' %>">

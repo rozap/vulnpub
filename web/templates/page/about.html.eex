@@ -9,11 +9,11 @@
             <div class="pure-u-1-1">
                 <h3 class="section">About</h3>
                 <p>
-                    vuln.pub is made by a dude in his basement. The motivation came after his Elastic Search instance got hacked and used in a DDOS attack. There was a two month window between the vulnerability publication and the actual attack. 
+                    vuln.pub is made by a guy in his basement. The motivation came after his Elastic Search instance got hacked and used in a DDOS attack. There was a two month window between the vulnerability publication and the actual attack. 
 
                     <br>
                     <br>
-                    The problem is often not the vulnerability itself. Vulnerabilities happen and will continue to happen. The problem is that the publication of the vulnerability rarely makes its way back to the user of the vulnerable software. This is what vuln.pub tries to solve. 
+                    The problem is often not the vulnerability itself. Vulnerabilities happen and will continue to happen. The problem is the publication of the vulnerability rarely makes its way back to the user of the vulnerable software. This is what vuln.pub tries to solve. 
                 </p>
             </div>
             
@@ -34,7 +34,7 @@
                 <h3 class="section">Questions</h3>
                 <p>
                     <h5>Will vuln.pub always notify me of every vulnerability all the time forever?</h5>
-                    No. The idea is to make notification of vulnerabilities easier, but this will not catch everything. Don
+                    No. The idea is to make notification of vulnerabilities easier, but this will not catch everything. Don't fire your netsec employee(s).
 
                     <h5>Stop spamming me!</h5>
                     Sorry! If you get a false positive, send an email (see below) and I'll look into what happened.

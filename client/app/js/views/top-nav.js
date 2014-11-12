@@ -12,7 +12,7 @@ module.exports = View.extend({
     },
 
     onStart: function() {
-        this.listenTo(this.app.dispatcher, 'auth.change', this.render);
+        if(this.app.dispatcher) this.listenTo(this.app.dispatcher, 'auth.change', this.render);
         this.spawn('omni', new OmniSearch(this.opts()));
         this.render();
     }
