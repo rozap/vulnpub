@@ -11,9 +11,6 @@ module.exports = View.extend({
 
     include: ['vulns', 'shorten'],
 
-    events: {
-        'mousewheel': 'onMouseWheel'
-    },
 
     initialize: function(opts) {
         View.prototype.initialize.call(this, opts);
@@ -28,7 +25,7 @@ module.exports = View.extend({
             collection: this.vulns,
             name: 'vulnerabilities',
             searchOn: 'name'
-        })
+        });
         this.render();
     },
 
@@ -41,12 +38,6 @@ module.exports = View.extend({
         }
     },
 
-    onMouseWheel: function(e) {
-        if (e.originalEvent.wheelDelta < 0 ? this.vulns.nextPage() : this.vulns.prevPage()) {
-            this.fetch();
-            this.render();
-        }
-    },
 
     fetch: _.debounce(function() {
         this.vulns.fetch();
