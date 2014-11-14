@@ -1,7 +1,8 @@
 console.log('beep boop');
 
 var Router = require('./router'),
-	$ = require('jquery');
+	$ = require('jquery'),
+	moment = require('moment');
 
 $.fn.serializeObject = function() {
 	var obj = {};
