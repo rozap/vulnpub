@@ -8,6 +8,7 @@ defmodule Models.Monitor do
     field :created, :datetime
     field :modified, :datetime
     field :last_polled, :datetime
+    field :status
   end
 
 

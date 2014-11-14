@@ -1,0 +1,4 @@
+{
+	"manifest": "http://localhost:7777/manifest_invalid_json.json",
+	"name": "foo"
+}

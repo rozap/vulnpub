@@ -1,7 +1,7 @@
 
 defmodule Resources.Monitor.Validator do
   use Finch.Middleware.ModelValidator, [only: [:create, :update]]
-  def ignore_fields(_), do: [:id, :created, :modified, :user_id, :last_polled]
+  def ignore_fields(_), do: [:id, :created, :modified, :user_id, :last_polled, :status]
 end
 
 
