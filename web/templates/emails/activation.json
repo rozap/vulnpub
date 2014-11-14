@@ -2,7 +2,7 @@
     "key": "#{key}",
     "message": {
         "html": "<h3>Hi #{username}</h3><p> Thanks for making an account.<br>You may want to read the <a href=\"http://vuln.pub/about/manifest\">manifest guide</a> for help creating one. Once you create a monitor with your new manifest, you will receive an email if thereis a vulnerability reported that affects a package you have installed.</p> <br><p>Thanks!</p>",
-        "text": "Activate your account",
+        "text": "Hi #{username}! Thanks for making an account. You may want to read the manifest guide (http://vuln.pub/about/manifest) for help creating one. Once you create a monitor with your new manifest, you will receive an email if thereis a vulnerability reported that affects a package you have installed. Thanks!",
         "subject": "Just confirming vuln.pub account email",
         "from_email": "notifications@vuln.pub",
         "from_name": "vuln.pub",
