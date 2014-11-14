@@ -19,7 +19,6 @@ defmodule Plug.Stats do
         end)
         |> Enum.join("/")
 
-      IO.puts "URL IS #{url}"
       after_time = :os.timestamp()
       diff = :timer.now_diff(after_time, before_time) / 1000
       GenServer.cast(:stats_collector, {:insert, "latency", [value: diff, url: url]})
