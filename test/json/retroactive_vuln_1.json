@@ -1,0 +1,19 @@
+{
+	"description": "bar",
+	"name": "baz2",
+	"effects": [{
+		"vulnerable": true,
+		"name": "another-package-name",
+		"version": "~> 4.20.0"
+	}, {
+		"vulnerable": false,
+		"name": "another-package-name",
+		"version": ">= 5.20.0"
+	},
+	{
+		"vulnerable": true,
+		"name": "another-package-name",
+		"version": "<= 2.20.0"
+	}],
+	"external_link": "http://some-blog/post"
+}

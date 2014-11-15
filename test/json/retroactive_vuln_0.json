@@ -1,0 +1,19 @@
+{
+	"description": "foo",
+	"name": "retroactive_vuln",
+	"effects": [{
+		"vulnerable": true,
+		"name": "some-package-name",
+		"version": "~> 4.20.0"
+	}, {
+		"vulnerable": false,
+		"name": "some-package-name",
+		"version": ">= 5.20.0"
+	},
+	{
+		"vulnerable": true,
+		"name": "some-package-name",
+		"version": "<= 2.20.0"
+	}],
+	"external_link": "http://some-blog/post"
+}

@@ -71,24 +71,40 @@ defmodule Service.VulnConsumer do
   end
 
 
+  def alert_exists?(monitor_id, package_id, vuln_id) do
+      (from a in Alert, 
+        where: 
+          a.monitor_id == ^monitor_id and 
+          a.package_id == ^package_id and
+          a.vuln_id == ^vuln_id, 
+        select: a) |> Repo.all != []
+  end
 
-  defp create_monitor_alert(monitor_id, package_id, vuln) do
-    case (from a in Alert, where: a.monitor_id == ^monitor_id, select: a) |> Repo.all do
-      [existing] -> Logger.debug("alert #{existing.id} already exists")
-      [] -> 
+
+  def create_monitor_alert(monitor_id, package_id, vuln) do
+    case alert_exists?(monitor_id, package_id, vuln.id) do
+      true -> 
+        Logger.debug("alert already exists")
+        :exists
+      false -> 
         alert = Alert.allocate(%{
           :monitor_id => monitor_id, 
           :vuln_id => vuln.id, 
           :package_id => package_id}
         ) |> Repo.insert
-
-        package = Repo.get(Package, package_id)
-        monitor = Repo.get(Monitor, monitor_id)
-        user = Repo.get(User, monitor.user_id)
-        GenServer.cast(:emailer, {:alert, alert, vuln, package, monitor, user})
-        Logger.debug("Created alert for #{user.username} and package #{package.name}")
+        Logger.debug("Created alert for #{monitor_id} and package #{package_id} and vuln #{vuln.id}")
+        {alert, vuln}
     end
   end
+
+
+  def email_alert(alert, vuln) do
+    package = Repo.get(Package, alert.package_id)
+    monitor = Repo.get(Monitor, alert.monitor_id)
+    user = Repo.get(User, monitor.user_id)
+    GenServer.cast(:emailer, {:alert, alert, vuln, package, monitor, user})
+  end
+
 
   defp create_alert(package, vuln) do
     monitors = (from pm in PackageMonitor, 
@@ -96,6 +112,8 @@ defmodule Service.VulnConsumer do
       select: pm)
       |> Repo.all
       |> Enum.map(&(create_monitor_alert &1.monitor_id, &1.package_id, vuln))
+      |> Enum.filter(fn alert -> alert != :exists end)
+      |> Enum.map(fn {alert, vuln} -> email_alert(alert, vuln) end)
 
   end
 
