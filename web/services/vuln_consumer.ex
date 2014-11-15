@@ -112,4 +112,7 @@ defmodule Service.VulnConsumer do
     {:noreply, state}
   end
 
+
+
+
 end
