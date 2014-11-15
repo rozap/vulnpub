@@ -78,7 +78,7 @@ module.exports = View.extend({
             this.spawn('alert_pager', new Pager(this.opts({
                 el: this.$el.find('#alert-pager').selector,
                 collection: this.alerts
-            })))
+            })));
         }
         this._endMonitors();
         var $ms = this.$el.find('.monitor-list');
@@ -88,7 +88,7 @@ module.exports = View.extend({
             }));
             this._views.push(view);
             $ms.append(view.render().el);
-        }.bind(this))
+        }.bind(this));
     },
 
     _endMonitors: function() {
@@ -123,7 +123,7 @@ module.exports = View.extend({
         var al = this.alerts.get(parseInt($(e.currentTarget).data('alert')));
         al.set({
             'acknowledged': true
-        })
+        });
         al.save().then(this.alerts.fetch.bind(this.alerts));
         e.preventDefault();
     },

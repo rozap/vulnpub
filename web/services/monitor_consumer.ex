@@ -43,11 +43,11 @@ defmodule Service.MonitorConsumer do
   end
 
 
-  defp update_monitor_timestamp(monitor) do
+  defp update_monitor_status(monitor, status) do
     monitor = Repo.get Monitor, monitor.id
-    monitor = %{monitor | last_polled: Util.now}
+    monitor = %{monitor | last_polled: Util.now, status: status}
     Repo.update(monitor)
-    Logger.info "Updated monitor #{monitor.id}"
+    Logger.info "Updated monitor #{monitor.id} status: #{status}"
   end
 
 
@@ -77,12 +77,22 @@ defmodule Service.MonitorConsumer do
       if HTTPotion.Response.success? response do
         Jazz.decode!(response.body)
           |> parse_manifest(monitor)
-          |> update_monitor_timestamp
+          |> update_monitor_status("OK")
       else
+        update_monitor_status(monitor, "Manifest not accessible!")
         Logger.warn("Manifest not accessible: #{monitor.manifest}")
       end
     rescue
+      HTTPotion.HTTPError -> 
+        status = "HTTPError: #{monitor.manifest} not accessible!"
+        update_monitor_status(monitor, status)        
+        Logger.warn(status)
+      Jazz.SyntaxError -> 
+        status = "JSON Error: #{monitor.manifest} does not contain valid JSON."
+        update_monitor_status(monitor, status)        
+        Logger.warn(status)
       e -> 
+        update_monitor_status(monitor, "Unknown error processing the manifest!")
         opts = struct(Inspect.Opts, [])
         Inspect.Algebra.format(Inspect.Algebra.to_doc(e, opts), 80) |> Logger.error
     end

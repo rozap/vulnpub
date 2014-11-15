@@ -16,7 +16,6 @@ module.exports = View.extend({
 	},
 
 	post: function() {
-		console.log(Examples[3])
 		Formatter.format([Examples[3]]);
 	}
 

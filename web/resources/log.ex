@@ -11,7 +11,7 @@ defmodule Resources.Log do
       |> Enum.map(
         fn [level | args] ->
           body = Enum.join(args, "\n")
-          GenServer.cast(:stats_collector, {:insert, "client_#{level}", [body: body]})
+          GenServer.cast(:stats_collector, {:insert, "client_#{level}", [value: body]})
         end)
 
     {conn, created, %{}}

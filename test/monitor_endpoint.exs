@@ -24,6 +24,31 @@ defmodule Test.MonitorTest do
     assert id != nil
   end
 
+  test "invalid manifest says inaccessible" do
+    {_, _, apikey_resp} = DBHelpers.create_apikey()
+    key = Dict.get(apikey_resp, "key")
+    headers = [{"authentication", "foo:#{key}"}]
+    {_, _, resp_body} = simulate_json_file(Vulnpub.Router, :post, "api/v1/monitors", "test/json/inaccessible_monitor.json", headers)
+    %{"id" => id} = resp_body
+    assert id != nil
+    :timer.sleep(200) 
+    {_, _, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/monitors/#{id}", nil, headers)
+    %{"status" => "HTTPError: foo not accessible!"} = resp_body
+  end
+
+
+  test "invalid json manifest says so" do
+    {_, _, apikey_resp} = DBHelpers.create_apikey()
+    key = Dict.get(apikey_resp, "key")
+    headers = [{"authentication", "foo:#{key}"}]
+    {_, _, resp_body} = simulate_json_file(Vulnpub.Router, :post, "api/v1/monitors", "test/json/invalid_json_monitor.json", headers)
+    %{"id" => id} = resp_body
+    assert id != nil
+    :timer.sleep(200) 
+    {_, _, resp_body} = simulate_json(Vulnpub.Router, :get, "api/v1/monitors/#{id}", nil, headers)
+    %{"status" => "JSON Error: http://localhost:7777/manifest_invalid_json.json does not contain valid JSON."} = resp_body
+  end
+
   test "cannot create a monitor if not logged in" do
     {status, req_body, resp_body} = simulate_json_file(Vulnpub.Router, :post, "api/v1/monitors", "test/json/new_monitor.json")
     assert status == 403

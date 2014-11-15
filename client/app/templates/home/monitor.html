@@ -10,6 +10,16 @@
         Updated <%- moment(model.get('last_polled')).fromNow() %>
     </p>
 
+    <% if(model.get('status') === 'OK') { %>
+        <div class="alert alert-success">
+            Monitor is accessible and OK.
+        </div>
+    <% } else { %>
+        <div class="alert alert-error">
+            <%- model.get('status') %>
+        </div>
+    <% } %>
+
 
     <% if(!askConfirm) { %>
         <a class="pure-button button-secondary button-xsmall" 
@@ -28,6 +38,5 @@
         <span>Are you sure?</span>
         <a class="pure-button button-success button-xsmall dont-remove">Nevermind</a>
         <a class="pure-button button-error button-xsmall confirm-remove">Yes</a>
-
     <% } %>
 </div>

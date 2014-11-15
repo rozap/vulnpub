@@ -60,7 +60,7 @@ Auth.prototype = {
             };
         } catch (e) {
             if (localStorage[name] && localStorage[name].length) {
-                console.warn('cannot parse localstorage ;_;', localStorage[name]);
+                console.info('cannot parse localstorage');
             }
         }
     },

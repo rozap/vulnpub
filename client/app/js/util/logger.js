@@ -1,7 +1,7 @@
 var _ = require('underscore'),
     Model = require('../models/log');
 
-var levels = ['log', 'info', 'warn', 'error'];
+var levels = ['log', 'warn', 'error'];
 
 var Logger = function(app) {
     this.app = app;
@@ -12,6 +12,17 @@ var Logger = function(app) {
         console[lvl] = _.partial(this._proxyLevel, og, lvl).bind(this);
     }.bind(this));
     setInterval(this._flush.bind(this), 10000);
+
+    window.onerror = function(message, file, line, column, errorObj) {
+        console.info(errorObj.stack)
+        try {
+            var m = ["Message: " + message, "File: " + file, "Line: " + line, "Col: " + column, errorObj.stack].join('\n');
+            console.error(m);
+        } catch(e) {
+            console.info(e);
+            //pass...
+        }
+    }
 };
 
 
@@ -19,15 +30,17 @@ Logger.prototype = {
 
     _proxyLevel: function(og, lvl) {
         args = Array.prototype.slice.call(arguments, 1);
-        var newLine = args.map(function(a) {
-            return a ? a.toString() : a;
-        });
+        var newLine = [args[0], args.slice(1).map(function(a) {
+            return JSON.stringify(a);
+        }).join(' ')];
         if (_.difference(newLine, _.last(this._cache)).length === 0) {
             this.repeated += 1;
         } else {
             this._cache.push(newLine);
             this._addRepeat();
         }
+
+        //do the actual
         og.apply(console, args.slice(1));
     },
 
