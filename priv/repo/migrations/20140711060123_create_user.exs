@@ -61,8 +61,6 @@ defmodule Repo.Migrations.CreateUser do
           package_id integer references packages(id) ON DELETE CASCADE
         )",
 
-
-
     "CREATE TABLE IF NOT EXISTS
         vuln_effects(
           id serial primary key,

@@ -12,8 +12,15 @@
             <div class="alert-item-inner"
                 data-vuln="<%- al.get('vuln').id %>">
                 <h4><%- al.get('vuln').name %></h4>
-                <h5 class="text-muted">Effecting package 
-                    <span class="not-muted"><%- al.get('package').name %></span> in monitor <%- al.get('monitor').name %>
+                <h5 class="text-muted">Vulnerable package: 
+                    <span class="not-muted">
+                        <%- al.get('package').name %>
+                        @ <%- al.get('package').version %> 
+                    </span>
+                    in your monitor
+                    <span class="not-muted">
+                         <%- al.get('monitor').name %>
+                     </span>
                 </h5>
                 <a href="javascript:void(0)" 
                     data-alert="<%- al.get('id') %>"
