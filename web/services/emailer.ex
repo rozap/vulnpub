@@ -76,6 +76,10 @@ defmodule Service.Emailer do
     {:noreply, state}
   end
 
+  defp handle(:dev, _, state) do
+    {:noreply, state}
+  end
+
 
   ##
   # alerts = [{vuln, package, alert}]

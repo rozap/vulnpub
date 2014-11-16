@@ -73,7 +73,7 @@ defmodule Repo.Migrations.CreateUser do
           created timestamp DEFAULT NOW(), 
           modified timestamp DEFAULT NOW()
         )",
-
+    "DROP TABLE IF EXISTS alerts",
     "CREATE TABLE IF NOT EXISTS
         alerts(
           id serial primary key,
