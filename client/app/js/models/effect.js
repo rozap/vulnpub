@@ -14,7 +14,7 @@ module.exports = Model.extend({
         if (!this.validateVersion()) {
             var v = this.get('version') || '';
             _.extend(errors, {
-                version: '"' + v + '" is not a valid version'
+                version: '"' + v + '" is not a valid version. Qualify it with ==, ~>, >, >=, <, or <=.'
             });
 
         }

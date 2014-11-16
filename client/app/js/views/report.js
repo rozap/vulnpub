@@ -106,7 +106,8 @@ var EffectsView = View.extend({
     events: {
         'keydown #name': 'keydown',
         'keyup #name': 'keyup',
-        'click .add-effect': 'addEffect'
+        'click .add-effect': 'addEffect',
+        'click .cancel-effect' : 'end'
     },
 
     include: ['vuln', 'effect'],
@@ -149,7 +150,6 @@ var EffectsView = View.extend({
         var effects = this.vuln.get('effects') || [];
         effects.push(this.effect.toJSON());
         this.vuln.set('effects', effects);
-        this.vuln.trigger('change');
         this.end();
     },
 
@@ -205,10 +205,11 @@ module.exports = View.extend({
 
     _createEffectsView: function(vulnerable) {
         if (this.hasView('effects')) this.endView('effects');
-        this.spawn('effects', new EffectsView(this.opts({
+        var view = this.spawn('effects', new EffectsView(this.opts({
             vulnerable: vulnerable,
             vuln: this.vuln
         })));
+        this.listenTo(view, 'end', this.renderIt);
         this.render();
     },
 
@@ -217,6 +218,7 @@ module.exports = View.extend({
         this.vuln.set('effects', _.reject(this.vuln.get('effects'), function(effect) {
             return _.isEqual(effect, toRemove);
         }));
+        this.render();
     },
 
     addEffected: function() {
@@ -228,6 +230,7 @@ module.exports = View.extend({
     },
 
     update: function() {
+        this.vuln.set('effects', this.vuln.get('effects') || []);
         return this.vuln.set(this.$el.find('form').serializeObject());
     },
 

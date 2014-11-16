@@ -5,8 +5,8 @@
 <% } else { %>
 
 	<h5 class="section">
-		<% if(monitor.get('packages').length === 0) { %>
-			This monitor isn't monitoring any packages. If you just created it then
+		<% if(monitor.get('packages').data.length === 0) { %>
+			This monitor isn't monitoring any packages yet. If you just created it then
 			it may take a few minutes for the packages to show up here. 
 		<% } else { %>
 			This monitor is monitoring the following packages

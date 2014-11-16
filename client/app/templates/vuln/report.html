@@ -17,6 +17,10 @@
                         placeholder="Short title about the vulnerability"/>
                 </div>
 
+                <label for="effects">
+                    Packages
+                </label>
+                <%= showError('effects', vuln) %>
                 <ul class="effects">
                     <% _.each(vuln.get('effects'), function(effect) { %>
                         <li class="<%- effect.vulnerable? 'vulnerable' : 'patched' %>">
@@ -44,13 +48,13 @@
                     <div class="pure-u-1-2">
                         <button type="button" 
                             class="pure-button button-warning add-effected button-small">
-                            Add Effected Package
+                            Add vulnerable package
                         </button>
                     </div>
                     <div class="pure-u-1-2">
                         <button type="button" 
                             class="pure-button button-success add-patched button-small">
-                            Add Patched Package
+                            Add patched package
                         </button>
                     </div>
                 </div>

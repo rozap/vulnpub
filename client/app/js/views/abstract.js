@@ -66,7 +66,7 @@ module.exports = Backbone.View.extend({
     _errors: function(name, model, nameMap) {
         var errors = model.getErrors();
         if (errors) {
-            console.log(errors)
+            console.log("Errors: ", errors)
             return this._errorTemplate({
                 name: name,
                 nameMap: nameMap,

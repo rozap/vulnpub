@@ -8,23 +8,28 @@ defmodule Resources.Vuln.Validator do
 
 
   def validate_versions(effects) do
-    versions = Enum.map(effects, fn effect -> 
-        %{"version" => version} = effect
-        case Version.parse_requirement(version) do
-          :error ->
-            %{version: "#{version} is an invalid version"}
-          version -> 
-            :ok
-        end
-      end)
-    
+    IO.puts "EFFECTS #{inspect effects}"
 
-    is_ok = Enum.all?(versions, fn res -> res == :ok end)
+    case effects do
+      [] -> {:error, %{effects: "You must add some packages that this vulnerability affects"}}
+      _ -> 
+      versions = Enum.map(effects, fn effect -> 
+          %{"version" => version} = effect
+          case Version.parse_requirement(version) do
+            :error ->
+              %{version: "#{version} is an invalid version"}
+            version -> 
+              :ok
+          end
+        end)
+      
+      is_ok = Enum.all?(versions, fn res -> res == :ok end)
 
-    if not is_ok do
-      {:error, Enum.filter(versions, fn res -> res != :ok end)}
-    else
-      :ok
+      if not is_ok do
+        {:error, Enum.filter(versions, fn res -> res != :ok end)}
+      else
+        :ok
+      end
     end
   end
 
