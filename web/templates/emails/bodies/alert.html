@@ -1,0 +1,8 @@
+<h3>Important!</h3> 
+
+<p>
+	Hi <%= user.username %>, there has been a vulnerability (<%= vuln.name %>) reported in the package <%= package.name %> @ version <%= package.version %>. 
+	<br>
+	<br>
+	Your monitor <%= monitor.name %> reports that you have this package installed. Please read about the vulnerability <a href="https://www.vuln.pub/#vulns/<%= vuln.id %>">here</a> and take the necessary steps to make sure your application is safe.
+</p>

@@ -1,0 +1,18 @@
+<h3>Hi <%= user.username %>!</h3>
+<p>
+	The following packages in your monitor "<%= monitor.name %>" are potentially vulnerable.
+</p>
+<br>
+<br>
+<ul style="list-style:none; padding-left: 0px;">
+<%= for {vuln, package, alert} <- alerts do %>
+	<li style="border-bottom: 1px solid #ebebeb; padding-bottom: 16px;">
+		<h4>Package: <%= package.name %> @ version <%= package.version %></h4> 
+		<h5>Vulnerability: <%= vuln.name %></h5>
+		<p><%= vuln.description %></p>
+		<a href="https://www.vuln.pub/#vulns/<%= vuln.id %>">
+			More Information
+		</a>
+	</li>
+<% end %>
+<ul>

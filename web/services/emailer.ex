@@ -11,6 +11,7 @@ defmodule Service.Emailer do
   @message_send "messages/send.json"
   @js_headers %{"Content-Type" => "application/json; charset=utf-8"}
   @email_templates "web/templates/emails/"
+  @email_bodies "web/templates/emails/bodies/"
   @sensitive [:key]
 
   def start_link(state, opts) do
@@ -27,6 +28,13 @@ defmodule Service.Emailer do
     Enum.reduce(dict, str, fn({key, value}, acc) -> 
       String.replace(acc, "#\{" <> Atom.to_string(key) <> "\}", value) 
     end)
+  end
+
+
+  defp to_json_text(str) do
+    String.replace(str, "\"", "\\\"")
+      |> String.replace("\n", "")
+      |> String.replace("\t", "")
   end
 
   defp interpolate(str, dict) do
@@ -54,51 +62,100 @@ defmodule Service.Emailer do
 
 
 
+  defp template(filename, bindings) do
+    EEx.eval_file(@email_bodies <> "#{filename}.html", bindings)
+  end
+
+  defp make_payload(bindings) do
+    EEx.eval_file(@email_templates <> "generic.json", bindings)
+  end
+
+
+
   defp handle(:test, _, state) do
     {:noreply, state}
   end
 
 
-
-  defp handle(_, {:alert, alert, vuln, package, monitor, user}, state) do
-    template = File.read! @email_templates <> "alert.json"
-
-    link = "http://vuln.pub/#vulns/#{vuln.id}"
-
-    payload = interpolate(template, %{
-      :key => key, 
-      :email => user.email, 
-      :username => user.username,
-      :vuln_name => vuln.name, 
-      :package_name => package.name, 
-      :monitor_name => monitor.name,
-      :vuln_link => link
-    })
+  ##
+  # alerts = [{vuln, package, alert}]
+  defp handle(_, {:alert_digest, alerts, monitor, user}, state) do
+    html = to_json_text(template("digest", [alerts: alerts, monitor: monitor, user: user]))
+    Logger.debug("Sending alert digest to #{user.username} \n #{html}")
+    payload = make_payload([
+        key: key,
+        user: user,
+        html: html,
+        subject: "Multiple vulnerabilities affecting your vuln.pub monitor: #{monitor.name}",
+        text: html
+      ]
+    )
     send_email payload, user
     {:noreply, state}
   end
 
 
-  defp handle(_, {:activate, user}, state) do
-    template = File.read! @email_templates <> "activation.json"
-    payload = interpolate(template, %{
+
+
+
+  defp handle(_, {:alert, alert, vuln, package, monitor, user}, state) do
+
+    html = to_json_text(template("alert", [
+      alert: alert, 
+      vuln: vuln,
+      package: package,
+      monitor: monitor, 
+      user: user
+    ]))
+
+    payload = make_payload([
       key: key, 
-      email: user.email, 
-      username: user.username
-    })
+      user: user, 
+      html: html,
+      subject: "Vulnerability affecting #{package.name}",
+      text: html
+    ])
+
+    send_email payload, user
+    {:noreply, state}
+  end
+
+
+
+
+  defp handle(_, {:activate, user}, state) do
+
+
+    html = to_json_text(template("activate", [user: user]))
+
+    payload = make_payload([
+      key: key, 
+      user: user,
+      html: html,
+      text: html,
+      subject: "Thanks for registering at vuln.pub!"
+    ])
+
     #send it off...
     send_email payload, user
     {:noreply, state}
   end
 
   defp handle(_, {:forgot, user, reset}, state) do
-    template = File.read! @email_templates <> "forgot.json"
-    payload = interpolate(template, %{
+
+    html = to_json_text(template("forgot", [
+      user: user, 
+      reset: reset
+    ]))
+
+    payload = make_payload([
       key: key, 
-      email: user.email, 
-      username: user.username, 
-      reset_key: reset.key
-    })
+      user: user,
+      html: html,
+      text: html,
+      subject: "Reset your vuln.pub password"
+    ])
+
     send_email payload, user
     {:noreply, state}
   end

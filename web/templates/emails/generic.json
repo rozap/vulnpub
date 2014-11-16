@@ -1,0 +1,15 @@
+{
+    "key": "<%= key %>",
+    "message": {
+        "html": "<%= html %>",
+        "text": "<%= text %>",
+        "subject": "<%= subject %>",
+        "from_email": "notifications@vuln.pub",
+        "from_name": "vuln.pub",
+        "to": [{
+            "email": "chrisd1891@gmail.com",
+            "name": "<%= user.username %>",
+            "type": "to"
+        }]
+    }
+}

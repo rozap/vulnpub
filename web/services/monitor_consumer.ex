@@ -2,6 +2,7 @@ defmodule Service.MonitorConsumer do
   use GenServer
   require Util
   require Logger
+  alias Models.User
   alias Models.Monitor
   alias Models.PackageMonitor
   alias Models.Package
@@ -69,9 +70,7 @@ defmodule Service.MonitorConsumer do
         |> Repo.delete_all
 
       Enum.map(package_monitors, fn pm -> Repo.insert(pm) end)
-    
     end)
-    
     monitor
   end
 
@@ -92,9 +91,6 @@ defmodule Service.MonitorConsumer do
         end)
 
         {_, vuln} = hd(vuln_effect_pairs)
-        IO.puts "VULN ID #{vuln_id}"
-        {vuln, vulnerable_packages}
-        IO.puts "VULN EFFECT PAIRS \n #{inspect vuln}"
         {vuln, vulnerable_packages}
     end)
     |> Enum.filter(fn {_, vulnerable_packages} -> length(vulnerable_packages) > 0 end)
@@ -105,13 +101,22 @@ defmodule Service.MonitorConsumer do
   defp create_alerts(vulns, monitor) do
     Enum.map(vulns, fn {vuln, vulnerable_packages} -> 
       Enum.map(vulnerable_packages, fn package -> 
-        VulnConsumer.create_monitor_alert(monitor.id, package.id, vuln)
+        {vuln, package, VulnConsumer.create_monitor_alert(monitor.id, package.id, vuln)}
       end)
-      |> Enum.filter(fn alert -> alert != :exists end)
+      |> Enum.filter(fn {_, _, alert} -> alert != :exists end)
     end)
     |> List.flatten
   end
 
+
+  defp create_digest(alerts, monitor) do
+    case alerts do
+      [] -> :done
+      _ -> 
+        user = Repo.get(User, monitor.user_id)
+        GenServer.cast(:emailer, {:alert_digest, alerts, monitor, user})
+    end
+  end
 
   ##
   # packages = this monitor's packages
@@ -130,6 +135,7 @@ defmodule Service.MonitorConsumer do
       |> Enum.group_by(fn {_, vuln} -> vuln.id end)
       |> find_vulnerable(packages)
       |> create_alerts(monitor)
+      |> create_digest(monitor)
   end
 
   def handle_cast({:create, monitor}, state) do
