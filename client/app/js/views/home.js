@@ -59,12 +59,16 @@ module.exports = View.extend({
     initialize: function(opts) {
         View.prototype.initialize.call(this, opts);
         this.app.dispatcher.trigger('nav.show');
-        this._greet = this._greetings[Math.floor(Math.random() * this._greetings.length)];
+        this._greet = _.sample(this._greetings);
 
         this.alerts = new Alerts([], this.opts());
         this.monitors = new Monitors([], this.opts());
         this.listenTo(this.alerts, 'sync error remove', this.renderIt);
         this.listenTo(this.monitors, 'sync error add remove', this.renderIt);
+        this.listenTo(this.monitors, 'remove', function() {
+            //why..
+            this.alerts.fetch();
+        }.bind(this));
         this.alerts.fetch();
         this.monitors.fetch();
     },
@@ -99,8 +103,6 @@ module.exports = View.extend({
     onCreated: function(monitor) {
         this.monitors.add(monitor);
     },
-
-
 
     create: function() {
         var view = this.spawn('create', new CreateMonitor(this.opts()));
