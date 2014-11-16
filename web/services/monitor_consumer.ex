@@ -84,8 +84,7 @@ defmodule Service.MonitorConsumer do
 
         vulnerable_packages = Enum.filter(packages, fn package -> 
           name_matches = Enum.any?(effects, fn effect -> 
-            String.downcase(effect.name)
-              |> String.contains?(String.downcase(package.name))
+            String.downcase(effect.name) == String.downcase(package.name)
           end)
           name_matches and VulnConsumer.is_vulnerable?(package, effects)
         end)
