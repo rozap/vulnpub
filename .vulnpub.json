@@ -1,0 +1,8 @@
+ "managed": {
+   ".dpkg.txt": {
+     "manager": "dpkg"
+   },
+   "client/package.json" : {
+      "manager": "npm"
+   }
+ }
