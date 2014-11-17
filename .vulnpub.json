@@ -1,8 +1,10 @@
- "managed": {
-   ".dpkg.txt": {
-     "manager": "dpkg"
-   },
-   "client/package.json" : {
-      "manager": "npm"
+ {
+   "managed": {
+     ".dpkg.txt": {
+       "manager": "dpkg"
+     },
+     "client/package.json": {
+       "manager": "npm"
+     }
    }
  }
