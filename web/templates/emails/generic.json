@@ -7,7 +7,7 @@
         "from_email": "notifications@vuln.pub",
         "from_name": "vuln.pub",
         "to": [{
-            "email": "chrisd1891@gmail.com",
+            "email": "<%= user.email %>",
             "name": "<%= user.username %>",
             "type": "to"
         }]
