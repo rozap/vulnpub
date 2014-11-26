@@ -1,1 +1,1 @@
-https://vuln.pub
+https://www.vuln.pub
