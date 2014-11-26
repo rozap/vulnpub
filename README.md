@@ -1,1 +1,1 @@
-hi
+https://vuln.pub
