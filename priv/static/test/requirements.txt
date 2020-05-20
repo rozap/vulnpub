@@ -13,7 +13,7 @@ defer==1.0.6
 dirspec==13.10
 gyp==0.1
 html5lib==0.999
-httplib2==0.8
+httplib2==0.18.0
 lxml==3.3.3
 mercurial==2.8.2
 numpy==1.8.1
