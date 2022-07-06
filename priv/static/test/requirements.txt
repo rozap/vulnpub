@@ -14,7 +14,7 @@ dirspec==13.10
 gyp==0.1
 html5lib==0.999
 httplib2==0.8
-lxml==3.3.3
+lxml==4.9.1
 mercurial==2.8.2
 numpy==1.8.1
 oauthlib==0.6.1
